@@ -11,6 +11,6 @@ class BookController extends Controller
 {
     public function index(): Factory|\Illuminate\Foundation\Application|View|Application
     {
-        return view('welcome');
+        return view('index');
     }
 }
