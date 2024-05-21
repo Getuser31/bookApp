@@ -20,4 +20,9 @@ class Book extends Model
     {
         return $this->belongsTo(Collection::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(App\Models\User::class);
+    }
 }
