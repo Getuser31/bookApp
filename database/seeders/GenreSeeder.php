@@ -13,6 +13,6 @@ class GenreSeeder extends Seeder
      */
     public function run(): void
     {
-        Genre::factory()->times(10)->create();
+        Genre::factory()->times(5)->create();
     }
 }
