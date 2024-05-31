@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
-    public function index(): Factory|\Illuminate\Foundation\Application|View|Application
+    public function index(): Factory|\Illuminate\Foundation\Application|View|Application|RedirectResponse
     {
+        if(!Auth::check()){
+            return redirect()->route('login');
+        }
         return view('index');
     }
 }
