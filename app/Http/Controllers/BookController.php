@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -18,7 +17,7 @@ class BookController extends Controller
             return redirect()->route('login');
         }
 
-        $books = Auth()->user()->books()->with('author')->with('genre')->get();
+        $books = Auth()->user()->books()->with('author')->with('genre')->paginate(1);
 
 
         return view('books',  ['books' => $books]);

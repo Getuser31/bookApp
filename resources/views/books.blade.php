@@ -10,7 +10,10 @@
         <li><b>Synopsis: </b><p>{{$book->description}}</p></li>
         <li><b>Genre: </b>{{ $book->genre->name }}</li>
         @if($book->collection)<li><b>Collection</b>{{ $book->collection->name }}</li> @endif
-    </ul>
+    </ul><br>
 @endforeach
+
+<!-- Render pagination links -->
+{{ $books->links('vendor.pagination.tailwind') }}
 
 @endsection
