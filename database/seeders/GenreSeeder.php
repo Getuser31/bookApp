@@ -13,6 +13,12 @@ class GenreSeeder extends Seeder
      */
     public function run(): void
     {
-        Genre::factory()->times(5)->create();
+        Genre::insert([
+            ['name' => 'Action'],
+            ['name' => 'Romance'],
+            ['name' => 'Science Fiction'],
+            ['name' => 'Mystery'],
+            ['name' => 'Drama'],
+        ]);
     }
 }

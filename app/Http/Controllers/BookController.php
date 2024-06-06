@@ -17,7 +17,7 @@ class BookController extends Controller
             return redirect()->route('login');
         }
 
-        $books = Auth()->user()->books()->with('author')->with('genre')->paginate(1);
+        $books = Auth()->user()->books()->with('author')->with('genre')->paginate(10);
 
 
         return view('books',  ['books' => $books]);
