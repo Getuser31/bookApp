@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -62,6 +62,18 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    private mixed $role_id;
+
+    public function checkAdmin(): bool
+    {
+        $roleId = Role::where('name', 'Admin')->first()->id;
+
+        if ($this->getAttribute('role_id') === $roleId){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Get the attributes that should be cast.

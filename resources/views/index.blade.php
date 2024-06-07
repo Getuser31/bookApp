@@ -13,10 +13,13 @@
     <div class="bg-blue-500 p-4 flex items-center justify-between">
         <div class="text-white text-lg font-bold">Logo</div>
         <div class="space-x-4">
-            <a href="#" class="text-white">Home</a>
-            <a href="#" class="text-white">About</a>
-            <a href="#" class="text-white">Services</a>
-            <a href="#" class="text-white">Contact</a>
+            <a href="{{route('book.index')}}" class="text-white">Home</a>
+            @if(session('admin'))
+            <a href="{{route('admin.index')}}" class="text-white">Admin</a>
+            @endif
+            @if(Auth::check())
+            <a href="{{route('logout')}}" class="text-white">Logout</a>
+            @endif
         </div>
     </div>
     @yield('content')
