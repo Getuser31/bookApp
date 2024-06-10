@@ -10,6 +10,14 @@ Route::get('/', [BookController::class, 'index'])->name('book.index');
 
 Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/genre', [AdminController::class, 'handleGenre'])->name('admin.genre');
+    Route::get('/admin/genre/{id}/edit', [AdminController::class, 'editGenre'])->name('admin.genre.edit');
+    Route::put('/admin/genre/{id}', [AdminController::class, 'updateGenre'])->name('admin.genre.update');
+    Route::get('/admin/genre/create', [AdminController::class, 'createGenre'])->name('admin.genre.create');
+    Route::post('/admin/genre', [AdminController::class, 'storeGenre'])->name('admin.genre.store');
+    Route::get('/admin/book', [AdminController::class, 'handleBook'])->name('admin.book');
+    Route::get('/admin/author', [AdminController::class, 'handleAuthor'])->name('admin.author');
+    Route::get('/admin/collection', [AdminController::class, 'handleCollection'])->name('admin.collection');
 });
 
 
