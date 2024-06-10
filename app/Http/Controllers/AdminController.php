@@ -58,6 +58,14 @@ class AdminController
         return redirect()->route('admin.genre');
     }
 
+    public function deleteGenre(Int $id): RedirectResponse
+    {
+        $genre = Genre::findOrFail($id);
+
+        $genre->delete();
+            return redirect()->route('admin.genre');
+    }
+
     public function handleAuthor(Request $request)
     {
 
