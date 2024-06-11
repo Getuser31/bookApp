@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Author;
+use App\Models\Collection;
 use App\Models\Genre;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -116,11 +117,7 @@ class AdminController
      * Edit an author.
      *
      * @param int $id The ID of the author to edit.
-     * @param Request $request The request object containing the updated data.
-     *
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application The updated author form view.
-     * @throws ModelNotFoundException
-     *
      */
     public function editAuthor(int $id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
@@ -169,13 +166,90 @@ class AdminController
         return redirect()->route('admin.author');
     }
 
+    /**
+     * Handle collection
+     *
+     * Retrieve all collections from the database and return a view with the collections
+     *
+     * @return View
+     */
+    public function handleCollection(): View
+    {
+        $collections = Collection::all();
+        return view('admin.handleCollection', ['collections' => $collections]);
+    }
+
+    /**
+     * Create a new collection.
+     *
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+     */
+    public function createCollection(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+       return view('admin.formCollection', ['collection' => null]);
+    }
+
+    /**
+     * Edit a collection.
+     *
+     * @param int $id The ID of the collection to be edited.
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+     */
+    public function editCollection(int $id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $collection = Collection::findOrFail($id);
+        return view('admin.formCollection', compact('collection'));
+
+    }
+
+    /**
+     * Store a new collection.
+     *
+     * @param Request $request The incoming request object.
+     * @return RedirectResponse The redirect response after storing the collection.
+     */
+    public function storeCollection(Request $request): RedirectResponse
+    {
+        $collection = new Collection();
+        $validatedData = $request->validate(['name' => 'required|max:255']);
+        $collection->name = $validatedData['name'];
+        $collection->save();
+
+        return redirect()->route('admin.collection');
+
+    }
+
+    /**
+     * Update an existing collection.
+     *
+     * @param Request $request The incoming request object.
+     * @param int $id The ID of the collection to be updated.
+     * @return RedirectResponse The redirect response after updating the collection.
+     */
+    public function updateCollection(Request $request, int $id): RedirectResponse
+    {
+        $collection = Collection::findOrFail($id);
+        $validatedData = $request->validate(['name' => 'required|max:255']);
+        $collection->name = $validatedData['name'];
+        $collection->save();
+
+        return redirect(route('admin.collection'));
+    }
+
+    public function deleteCollection(int $id): RedirectResponse
+    {
+        $collection = Collection::findOrFail($id);
+
+        $collection->delete();
+
+        return redirect()->route('admin.collection');
+
+    }
+
     public function handleBook(Request $request)
     {
 
     }
 
-    public function handleCollection(Request $request)
-    {
 
-    }
 }

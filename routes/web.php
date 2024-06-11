@@ -28,6 +28,11 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::delete('/admin/author/{id}', [AdminController::class, 'deleteAuthor'])->name('admin.author.delete');
 
     Route::get('/admin/collection', [AdminController::class, 'handleCollection'])->name('admin.collection');
+    Route::get('/admin/collection/{id}/edit', [AdminController::class, 'editCollection'])->name('admin.collection.edit');
+    Route::get('/admin/collection/create', [AdminController::class, 'createCollection'])->name('admin.collection.create');
+    Route::post('/admin/collection', [AdminController::class, 'storeCollection'])->name('admin.collection.store');
+    Route::delete('/admin/collection/{id}', [AdminController::class, 'deleteCollection'])->name('admin.collection.delete');
+    Route::put('/admin/collection/{id}', [AdminController::class, 'updateCollection'])->name('admin.collection.update');
 });
 
 
