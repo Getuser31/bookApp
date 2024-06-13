@@ -21,8 +21,8 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin/book', [AdminController::class, 'handleBook'])->name('admin.book');
     Route::get('/admin/book/{id}/edit', [AdminController::class, 'editBook'])->name('admin.book.edit');
     Route::get('/admin/book/create', [AdminController::class, 'createBook'])->name('admin.book.create');
+    Route::put('/admin/book/{id}/update', [AdminController::class, 'updateBook'])->name('admin.book.update');
     Route::post('/admin/book', [AdminController::class, 'storeBook'])->name('admin.book.store');
-    Route::put('/admin/book/{id}', [AdminController::class, 'updateBook'])->name('admin.book.update');
     Route::delete('/admin/book/{id}', [AdminController::class, 'deleteBook'])->name('admin.book.delete');
 
     Route::get('/admin/author', [AdminController::class, 'handleAuthor'])->name('admin.author');

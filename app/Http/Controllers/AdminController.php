@@ -313,16 +313,26 @@ class AdminController
         $validatedData = $request->validated();
 
         $book = new Book();
-                $book->title = $validatedData['title'];
-                $book->description = $validatedData['description'];
-                $book->date_of_publication = \DateTime::createFromFormat('d/m/Y', $validatedData['date_of_publication']);
-                $book->author_id = $request->input('author_id');
-                $book->genre_id = $request->input('genre_id');
-                $book->collection_id = $request->input('collection_id');
-                $book->save();
+        $book->storeFromRequest($validatedData);
 
         return redirect(route('admin.book'));
 
+    }
+
+    /**
+     * @param StoreBookPost $request
+     * @param int $id
+     * @return RedirectResponse
+     */
+    public function updateBook(StoreBookPost $request, int $id): RedirectResponse
+    {
+        $book = Book::findOrFail($id);
+
+        $validatedData = $request->validated();
+
+        $book->storeFromRequest($validatedData);
+
+        return redirect(route('admin.book'));
     }
 
     /**

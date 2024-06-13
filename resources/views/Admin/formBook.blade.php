@@ -15,6 +15,9 @@
                 </label>
                 <input id="title" type="text" name="title" value="{{$book->title ?? ''}}"
                        class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white">
+                @error('title')
+                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="w-full px-3">
@@ -24,6 +27,9 @@
                 </label>
                 <input id="description" type="text" name="description" value="{{$book->description ?? ''}}"
                        class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white">
+                @error('description')
+                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="w-full px-3">
@@ -35,6 +41,9 @@
                        placeholder="dd/mm/YYYY"
                        class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white">
                 <p id="output" class="text-red-500"></p>
+                @error('date_of_publication')
+                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="w-full px-3">
@@ -51,11 +60,14 @@
                 </svg>
                 <select name="author_id" class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white
   hover:border-gray-400 focus:outline-none appearance-none">
-                    <option  value=""> {{$book->author->name ?? 'Select an author'}}</option>
+                    <option  value="{{$book->author->id ?? ''}}"> {{$book->author->name ?? 'Select an author'}}</option>
                     @foreach($authors as $author)
                         <option value="{{$author->id}}">{{ $author->name }}</option>
                     @endforeach
                 </select>
+                @error('author_id')
+                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="w-full px-3">
@@ -72,11 +84,14 @@
                 </svg>
                 <select name="genre_id" class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white
   hover:border-gray-400 focus:outline-none appearance-none">
-                    <option  value="">{{$book->genre->name ?? 'Select a genre'}}</option>
+                    <option  value="{{$book->genre->id ?? ''}}">{{$book->genre->name ?? 'Select a genre'}}</option>
                     @foreach($genres as $genre)
                         <option value="{{$genre->id}}">{{ $genre->name }}</option>
                     @endforeach
                 </select>
+                @error('genre_id')
+                <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
             </div>
 
 
@@ -94,12 +109,15 @@
                 </svg>
                 <select name="collection_id" class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white
   hover:border-gray-400 focus:outline-none appearance-none">
-                    <option  value="">{{$book->collection->name ?? 'Select a Collection'}}</option>
+                    <option  value="{{$book->collection->id ?? ''}}">{{$book->collection->name ?? 'Select a Collection'}}</option>
                     @foreach($collections as $collection)
                         <option>{{ $collection->name }}</option>
                     @endforeach
                 </select>
             </div>
+            @error('collection_id')
+            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+            @enderror
         </div>
 
 

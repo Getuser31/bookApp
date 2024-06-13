@@ -23,8 +23,11 @@ class StoreBookPost extends FormRequest
     {
         return [
             'title' => 'required|max:255',
-            'description' => 'required|max:500',
-            'date_of_publication' => 'date_format:d/m/Y'
+            'description' => 'required|max:5000',
+            'date_of_publication' => 'date_format:d/m/Y',
+            'author_id' => 'required|exists:authors,id',
+            'genre_id' => 'required|exists:genres,id',
+            'collection_id' => 'nullable|exists:collections,id'
         ];
     }
 }

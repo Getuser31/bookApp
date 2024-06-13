@@ -51,6 +51,17 @@ class Book extends Model
         'collection_id'
     ];
 
+    public function storeFromRequest(array $validatedData): void
+    {
+        $this->title = $validatedData['title'];
+        $this->description = $validatedData['description'];
+        $this->date_of_publication = $validatedData['date_of_publication'];
+        $this->collection_id = $validatedData['collection_id'] ?? null;
+        $this->author_id = $validatedData['author_id'];
+        $this->genre_id = $validatedData['genre_id'];
+        $this->save();
+    }
+
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
