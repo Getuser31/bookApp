@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBookPost;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\Collection;
 use App\Models\Genre;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Class AdminController
  *
- * @package App\Http\Controllers
  */
 class AdminController
 {
@@ -236,6 +236,12 @@ class AdminController
         return redirect(route('admin.collection'));
     }
 
+    /**
+     * Delete a collection.
+     *
+     * @param int $id The ID of the collection to delete.
+     * @return RedirectResponse The redirect response after deleting the collection.
+     */
     public function deleteCollection(int $id): RedirectResponse
     {
         $collection = Collection::findOrFail($id);
@@ -246,6 +252,11 @@ class AdminController
 
     }
 
+    /**
+     * Handle the book handling process.
+     *
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application The view or application instance.
+     */
     public function handleBook(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         $books = Book::all();
@@ -254,23 +265,78 @@ class AdminController
 
     }
 
+    /**
+     * Create a new book.
+     *
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application The view for creating a new book.
+     */
     public function createBook(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
-        return view('admin.formBook', ['book' => null]);
+        $authors = Author::all();
+        $genres = Genre::all();
+        $collections = Collection::all();
+        return view('admin.formBook', [
+            'book' => null,
+            'authors' => $authors,
+            'genres' => $genres,
+            'collections' => $collections]);
     }
 
+    /**
+     * Edit a book.
+     *
+     * @param int $id The ID of the book to be edited.
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application The view for editing the book.
+     * @throws ModelNotFoundException if the book with the given ID is not found.
+     */
     public function editBook(int $id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
+        $book = Book::findOrFail($id);
+
+        return view('admin.formBook', [
+                'book' => $book,
+                'authors' => Author::all(),
+                'genres' => Genre::all(),
+                'collections' => Collection::all()
+            ]);
 
     }
 
-    public function storeBook(Request $request, int $id): RedirectResponse
+    /**
+     * Store a new book.
+     *
+     * @param StoreBookPost $request The incoming request object.
+     * @return RedirectResponse The redirect response after storing the book.
+     */
+    public function storeBook(StoreBookPost $request): RedirectResponse
     {
+        $validatedData = $request->validated();
+
+        $book = new Book();
+                $book->title = $validatedData['title'];
+                $book->description = $validatedData['description'];
+                $book->date_of_publication = \DateTime::createFromFormat('d/m/Y', $validatedData['date_of_publication']);
+                $book->author_id = $request->input('author_id');
+                $book->genre_id = $request->input('genre_id');
+                $book->collection_id = $request->input('collection_id');
+                $book->save();
+
+        return redirect(route('admin.book'));
 
     }
 
+    /**
+     * Delete a book.
+     *
+     * @param int $id The ID of the book to be deleted.
+     * @return RedirectResponse The redirect response after deleting the book.
+     */
     public function deleteBook(int $id): RedirectResponse
     {
+        $book = Book::findOrFail($id);
 
+        $book->delete();
+
+        return redirect(route('admin.book'));
     }
 }

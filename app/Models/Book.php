@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $title
@@ -46,6 +46,9 @@ class Book extends Model
         'title',
         'date_of_publication',
         'description',
+        'author_id',
+        'genre_id',
+        'collection_id'
     ];
 
     public function collection(): BelongsTo
