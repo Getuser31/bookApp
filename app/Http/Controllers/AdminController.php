@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Author;
+use App\Models\Book;
 use App\Models\Collection;
 use App\Models\Genre;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -246,10 +246,31 @@ class AdminController
 
     }
 
-    public function handleBook(Request $request)
+    public function handleBook(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $books = Book::all();
+
+        return view('admin.handleBook', ['books' => $books]);
+
+    }
+
+    public function createBook(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        return view('admin.formBook', ['book' => null]);
+    }
+
+    public function editBook(int $id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
 
     }
 
+    public function storeBook(Request $request, int $id): RedirectResponse
+    {
 
+    }
+
+    public function deleteBook(int $id): RedirectResponse
+    {
+
+    }
 }

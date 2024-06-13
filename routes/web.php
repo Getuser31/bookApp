@@ -19,6 +19,9 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::delete('/admin/genre/{id}', [AdminController::class, 'deleteGenre'])->name('admin.genre.delete');
 
     Route::get('/admin/book', [AdminController::class, 'handleBook'])->name('admin.book');
+    Route::get('/admin/book/{id}/edit', [AdminController::class, 'editBook'])->name('admin.book.edit');
+    Route::get('/admin/book/create', [AdminController::class, 'createBook'])->name('admin.book.create');
+    Route::delete('/admin/book/{id}', [AdminController::class, 'deleteBook'])->name('admin.book.delete');
 
     Route::get('/admin/author', [AdminController::class, 'handleAuthor'])->name('admin.author');
     Route::get('/admin/author/create', [AdminController::class, 'createAuthor'])->name('admin.author.create');
