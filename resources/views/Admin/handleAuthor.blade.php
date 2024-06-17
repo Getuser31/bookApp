@@ -43,7 +43,7 @@
 
         <h2>Create New Author</h2>
 
-        <a href="{{route("admin.author.create")}}" type="button">New Author</a>
+        <a href="{{route("admin.author.create")}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">New Author</a>
     </div>
 
 @endsection

@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 
 Route::get('/', [BookController::class, 'index'])->name('book.index');
 
+Route::get('/library', [BookController::class, 'library'])->middleware('auth')->name('book.library');
+
 Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 

@@ -22,4 +22,9 @@ class BookController extends Controller
 
         return view('books',  ['books' => $books]);
     }
+
+    public function library(): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        return view('user.library', ['books' => Auth()->user()->books()->with('author')->with('genre')->paginate(10)]);
+    }
 }

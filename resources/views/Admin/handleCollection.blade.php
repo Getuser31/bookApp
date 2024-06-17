@@ -43,7 +43,7 @@
 
         <h2>Create New Collection</h2>
 
-        <a href="{{route("admin.collection.create")}}" type="button">New Collection</a>
+        <a href="{{route("admin.collection.create")}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">New Collection</a>
     </div>
 
 @endsection

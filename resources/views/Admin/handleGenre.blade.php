@@ -42,5 +42,5 @@
 
     <h2>Create New Genre</h2>
 
-    <a href="{{route("admin.genre.create")}}" type="button">New Genre</a>
+    <a href="{{route("admin.genre.create")}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">New Genre</a>
 @endsection
