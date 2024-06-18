@@ -69,7 +69,7 @@ class Book extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot(['progression']);
     }
 
     public function author(): BelongsTo

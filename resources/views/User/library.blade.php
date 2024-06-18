@@ -25,7 +25,7 @@
                         <td class="px-6 py-4 w-1/4">{{\Illuminate\Support\Str::limit($book->description, 200)}}</td>
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->genre->name }}</td>
                         <td class="px-6 py-4">{{ $book->collection->name ?? '' }}</td>
-                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">%</td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->pivot->progression }}%</td>
                     </tr>
                 @endforeach
                 </tbody>
