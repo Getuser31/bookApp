@@ -10,6 +10,7 @@ Route::get('/', [BookController::class, 'index'])->name('book.index');
 
 Route::get('/library', [BookController::class, 'library'])->middleware('auth')->name('book.library');
 Route::get('/book/{id}', [BookController::class, 'show'])->name('book.show');
+Route::post('/updateProgression', [BookController::class, 'updateProgression'])->name('book.updateProgression');
 
 Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
