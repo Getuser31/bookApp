@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -26,5 +27,11 @@ class BookController extends Controller
     public function library(): Factory|\Illuminate\Foundation\Application|View|Application
     {
         return view('user.library', ['books' => Auth()->user()->books()->with('author')->with('genre')->paginate(10)]);
+    }
+
+    public function show(int $id): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        $book = Book::findOrFail($id);
+        return view('book.book', ['book' => $book]);
     }
 }
