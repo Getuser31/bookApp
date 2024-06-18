@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 
 /**
  *
@@ -14,29 +17,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string $title
  * @property string $date_of_publication
  * @property string $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int $author_id
  * @property int $genre_id
  * @property int|null $collection_id
- * @property-read \App\Models\Collection|null $collection
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read Collection|null $collection
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $users
  * @property-read int|null $users_count
- * @method static \Illuminate\Database\Eloquent\Builder|Book newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Book newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Book query()
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereAuthorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereCollectionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereDateOfPublication($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereGenreId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Book whereUpdatedAt($value)
- * @property-read \App\Models\Author|null $author
- * @property-read \App\Models\Genre|null $genre
- * @mixin \Eloquent
+ * @method static Builder|Book newModelQuery()
+ * @method static Builder|Book newQuery()
+ * @method static Builder|Book query()
+ * @method static Builder|Book whereAuthorId($value)
+ * @method static Builder|Book whereCollectionId($value)
+ * @method static Builder|Book whereCreatedAt($value)
+ * @method static Builder|Book whereDateOfPublication($value)
+ * @method static Builder|Book whereDescription($value)
+ * @method static Builder|Book whereGenreId($value)
+ * @method static Builder|Book whereId($value)
+ * @method static Builder|Book whereTitle($value)
+ * @method static Builder|Book whereUpdatedAt($value)
+ * @property-read Author|null $author
+ * @property-read Genre|null $genre
+ * @mixin Eloquent
  */
 class Book extends Model
 {

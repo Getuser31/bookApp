@@ -19,7 +19,7 @@
                 <label for="progressionField">Set Progression:</label>
                 <input type="number" id="progressionField" name="progressionField" min="0" max="100">
                 <input type="hidden" id="bookId" value="{{$book->id}}">
-                <input type="submit" value="Update">
+                <input type="submit" value="Update" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             </form></li>
     </ul><br>
 

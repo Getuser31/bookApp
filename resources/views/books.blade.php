@@ -5,7 +5,7 @@
 @foreach($books as $book)
     <h1>{{$book->title}}</h1>
     <ul>
-        <li><b>Date de publication: </b>{{ \Carbon\Carbon::createFromTimestamp($book->date_of_publication)->format('d/m/Y')}}</li>
+        <li><b>Date de publication: </b>{{ $book->date_of_publication}}</li>
         <li><b>Auteur: </b>{{ $book->author->name }}</li>
         <li><b>Synopsis: </b><p>{{$book->description}}</p></li>
         <li><b>Genre: </b>{{ $book->genre->name }}</li>
