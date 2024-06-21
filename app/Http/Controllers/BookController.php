@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
+    /**
+     * Retrieves the list of books associated with the authenticated user and displays the books view.
+     *
+     * @return Factory|\Illuminate\Foundation\Application|View|\App\Application|RedirectResponse The view containing the list of books.
+     */
     public function index(): Factory|\Illuminate\Foundation\Application|View|Application|RedirectResponse
     {
         if(!Auth::check()){
@@ -27,6 +32,11 @@ class BookController extends Controller
         return view('books',  ['books' => $books]);
     }
 
+    /**
+     * Retrieves the library of the authenticated user and displays it in the library view.
+     *
+     * @return Factory|\Illuminate\Foundation\Application|View|\App\Application The view containing the user's library.
+     */
     public function library(): Factory|\Illuminate\Foundation\Application|View|Application
     {
         return view('user.library', ['books' => Auth()->user()->books()->with('author')->with('genre')->paginate(10)]);
@@ -59,6 +69,36 @@ class BookController extends Controller
         $book = Book::findOrFail($request->input('bookId'));
         $user = Auth::user();
         $user->books()->updateExistingPivot($book, ['progression' => $request->input('progression')]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function addBook()
+    {
+        return view('book.addBook');
+    }
+
+    public function searchBook(Request $request): JsonResponse
+    {
+        $search = $request->query('search', '');
+        $books = Book::where('title', 'like', '%' . $search . '%')
+            ->orWhere('author', 'like', '%' . $search . '%')
+            ->orWhere('genre', 'like', '%' . $search . '%')
+            ->get();
+
+        return response()->json(['books' => $books]);
+    }
+
+    /**
+     * Deletes a book from the database.
+     *
+     * @param int $id The ID of the book to delete.
+     * @return JsonResponse The JSON response indicating the success of the operation.
+     */
+    public function deleteBook(int $id): JsonResponse
+    {
+        $book = Book::findOrFail($id);
+        $book->delete();
 
         return response()->json(['success' => true]);
     }

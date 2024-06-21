@@ -1,0 +1,66 @@
+@extends('index')
+
+@section('content')
+    <h1 class="text-4xl text-center font-bold text-blue-500"> Add book to your library</h1>
+
+    <section>
+        <h2 class="text-2xl text-left font-bold text-green-600">Search for a book</h2>
+
+        <input
+            class="shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            type="text" placeholder="Search for a book" id="bookSearch">
+
+        <div id="searchResults"></div>
+    </section>
+
+    <script>
+        let inputField = document.getElementById('bookSearch');
+        let resultsDiv = document.getElementById('searchResults'); // Select the results div
+
+        inputField.addEventListener('input',
+
+            (event) => {
+            const value = event.target.value;
+                if (value.length > 3) {
+                    console.log('test');
+                    // The URL endpoint and the string you want to send
+                    let url = "{{route('book.searchBook')}}" + "?search=" + value
+
+
+                    fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // 'Authorization': `Bearer ${YourToken}`,  // Uncomment this line if you need to send a Bearer token for authorization
+                        },
+                    })
+                        .then(response => response.json())  // Parse the returned JSON
+                        .then(data => {
+                            console.log(data);  // Log the data received from the server.
+
+                            // Clear any previous results
+                            resultsDiv.innerHTML = '';
+                            const books = data.books;
+
+                            // Loop through each item in returned data and append to search results div
+                            books.forEach(item => {
+                                let resultItem = document.createElement('div');
+                                resultItem.textContent = item.title; // Assuming item object has a "title" property
+                                resultItem.classList.add('search-result-item'); // Add a class for CSS styling
+
+                                // Make result item clickable and going to book detail page
+                                resultItem.addEventListener('click', function() {
+                                    window.location.href = "/book/" + item.id;  // Assuming item object has an "id" property
+                                });
+
+                                // Append the result item to the results div
+                                resultsDiv.appendChild(resultItem);
+                            });
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);  // Log any errors
+                        });
+                }
+            })
+    </script>
+@endsection
