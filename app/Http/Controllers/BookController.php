@@ -51,11 +51,13 @@ class BookController extends Controller
     public function show(int $id): Factory|\Illuminate\Foundation\Application|View|Application
     {
         $book = Book::with('users')->findOrFail($id);
+        $progression = null;
         /** @var User $user */
         if (isset($book->users)) {
             $user = $book->users->first();
+            $progression = $user?->pivot->progression;
         }
-        return view('book.book', ['book' => $book, 'progression' => $user->pivot->progression]);
+        return view('book.book', ['book' => $book, 'progression' => $progression]);
     }
 
     /**
@@ -73,9 +75,19 @@ class BookController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function addBook()
+    public function addBook(): Factory|\Illuminate\Foundation\Application|View|Application
     {
         return view('book.addBook');
+    }
+
+    public function addBookPost(int $id): RedirectResponse
+    {
+        $book = Book::findOrFail($id);
+        $user = Auth::user();
+
+        $user->books()->attach($book);
+
+        return redirect()->route('book.library');
     }
 
     public function searchBook(Request $request): JsonResponse
@@ -99,6 +111,14 @@ class BookController extends Controller
     {
         $book = Book::findOrFail($id);
         $book->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function removeBook(int $id): JsonResponse
+    {
+        $user = Auth::user();
+        $user->books()->detach($id);
 
         return response()->json(['success' => true]);
     }

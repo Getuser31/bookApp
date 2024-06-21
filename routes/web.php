@@ -14,6 +14,8 @@ Route::post('/updateProgression', [BookController::class, 'updateProgression'])-
 Route::post('/deleteBook/{id}', [BookController::class, 'deleteBook'])->name('book.deleteBook');
 Route::get('/addBook', [BookController::class, 'addBook'])->name('book.addBook');
 Route::get('/searchBook', [BookController::class, 'searchBook'])->name('book.searchBook');
+Route::get('/addBook/{id}', [BookController::class, 'addBookPost'])->name('book.addBookPost');
+Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('book.removeBook');
 
 Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');

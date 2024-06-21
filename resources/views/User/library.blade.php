@@ -19,21 +19,26 @@
                 </thead>
                 <tbody>
                 @foreach($books as $book)
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800"><a href="{{route('book.show',  $book->id)}}"> {{ ($book->title)}}</a></td>
+                    <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
+                            <a href="{{route('book.show',  $book->id)}}"> {{ ($book->title)}}</a></td>
                         <td class="px-6 py-4">{{ ($book->date_of_publication)}}</td>
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->author->name }}</td>
                         <td class="px-6 py-4 w-1/4">{{\Illuminate\Support\Str::limit($book->description, 200)}}</td>
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->genre->name }}</td>
                         <td class="px-6 py-4">{{ $book->collection->name ?? '' }}</td>
-                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->pivot->progression }}%</td>
-                        <td class="px-6 py-4"><form id="deleteBook">
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->pivot->progression }}
+                            %
+                        </td>
+                        <td class="px-6 py-4">
+                            <form class="deleteBookForm" data-bookid="{{$book->id}}">
                                 @csrf
                                 @method('DELETE')
                                 <meta name="csrf-token" content="{{ csrf_token() }}">
                                 <input type="hidden" id="bookId" value="{{$book->id}}">
                                 <button type='submit' class="h-8 w-8 text-red-500">
-                                    <svg class="h-8 w-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    <svg class="h-8 w-8 text-red-500" viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor"
                                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polygon
                                             points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
@@ -41,7 +46,8 @@
                                         <line x1="9" y1="9" x2="15" y2="15"/>
                                     </svg>
                                 </button>
-                            </form></td>
+                            </form>
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -52,30 +58,36 @@
     {{ $books->links('vendor.pagination.tailwind') }}
 
     <div>
-        <a href="{{route('book.addBook')}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add A book</a>
+        <a href="{{route('book.addBook')}}"
+           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add A book</a>
     </div>
 
     <script>
-        document.getElementById('deleteBook').addEventListener('submit', function(e) {
-            e.preventDefault();
+        let deleteForms = document.querySelectorAll('.deleteBookForm');
 
-            // Retrieve the CSRF token
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        deleteForms.forEach((form) => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            const bookId = document.getElementById('bookId').value;
+                // Retrieve the CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const bookId = this.dataset.bookid;
 
-            //AJAX request
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST',
-                '/deleteBook', true);
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    //Remove book from the list dynamically
+                //AJAX request
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', '/removeBook/'+bookId, true); // update this to your delete route
+                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log('Book deleted');
+                        let row = document.getElementById('book-row-' + bookId);
+                        row.parentNode.removeChild(row);
+                    }
                 }
-            }
-            xhr.send('&bookId=' + bookId);
+                xhr.send();
+            });
         });
     </script>
 
