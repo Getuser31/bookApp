@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 /**
  *
@@ -344,6 +345,9 @@ class AdminController
     public function deleteBook(int $id): RedirectResponse
     {
         $book = Book::findOrFail($id);
+        if ($book->picture && Storage::disk('local')->exists($book->picture)){
+            Storage::disk('local')->delete($book->picture);
+        }
 
         $book->delete();
 

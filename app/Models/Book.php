@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -66,8 +67,11 @@ class Book extends Model
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
         $this->genre_id = $validatedData['genre_id'];
-        $this->picture = $validatedData['picture'];
-        Storage::disk('local')->put('images', $validatedData['picture']);
+        if($validatedData['picture'] instanceof UploadedFile) {
+            $path = $validatedData['picture']->store('images');
+            $this->picture = $path;
+        }
+
         $this->save();
     }
 
