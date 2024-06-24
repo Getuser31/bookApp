@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 /**
  *
@@ -39,6 +40,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Book whereUpdatedAt($value)
  * @property-read Author|null $author
  * @property-read Genre|null $genre
+ * @property string|null $picture
+ * @method static Builder|Book wherePicture($value)
  * @mixin Eloquent
  */
 class Book extends Model
@@ -51,7 +54,8 @@ class Book extends Model
         'description',
         'author_id',
         'genre_id',
-        'collection_id'
+        'collection_id',
+        'picture'
     ];
 
     public function storeFromRequest(array $validatedData): void
@@ -62,6 +66,8 @@ class Book extends Model
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
         $this->genre_id = $validatedData['genre_id'];
+        $this->picture = $validatedData['picture'];
+        Storage::disk('local')->put('images', $validatedData['picture']);
         $this->save();
     }
 

@@ -27,7 +27,8 @@ class StoreBookPost extends FormRequest
             'date_of_publication' => 'date_format:d/m/Y',
             'author_id' => 'required|exists:authors,id',
             'genre_id' => 'required|exists:genres,id',
-            'collection_id' => 'nullable|exists:collections,id'
+            'collection_id' => 'nullable|exists:collections,id',
+            'picture' => 'required|file|image|max:5000',
         ];
     }
 }

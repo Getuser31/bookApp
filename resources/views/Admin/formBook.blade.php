@@ -1,8 +1,15 @@
 @extends('index')
 
 @section('content')
-    <h2>@if($book) Edit @else Create @endif Book</h2>
-    <form method="post" action="@if($book) {{route('admin.book.update', $book->id)}} @else {{route('admin.book.store')}} @endif" class="w-full max-w-lg" id="Book">
+    <h2>@if($book)
+            Edit
+        @else
+            Create
+        @endif Book</h2>
+    <form method="post"
+          action="@if($book) {{route('admin.book.update', $book->id)}} @else {{route('admin.book.store')}} @endif"
+          enctype="multipart/form-data"
+          class="w-full max-w-lg" id="Book">
         <div class="flex flex-wrap -mx-3 mb-6">
             @csrf
             @if($book)
@@ -60,7 +67,7 @@
                 </svg>
                 <select name="author_id" class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white
   hover:border-gray-400 focus:outline-none appearance-none">
-                    <option  value="{{$book->author->id ?? ''}}"> {{$book->author->name ?? 'Select an author'}}</option>
+                    <option value="{{$book->author->id ?? ''}}"> {{$book->author->name ?? 'Select an author'}}</option>
                     @foreach($authors as $author)
                         <option value="{{$author->id}}">{{ $author->name }}</option>
                     @endforeach
@@ -84,7 +91,7 @@
                 </svg>
                 <select name="genre_id" class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white
   hover:border-gray-400 focus:outline-none appearance-none">
-                    <option  value="{{$book->genre->id ?? ''}}">{{$book->genre->name ?? 'Select a genre'}}</option>
+                    <option value="{{$book->genre->id ?? ''}}">{{$book->genre->name ?? 'Select a genre'}}</option>
                     @foreach($genres as $genre)
                         <option value="{{$genre->id}}">{{ $genre->name }}</option>
                     @endforeach
@@ -109,17 +116,23 @@
                 </svg>
                 <select name="collection_id" class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white
   hover:border-gray-400 focus:outline-none appearance-none">
-                    <option  value="{{$book->collection->id ?? ''}}">{{$book->collection->name ?? 'Select a Collection'}}</option>
+                    <option
+                        value="{{$book->collection->id ?? ''}}">{{$book->collection->name ?? 'Select a Collection'}}</option>
                     @foreach($collections as $collection)
                         <option>{{ $collection->name }}</option>
                     @endforeach
                 </select>
             </div>
+
+            <div class="w-full px-3">
+                <label for="picture">Choose picture</label>
+                <input type="file" class="form-control" name="picture" id="picture">
+            </div>
+
             @error('collection_id')
             <p class="text-red-500 text-xs italic">{{ $message }}</p>
             @enderror
         </div>
-
 
 
         <button type="submit" value="Submit"
