@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -39,7 +40,8 @@ class BookController extends Controller
      */
     public function library(): Factory|\Illuminate\Foundation\Application|View|Application
     {
-        return view('user.library', ['books' => Auth()->user()->books()->with('author')->with('genre')->paginate(10)]);
+        $genres = Genre::all();
+        return view('user.library', ['books' => Auth()->user()->books()->with('author')->with('genre')->paginate(10),   'genres' => $genres]);
     }
 
     /**
@@ -52,12 +54,16 @@ class BookController extends Controller
     {
         $book = Book::with('users')->findOrFail($id);
         $progression = null;
+        $belongToUser = null;
         /** @var User $user */
         if (isset($book->users)) {
             $user = $book->users->first();
-            $progression = $user?->pivot->progression;
+            if($user != null){
+                $progression = $user->pivot->progression;
+                $belongToUser = true;
+            }
         }
-        return view('book.book', ['book' => $book, 'progression' => $progression]);
+        return view('book.book', ['book' => $book, 'progression' => $progression, 'belongToUser' => $belongToUser]);
     }
 
     /**

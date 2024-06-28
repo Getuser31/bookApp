@@ -16,7 +16,7 @@
             <li><b>Collection</b>{{ $book->collection->name }}</li>
         @endif
 
-        @if($progression)
+        @if($belongToUser)
             <li><b>Progression: </b>
                 <span id="progressionDisplay">{{$progression}}</span>
                 <form id="progressionForm">

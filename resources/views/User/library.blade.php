@@ -2,7 +2,42 @@
 
 @section('content')
     <div class="p-4">
+
         <h1>Welcome to your Library</h1>
+        <div class="container mx-auto mt-4">
+            <div class="flex justify-end p-4 relative">
+                <button id="dropdownCategory" data-dropdown-toggle="dropdown"
+                        class="text-blue-500 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                        type="button">
+                    Filter by genre
+                    <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Dropdown menu genre-->
+                <div id="dropdownCategoryMenu" class="z-10 hidden absolute right-0 mt-2 w-56 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
+                    <h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">
+                        Genre
+                    </h6>
+                    <ul class="space-y-2 text-sm" aria-labelledby="dropdownCategoryMenu">
+                        @foreach($genres as $genre)
+                            <li class="flex items-center">
+                                <input id="{{$genre->name}}" type="checkbox" value="{{$genre->id}}"
+                                       class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"/>
+
+                                <label for="{{$genre->name}}"
+                                       class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    {{$genre->name}}
+                                </label>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table class="table-auto text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase dark:text-gray-400">
@@ -63,10 +98,11 @@
     </div>
 
     <script>
+        //Delete entry
         let deleteForms = document.querySelectorAll('.deleteBookForm');
 
         deleteForms.forEach((form) => {
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
                 // Retrieve the CSRF token
@@ -75,11 +111,11 @@
 
                 //AJAX request
                 const xhr = new XMLHttpRequest();
-                xhr.open('GET', '/removeBook/'+bookId, true); // update this to your delete route
+                xhr.open('GET', '/removeBook/' + bookId, true); // update this to your delete route
                 xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
 
-                xhr.onreadystatechange = function() {
+                xhr.onreadystatechange = function () {
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         console.log('Book deleted');
                         let row = document.getElementById('book-row-' + bookId);
@@ -87,6 +123,25 @@
                     }
                 }
                 xhr.send();
+            });
+        });
+    </script>
+
+    <script>
+        // Filtering Menu
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterButton = document.getElementById('dropdownCategory');
+            const dropdownMenu = document.getElementById('dropdownCategoryMenu');
+
+            filterButton.addEventListener('click', function () {
+                dropdownMenu.classList.toggle('hidden'); // Toggle visibility
+            });
+
+            document.addEventListener('click', function (event) {
+                // Close dropdown if clicked outside
+                if (!filterButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                    dropdownMenu.classList.add('hidden');
+                }
             });
         });
     </script>
