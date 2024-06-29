@@ -25,7 +25,7 @@
                         @foreach($genres as $genre)
                             <li class="flex items-center">
                                 <input id="{{$genre->name}}" type="checkbox" value="{{$genre->id}}"
-                                       class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"/>
+                                       class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 genre-checkbox"/>
 
                                 <label for="{{$genre->name}}"
                                        class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -52,9 +52,9 @@
                     <th scope="col" class="px-6 py-3">Delete</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="book-table-body">
                 @foreach($books as $book)
-                    <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700">
+                    <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700" data-genre-id="{{ $book->genre_id }}">
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
                             <a href="{{route('book.show',  $book->id)}}"> {{ ($book->title)}}</a></td>
                         <td class="px-6 py-4">{{ ($book->date_of_publication)}}</td>
@@ -143,6 +143,32 @@
                     dropdownMenu.classList.add('hidden');
                 }
             });
+        });
+    </script>
+
+    <script> //Filter by genre
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.genre-checkbox');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', filterBooks);
+            });
+
+            function filterBooks() {
+                const selectedGenres = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value);
+
+                document.querySelectorAll('#book-table-body tr')
+                    .forEach(row => {
+                        const genreId = row.getAttribute('data-genre-id');
+                        if (selectedGenres.length === 0 || selectedGenres.includes(genreId)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+            }
         });
     </script>
 
