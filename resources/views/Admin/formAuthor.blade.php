@@ -1,6 +1,6 @@
 @extends('index')
 @section('content')
-    <h2>@if($author) Edit @else Create @endif Genre</h2>
+    <h2>@if($author) Edit @else Create @endif Author</h2>
     <form method="POST" action="@if($author) {{route('admin.author.update', $author->id)}} @else {{route('admin.author.store')}} @endif">
         @csrf
         @if($author)

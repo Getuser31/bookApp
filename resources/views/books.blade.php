@@ -1,6 +1,11 @@
 @extends('index')
 
 @section('content')
+    @if(!$books->items())
+        <h3 class="text-xl font-semibold text-gray-500">It look like you don't have any book right now</h3>
+
+        @include('book.searchBookForm')
+    @else
 
     @foreach($books as $book)
         <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-center mb-4">{{$book->title}}</h1>
@@ -21,6 +26,8 @@
             <br>
         </div>
     @endforeach
+    @endif
+
 
     <!-- Render pagination links -->
     {{ $books->links('vendor.pagination.tailwind') }}
