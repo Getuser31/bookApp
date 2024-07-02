@@ -94,4 +94,11 @@ class Book extends Model
     {
         return $this->belongsTo(Genre::class);
     }
+
+    public static function getListOfAuthorsBasedOnUserLibrary(int $userId)
+    {
+        return self::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->with('author')->get()->pluck('author')->unique('id')->values();
+    }
 }

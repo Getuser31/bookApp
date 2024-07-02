@@ -5,12 +5,18 @@
 
         <h1>Welcome to your Library</h1>
         <div class="container mx-auto mt-4">
-            <div class="flex justify-end p-4 relative">
+            <div class="flex justify-end space-x-4 relative">
                 <button id="dropdownCategory" data-dropdown-toggle="dropdown"
                         class="text-blue-500 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                         type="button">
                     Filter by genre
-                    <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                </button>
+             <button id="dropdownAuthor" data-dropdown-toggle="dropdown"
+                 class="text-blue-500 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                 type="button">
+                 Filter by author
+         </div>
+                 <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
@@ -30,6 +36,24 @@
                                 <label for="{{$genre->name}}"
                                        class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {{$genre->name}}
+                                </label>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <!-- Dropdown menu author-->
+                <div id="dropdownAuthorMenu" class="z-10 hidden absolute right-0 mt-2 w-56 p-3 bg-white rounded-lg shadow dark:bg-gray-700">
+                    <h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">
+                        Authors
+                    </h6>
+                    <ul class="space-y-2 text-sm" aria-labelledby="dropdownAuthorMenu">
+                        @foreach($authors as $author)
+                            <li class="flex items-center">
+                                <input id="{{$author->name}}" type="checkbox" value="{{$author->id}}"
+                                       class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 author-checkbox"/>
+                                <label for="{{$author->name}}"
+                                       class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    {{$author->name}}
                                 </label>
                             </li>
                         @endforeach
@@ -55,7 +79,8 @@
                 <tbody id="book-table-body">
                 @foreach($books as $book)
                     <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700" data-genre-id="{{ $book->genre_id }}">
-                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800"
+                            data-author-id="{{ $book->author->id }}">
                             <a href="{{route('book.show',  $book->id)}}"> {{ ($book->title)}}</a></td>
                         <td class="px-6 py-4">{{ ($book->date_of_publication)}}</td>
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->author->name }}</td>
@@ -144,8 +169,22 @@
                 }
             });
         });
-    </script>
+        // Dropdown - Authors
+        const filterAuthorButton = document.getElementById('dropdownAuthor');
+        const dropdownAuthorMenu = document.getElementById('dropdownAuthorMenu');
 
+        filterAuthorButton.addEventListener('click', function () {
+            dropdownAuthorMenu.classList.toggle('hidden'); // Toggle visibility
+        });
+
+        document.addEventListener('click', function (event) {
+            // Close dropdown if clicked outside
+            if (!filterAuthorButton.contains(event.target) && !dropdownAuthorMenu.contains(event.target)) {
+                dropdownAuthorMenu.classList.add('hidden');
+            }
+        });
+        // Filtering Menu
+        </script>
     <script> //Filter by genre
         document.addEventListener('DOMContentLoaded', function() {
             const checkboxes = document.querySelectorAll('.genre-checkbox');
@@ -170,6 +209,29 @@
                     });
             }
         });
-    </script>
+        //Filter by author
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.author-checkbox');
 
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', filterBooks);
+            });
+
+            function filterBooks() {
+                const selectedAuthors = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value);
+
+                document.querySelectorAll('#book-table-body tr')
+                    .forEach(row => {
+                        const authorId = row.getAttribute('data-author-id');
+                        if (selectedAuthors.length === 0 || selectedAuthors.includes(authorId)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+            }
+        });
+    </script>
 @endsection
