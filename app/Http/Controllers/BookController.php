@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Author;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
@@ -45,7 +44,11 @@ class BookController extends Controller
     {
         $genres = Genre::all();
         $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
-        return view('user.library', ['books' => Auth()->user()->books()->with('author')->with('genre')->paginate(10),   'genres' => $genres, 'authors' => $authors]);
+        $books = Auth()->user()->books()->with('author')->with('genre')->paginate(10);
+        return view('user.library', [
+            'books' => $books,
+            'genres' => $genres,
+            'authors' => $authors]);
     }
 
     /**

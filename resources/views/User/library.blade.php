@@ -78,9 +78,8 @@
                 </thead>
                 <tbody id="book-table-body">
                 @foreach($books as $book)
-                    <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700" data-genre-id="{{ $book->genre_id }}">
-                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800"
-                            data-author-id="{{ $book->author->id }}">
+                    <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700" data-genre-id="{{ $book->genre_id }}" data-author-id="{{ $book->author->id }}">
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
                             <a href="{{route('book.show',  $book->id)}}"> {{ ($book->title)}}</a></td>
                         <td class="px-6 py-4">{{ ($book->date_of_publication)}}</td>
                         <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->author->name }}</td>
@@ -214,10 +213,10 @@
             const checkboxes = document.querySelectorAll('.author-checkbox');
 
             checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', filterBooks);
+                checkbox.addEventListener('change', filterAuthor);
             });
 
-            function filterBooks() {
+            function filterAuthor() {
                 const selectedAuthors = Array.from(checkboxes)
                     .filter(checkbox => checkbox.checked)
                     .map(checkbox => checkbox.value);
