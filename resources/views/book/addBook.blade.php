@@ -4,14 +4,57 @@
     <h1 class="text-4xl text-center font-bold text-blue-500"> Add book to your library</h1>
 
     <section>
-        <h2 class="text-2xl text-left font-bold text-green-600">Search for a book</h2>
+        <h2 class="text-2xl text-left font-bold text-green-600">Search for a book in local Database</h2>
 
         <input
             class="shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             type="text" placeholder="Search for a book" id="bookSearch">
 
         <div id="searchResults"></div>
+
+
+        <h2 class="text-2xl text-left font-bold text-green-600">Search for a book in google Database</h2>
+
+        <input
+            class="shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            type="text" placeholder="Search for a book" id="GoogleBookSearch">
+        <button id="googleSearchButton" type="button" value="search"  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Search
+        </button>
+
+        <div id="searchApiResults"></div>
     </section>
+
+    <script>
+        let searchButton = document.getElementById('googleSearchButton');
+        let searchInput = document.getElementById('GoogleBookSearch')
+        let resultsDivApi = document.getElementById('searchApiResults'); // Select the results div
+
+        searchButton.addEventListener('click',
+
+            () => {
+            const value = searchInput.value;
+            if(value) {
+                let url = "https://www.googleapis.com/books/v1/volumes?q=" + value
+
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 'Authorization': `Bearer ${YourToken}`,  // Uncomment this line if you need to send a Bearer token for authorization
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);  // Log any errors
+                    });
+            }
+            })
+
+    </script>
 
     <script>
         let inputField = document.getElementById('bookSearch');
@@ -22,7 +65,6 @@
             (event) => {
             const value = event.target.value;
                 if (value.length > 3) {
-                    console.log('test');
                     // The URL endpoint and the string you want to send
                     let url = "{{route('book.searchBook')}}" + "?search=" + value
 
