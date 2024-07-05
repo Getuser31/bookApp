@@ -17,6 +17,9 @@ Route::get('/searchBook', [BookController::class, 'searchBook'])->name('book.sea
 Route::get('/addBook/{id}', [BookController::class, 'addBookPost'])->name('book.addBookPost');
 Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('book.removeBook');
 
+//Google API
+Route::post('/googleBook/', [BookController::class, 'googleBook'])->name('book.googleBook');
+
 Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 

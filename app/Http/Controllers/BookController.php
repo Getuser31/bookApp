@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
+use App\Services\GoogleBookService;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -134,5 +136,47 @@ class BookController extends Controller
         $user->books()->detach($id);
 
         return response()->json(['success' => true]);
+    }
+
+    public function googleBook(Request $request): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        // Retrieve JSON data from request body
+        $itemJson = $request->input('book');
+        $data = json_decode($itemJson, true);
+
+        $id = $data['id'];
+        $title = $data['title'];
+        $author = implode('', $data['author']);
+        $dateOfPublication = $data['dateOfPublication'];
+        $genre = $this->processGenre($data['genre'], $id);
+        $description = $data['description'];
+        $thumbnail = $data['thumbnail'];
+
+        return view('book.googleBook', [
+            'id' => $id,
+            'title' => $title,
+            'author' => $author,
+            'dateOfPublication' => $dateOfPublication,
+            'genre' => $genre,
+            'description' => $description,
+            'thumbnail' => $thumbnail,
+        ]);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    private function processGenre($genre, $id): string|array
+    {
+        if (is_array($genre)){
+            return implode('',$genre['genre']);
+        }elseif($genre == ''){
+            $bookService = new GoogleBookService($id);
+            $genre = $bookService->getBookData();
+            return $genre['genre'][0];
+        }
+        else {
+            return $genre;
+        }
     }
 }
