@@ -43,7 +43,7 @@
             document.body.appendChild(form);
 
             console.log('Submitting the form');
-           // form.submit();
+            form.submit();
         }
 
         document.addEventListener('DOMContentLoaded', function() {
