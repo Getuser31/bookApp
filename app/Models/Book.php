@@ -66,13 +66,17 @@ class Book extends Model
         $this->date_of_publication = $validatedData['date_of_publication'];
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
-        $this->genre_id = $validatedData['genre_id'];
         if($validatedData['picture'] instanceof UploadedFile) {
             $path = $validatedData['picture']->store('images');
             $this->picture = $path;
         }
 
         $this->save();
+
+        // Sync genres
+        if (isset($validatedData['genres'])) {
+            $this->genres()->sync($validatedData['genres']);
+        }
     }
 
     public function collection(): BelongsTo
@@ -90,9 +94,9 @@ class Book extends Model
         return $this->belongsTo(Author::class);
     }
 
-    public function genre(): BelongsTo
+    public function genres(): BelongsToMany
     {
-        return $this->belongsTo(Genre::class);
+        return $this->belongsToMany(Genre::class, 'book_genre');
     }
 
     public static function getListOfAuthorsBasedOnUserLibrary(int $userId)

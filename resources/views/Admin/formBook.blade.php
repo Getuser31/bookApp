@@ -89,11 +89,11 @@
     3.801-10.246.04-14.044a29.767 29.767 0 00-42.241-.04L206 171.144z"
                           fill="#648299" fill-rule="nonzero"/>
                 </svg>
-                <select name="genre_id" class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white
-  hover:border-gray-400 focus:outline-none appearance-none">
-                    <option value="{{$book->genre->id ?? ''}}">{{$book->genre->name ?? 'Select a genre'}}</option>
+                <select name="genres[]" multiple class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none">
                     @foreach($genres as $genre)
-                        <option value="{{$genre->id}}">{{ $genre->name }}</option>
+                        <option value="{{$genre->id}}">
+                            {{ $genre->name }}
+                        </option>
                     @endforeach
                 </select>
                 @error('genre_id')

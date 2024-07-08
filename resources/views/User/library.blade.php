@@ -81,13 +81,13 @@
             <tbody id="book-table-body">
             @foreach($books as $book)
                 <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700"
-                    data-genre-id="{{ $book->genre_id }}" data-author-id="{{ $book->author->id }}">
+                    data-genre-id=@foreach($book->genres as $genre)"{{ $genre->id }}" @endforeach data-author-id="{{ $book->author->id }}">
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
                         <a href="{{route('book.show',  $book->id)}}"> {{ ($book->title)}}</a></td>
                     <td class="px-6 py-4">{{ ($book->date_of_publication)}}</td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->author->name }}</td>
                     <td class="px-6 py-4 w-1/4">{{\Illuminate\Support\Str::limit($book->description, 200)}}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->genre->name }}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">@foreach($book->genres as $genre) {{ $genre->name }} @endforeach</td>
                     <td class="px-6 py-4">{{ $book->collection->name ?? '' }}</td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->pivot->progression }}
                         %

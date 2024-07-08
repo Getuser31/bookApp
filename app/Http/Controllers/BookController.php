@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBookPost;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
@@ -31,7 +32,7 @@ class BookController extends Controller
         }
 
         /** @var LengthAwarePaginator $books */
-        $books = Auth()->user()->books()->with('author')->with('genre')->paginate(10);
+        $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
 
 
         return view('books',  ['books' => $books]);
@@ -46,7 +47,7 @@ class BookController extends Controller
     {
         $genres = Genre::all();
         $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
-        $books = Auth()->user()->books()->with('author')->with('genre')->paginate(10);
+        $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
         return view('user.library', [
             'books' => $books,
             'genres' => $genres,
@@ -138,6 +139,9 @@ class BookController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public function googleBook(Request $request): Factory|\Illuminate\Foundation\Application|View|Application
     {
         // Retrieve JSON data from request body
@@ -163,13 +167,24 @@ class BookController extends Controller
         ]);
     }
 
+    public function googleBookStore(StoreBookPost $request): RedirectResponse
+    {
+        $validatedData = $request->validated();
+
+        $book = new Book();
+        $book->storeFromRequest($validatedData);
+
+        return redirect(route('admin.book'));
+
+    }
+
     /**
      * @throws GuzzleException
      */
     private function processGenre($genre, $id): string|array
     {
         if (is_array($genre)){
-            return implode('',$genre['genre']);
+            return implode('',$genre);
         }elseif($genre == ''){
             $bookService = new GoogleBookService($id);
             $genre = $bookService->getBookData();

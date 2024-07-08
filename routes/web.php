@@ -19,6 +19,7 @@ Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('boo
 
 //Google API
 Route::post('/googleBook/', [BookController::class, 'googleBook'])->name('book.googleBook');
+Route::post('/googleBookStore', [BookController::class, 'googleBookStore'])->name('book.googleBookStore');
 
 Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
@@ -34,7 +35,7 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin/book/{id}/edit', [AdminController::class, 'editBook'])->name('admin.book.edit');
     Route::get('/admin/book/create', [AdminController::class, 'createBook'])->name('admin.book.create');
     Route::put('/admin/book/{id}/update', [AdminController::class, 'updateBook'])->name('admin.book.update');
-    Route::post('/admin/book', [AdminController::class, 'storeBook'])->name('admin.book.store');
+    Route::post('/admin/book/store', [AdminController::class, 'storeBook'])->name('admin.book.store');
     Route::delete('/admin/book/{id}', [AdminController::class, 'deleteBook'])->name('admin.book.delete');
 
     Route::get('/admin/author', [AdminController::class, 'handleAuthor'])->name('admin.author');

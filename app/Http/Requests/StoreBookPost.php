@@ -26,7 +26,8 @@ class StoreBookPost extends FormRequest
             'description' => 'required|max:5000',
             'date_of_publication' => 'date_format:d/m/Y',
             'author_id' => 'required|exists:authors,id',
-            'genre_id' => 'required|exists:genres,id',
+            'genres' => 'required|array',
+            'genres.*' => 'exists:genres,id',
             'collection_id' => 'nullable|exists:collections,id',
             'picture' => 'required|file|image|max:5000',
         ];

@@ -17,7 +17,7 @@
                 <li><b>Auteur: </b>{{ $book->author->name }}</li>
                 <li><b>Synopsis: </b>
                     <p>{{$book->description}}</p></li>
-                <li><b>Genre: </b>{{ $book->genre->name }}</li>
+                <li><b>Genre: </b>@foreach($book->genres as $genre) {{ $genre->name }} @endforeach</li>
                 @if($book->collection)
                     <li><b>Collection</b>{{ $book->collection->name }}</li>
                 @endif
