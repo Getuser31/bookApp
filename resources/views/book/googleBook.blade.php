@@ -11,9 +11,8 @@
     <script>
         function sendBook() {
             // Create a form dynamically
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/admin/book/store'; // Ensure this is the correct route
+            event.preventDefault();
+            const formData = new FormData();
 
             // Add CSRF token for Laravel
             const csrfToken = '{{ csrf_token() }}';
@@ -24,26 +23,29 @@
                 dateOfPublication: '{{ $dateOfPublication }}',
                 genre: '{{ $genre }}',
                 description: '{{ $description }}',
-                thumbnail: '{{ $thumbnail }}'
+                thumbnail: '{!! $thumbnail !!}',
+                id: '{{ $id }}'
             };
 
             // Create and append form inputs
             for (const name in inputs) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = name;
-                input.value = inputs[name].toString();  // Convert to string to avoid type issues
-                form.appendChild(input);
+                formData.append(name,inputs[name].toString())
             }
 
-            // Log the form to the console for debugging
-            console.log('Form ready to be submitted:', form);
-
-            // Append the form to the body and submit it
-            document.body.appendChild(form);
-
-            console.log('Submitting the form');
-            form.submit();
+            fetch("{{ route('book.googleBookStore') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            }) .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
 
         document.addEventListener('DOMContentLoaded', function() {

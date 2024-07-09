@@ -10,8 +10,13 @@
     @foreach($books as $book)
         <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-center mb-4">{{$book->title}}</h1>
         <div class="book" style="display: flex; align-items: flex-start;">
+            @if (file_exists(public_path($book->picture)))
             <img src="{{ asset('/'.$book->picture) }}" alt="book picture"
                  style="float: left; max-width: 200px; height: 100%; object-fit: contain; margin-right: 10px;">
+            @else
+                <img src="{{$book->picture}}" alt="book picture"
+                     style="float: left; max-width: 200px; height: 100%; object-fit: contain; margin-right: 10px;">
+            @endif
             <ul style="flex-grow: 1;">
                 <li><b>Date de publication: </b>{{ $book->date_of_publication}}</li>
                 <li><b>Auteur: </b>{{ $book->author->name }}</li>

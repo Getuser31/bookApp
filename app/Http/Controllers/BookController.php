@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookPost;
+use App\Models\Author;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
 use App\Services\GoogleBookService;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -17,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -167,14 +170,36 @@ class BookController extends Controller
         ]);
     }
 
-    public function googleBookStore(StoreBookPost $request): RedirectResponse
+    /**
+     * @throws GuzzleException
+     */
+    public function googleBookStore(Request $request): RedirectResponse
     {
-        $validatedData = $request->validated();
+        $author = $request->input('author');
+        $author = Author::firstOrCreate(['name' => $author]);
+        $authorId = $author->id;
+
+        $genre = $this->processGenre($request->input('genre'), $request->input('id'));
+        $genre = Genre::firstOrCreate(['name' => $genre]);
+        $genreId = $genre->id;
+
+        $picture = $request->input('thumbnail');
+      //  $validatedData = $request->validated();
 
         $book = new Book();
-        $book->storeFromRequest($validatedData);
+        $book->title = $request->input('title');
+        $book->author_id = $authorId;
+        $book->description = $request->input('description');
+        $book->picture = $picture;
+        $book->date_of_publication = $request->input('dateOfPublication');
+        $book->save();
+        $book->genres()->sync([$genreId]);
+      //  $book->storeFromRequest($validatedData);
 
-        return redirect(route('admin.book'));
+        $user = Auth::user();
+        $user->books()->attach($book);
+
+        return redirect(route('book.show', ['id' => $book->id]));
 
     }
 
