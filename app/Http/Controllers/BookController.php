@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreBookPost;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Models\User;
 use App\Services\GoogleBookService;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -19,7 +17,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -179,12 +176,8 @@ class BookController extends Controller
         $author = Author::firstOrCreate(['name' => $author]);
         $authorId = $author->id;
 
-        $genre = $this->processGenre($request->input('genre'), $request->input('id'));
-        $genre = Genre::firstOrCreate(['name' => $genre]);
-        $genreId = $genre->id;
-
+        $genres = $this->processGenre($request->input('genre'), $request->input('id'));
         $picture = $request->input('thumbnail');
-      //  $validatedData = $request->validated();
 
         $book = new Book();
         $book->title = $request->input('title');
@@ -193,8 +186,8 @@ class BookController extends Controller
         $book->picture = $picture;
         $book->date_of_publication = $request->input('dateOfPublication');
         $book->save();
-        $book->genres()->sync([$genreId]);
-      //  $book->storeFromRequest($validatedData);
+        $book->genres()->sync($genres);
+
 
         $user = Auth::user();
         $user->books()->attach($book);
@@ -216,7 +209,13 @@ class BookController extends Controller
             return $genre['genre'][0];
         }
         else {
-            return $genre;
-        }
+            $arr = explode("/", $genre);
+            $genreId = [];
+            foreach ($arr as $genre) {
+                $genre = Genre::firstOrCreate(['name' => $genre]);
+                $genreId[] = $genre->id;
+            }}
+
+        return $genreId;
     }
 }

@@ -82,7 +82,7 @@
                                         dateOfPublication: item.volumeInfo.publishedDate,
                                         genre: item.volumeInfo.categories ? item.volumeInfo.categories : '',
                                         description: item.volumeInfo.description,
-                                        thumbnail: item.volumeInfo.imageLinks.thumbnail,
+                                        thumbnail: item.volumeInfo?.imageLinks?.thumbnail ? item.volumeInfo.imageLinks.thumbnail : '',
                                     };
 
                                     // Clear any previous book data inputs
