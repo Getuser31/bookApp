@@ -1,0 +1,24 @@
+.search-result-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px; /* Add some space between results */
+    padding: 10px; /* Add some padding */
+    border: 1px solid #ccc; /* Add a border for better visibility */
+    border-radius: 5px; /* Round the corners */
+    background-color: #f9f9f9; /* Light background color */
+}
+
+.search-result-item img {
+    margin-right: 15px; /* Space between image and text */
+    max-width: 100px; /* Limit the width of the image */
+    height: auto; /* Maintain aspect ratio */
+    float: left; /* Float the image to the left */
+}
+
+.search-result-item div {
+    flex: 1; /* Take up remaining space */
+}
+
+.search-result-item p {
+    margin: 5px 0; /* Space between paragraphs */
+}
