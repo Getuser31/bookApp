@@ -28,6 +28,7 @@ class StoreBookPost extends FormRequest
             'author_id' => 'required|exists:authors,id',
             'genres' => 'required|array',
             'genres.*' => 'exists:genres,id',
+            'google_id' => 'nullable|max:255',
             'collection_id' => 'nullable|exists:collections,id',
             'picture' => 'required|file|image|max:5000',
         ];

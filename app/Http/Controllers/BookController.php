@@ -184,6 +184,7 @@ class BookController extends Controller
         $book->author_id = $authorId;
         $book->description = $request->input('description');
         $book->picture = $picture;
+        $book->google_id = $request->input('id');
         $book->date_of_publication = $request->input('dateOfPublication');
         $book->save();
         $book->genres()->sync($genres);

@@ -13,7 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $title
@@ -43,6 +43,10 @@ use Illuminate\Support\Facades\Storage;
  * @property-read Genre|null $genre
  * @property string|null $picture
  * @method static Builder|Book wherePicture($value)
+ * @property string|null $google_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Genre> $genres
+ * @property-read int|null $genres_count
+ * @method static Builder|Book whereGoogleId($value)
  * @mixin Eloquent
  */
 class Book extends Model
@@ -56,7 +60,8 @@ class Book extends Model
         'author_id',
         'genre_id',
         'collection_id',
-        'picture'
+        'picture',
+        'google_id'
     ];
 
     public function storeFromRequest(array $validatedData): void
@@ -66,6 +71,7 @@ class Book extends Model
         $this->date_of_publication = $validatedData['date_of_publication'];
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
+        $this->google_id = $validatedData['google_id'];
         if($validatedData['picture'] instanceof UploadedFile) {
             $path = $validatedData['picture']->store('images');
             $this->picture = $path;
