@@ -148,11 +148,14 @@ class BookController extends Controller
         $itemJson = $request->input('book');
         $data = json_decode($itemJson, true);
 
+
         $id = $data['id'];
         $title = $data['title'];
         $author = implode('', $data['author']);
         $dateOfPublication = $data['dateOfPublication'];
-        $genre = $this->processGenre($data['genre'], $id);
+        $googleBookService = new GoogleBookService($id);
+        $genreId = $googleBookService->processGenre($data['genre']);
+        $genre = Genre::findOrFail($genreId);
         $description = $data['description'];
         $thumbnail = $data['thumbnail'];
 
@@ -170,53 +173,12 @@ class BookController extends Controller
     /**
      * @throws GuzzleException
      */
-    public function googleBookStore(Request $request): RedirectResponse
+    public function googleBookStore(string $id): RedirectResponse
     {
-        $author = $request->input('author');
-        $author = Author::firstOrCreate(['name' => $author]);
-        $authorId = $author->id;
-
-        $genres = $this->processGenre($request->input('genre'), $request->input('id'));
-        $picture = $request->input('thumbnail');
-
-        $book = new Book();
-        $book->title = $request->input('title');
-        $book->author_id = $authorId;
-        $book->description = $request->input('description');
-        $book->picture = $picture;
-        $book->google_id = $request->input('id');
-        $book->date_of_publication = $request->input('dateOfPublication');
-        $book->save();
-        $book->genres()->sync($genres);
-
-
-        $user = Auth::user();
-        $user->books()->attach($book);
+        $googleBookService = new GoogleBookService($id);
+        $book = $googleBookService->storeBook($id);
 
         return redirect(route('book.show', ['id' => $book->id]));
 
-    }
-
-    /**
-     * @throws GuzzleException
-     */
-    private function processGenre($genre, $id): string|array
-    {
-        if (is_array($genre)){
-            return implode('',$genre);
-        }elseif($genre == ''){
-            $bookService = new GoogleBookService($id);
-            $genre = $bookService->getBookData();
-            return $genre['genre'][0];
-        }
-        else {
-            $arr = explode("/", $genre);
-            $genreId = [];
-            foreach ($arr as $genre) {
-                $genre = Genre::firstOrCreate(['name' => $genre]);
-                $genreId[] = $genre->id;
-            }}
-
-        return $genreId;
     }
 }

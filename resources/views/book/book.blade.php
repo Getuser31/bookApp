@@ -4,34 +4,45 @@
 @section('content')
 
     <h1>{!! $book->title !!}</h1>
-
-    <p>
-    <ul>
-        <li><b>Date de publication: </b>{{ $book->date_of_publication}}</li>
-        <li><b>Auteur: </b>{{ $book->author->name }}</li>
-        <li><b>Synopsis: </b>
-            <p>{{$book->description}}</p></li>
-        <li><b>Genre: </b>@foreach($book->genres as $genre) {{ $genre->name }} @endforeach</li>
-        @if($book->collection)
-            <li><b>Collection</b>{{ $book->collection->name }}</li>
-        @endif
-
-        @if($belongToUser)
-            <li><b>Progression: </b>
-                <span id="progressionDisplay">{{$progression}}</span>
-                <form id="progressionForm">
-                    <meta name="csrf-token" content="{{ csrf_token() }}">
-                    <label for="progressionField">Set Progression:</label>
-                    <input type="number" id="progressionField" name="progressionField" min="0" max="100">
-                    <input type="hidden" id="bookId" value="{{$book->id}}">
-                    <input type="submit" value="Update"
-                           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                </form>
-            </li>
+    <div>
+        @if (file_exists(public_path($book->picture)))
+            <img src="{{ asset('/'.$book->picture) }}" alt="book picture"
+                 style="float: left; max-width: 200px; height: 100%; object-fit: contain; margin-right: 10px;">
         @else
-            <a href="{{route('book.addBookPost', ['id' => $book->id])}}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">add book</a>
+            <img src="{{$book->picture}}" alt="book picture"
+                 style="float: left; max-width: 200px; height: 100%; object-fit: contain; margin-right: 10px;">
         @endif
-    </ul><br>
+        <ul>
+            <li><b>Date de publication: </b>{{ $book->date_of_publication}}</li>
+            <li><b>Auteur: </b>{{ $book->author->name }}</li>
+            <li><b>Synopsis: </b>
+                <p>{!! $book->description !!}</p></li>
+            <li><b>Genre: </b>@foreach($book->genres as $genre)
+                    {{ $genre->name }}
+                @endforeach</li>
+            @if($book->collection)
+                <li><b>Collection</b>{{ $book->collection->name }}</li>
+            @endif
+
+            @if($belongToUser)
+                <li><b>Progression: </b>
+                    <span id="progressionDisplay">{{$progression}}</span>
+                    <form id="progressionForm">
+                        <meta name="csrf-token" content="{{ csrf_token() }}">
+                        <label for="progressionField">Set Progression:</label>
+                        <input type="number" id="progressionField" name="progressionField" min="0" max="100">
+                        <input type="hidden" id="bookId" value="{{$book->id}}">
+                        <input type="submit" value="Update"
+                               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    </form>
+                </li>
+            @else
+                <a href="{{route('book.addBookPost', ['id' => $book->id])}}"
+                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">add book</a>
+            @endif
+        </ul>
+        <br>
+    </div>
 
     <script>
         document.getElementById('progressionForm').addEventListener('submit', function (e) {
