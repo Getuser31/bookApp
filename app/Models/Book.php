@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $title
@@ -72,17 +73,16 @@ class Book extends Model
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
         $this->google_id = $validatedData['google_id'];
-        if($validatedData['picture'] instanceof UploadedFile) {
-            $path = $validatedData['picture']->store('images');
-            $this->picture = $path;
-        }
+        $validatedData = $this->FormatUploadedFile($validatedData);
 
         $this->save();
-
         // Sync genres
         if (isset($validatedData['genres'])) {
             $this->genres()->sync($validatedData['genres']);
         }
+        //Sync User
+        $user = Auth::user();
+        $user->books()->attach($this);
     }
 
     public function collection(): BelongsTo
@@ -110,5 +110,32 @@ class Book extends Model
         return self::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         })->with('author')->get()->pluck('author')->unique('id')->values();
+    }
+
+    /**
+     * @param array $validatedData
+     * @return array
+     */
+    public function FormatUploadedFile(array $validatedData): array
+    {
+        if ($validatedData['picture'] instanceof File) {
+            $originalName = $validatedData['picture']->getFilename();
+            $mimeType = $validatedData['picture']->getMimeType();
+            $error = null;
+
+            // Manually create a new UploadedFile instance
+            $validatedData['picture'] = new UploadedFile(
+                $validatedData['picture']->getPathname(), // The full path to the file
+                $originalName,        // The original file name
+                $mimeType,            // The MIME type
+                null,                 // The error status (set to null or appropriate error code)
+                true                  // Whether the file was uploaded via HTTP POST
+            );
+        }
+        if ($validatedData['picture'] instanceof UploadedFile) {
+            $path = $validatedData['picture']->store('images');
+            $this->picture = $path;
+        }
+        return $validatedData;
     }
 }

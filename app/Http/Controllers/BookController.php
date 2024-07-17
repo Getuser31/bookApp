@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class BookController extends Controller
 {
@@ -172,6 +173,7 @@ class BookController extends Controller
 
     /**
      * @throws GuzzleException
+     * @throws ValidationException
      */
     public function googleBookStore(string $id): RedirectResponse
     {
