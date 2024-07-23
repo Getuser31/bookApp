@@ -6,6 +6,8 @@ use Database\Factories\UserFactory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
@@ -14,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -94,8 +96,33 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return BelongsToMany
+     */
     public function books(): BelongsToMany
     {
         return $this->belongsToMany(Book::class)->withPivot('progression');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Find a user by username.
+     *
+     * @param string $username The username to search for.
+     * @return Model|\Illuminate\Database\Query\Builder|User|null The user model or null if not found.
+     * @see \Illuminate\Database\Eloquent\Model
+     * @see \Illuminate\Database\Query\Builder
+     * @see User
+     */
+    public function findByUsername(string $username): Model|Builder|User|null
+    {
+        return $this->with('role')->where('name', $username)->first();
     }
 }

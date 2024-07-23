@@ -7,6 +7,7 @@ use App\Models\Author;
 use App\Models\Book;
 use App\Models\Collection;
 use App\Models\Genre;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -352,5 +353,19 @@ class AdminController
         $book->delete();
 
         return redirect(route('admin.book'));
+    }
+
+
+    public function handleUsers(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        return view('admin.handleUsers');
+    }
+
+    public function seekUser(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $requestData = $request->all();
+        $userName = $requestData['userName'];
+        $user = (new \App\Models\User)->findByUsername($userName);
+        return view('admin.seekUser', ['user' => $user]);
     }
 }

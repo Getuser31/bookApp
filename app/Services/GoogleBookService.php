@@ -6,12 +6,11 @@ use App\Http\Requests\StoreBookPost;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\Genre;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\File;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -79,7 +78,7 @@ class GoogleBookService
     /**
      * @throws GuzzleException
      * @throws ValidationException
-     * @throws \Exception
+     * @throws Exception
      */
     public function storeBook(string $id): Book
     {
@@ -169,7 +168,7 @@ class GoogleBookService
     /**
      * @param array $data
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function GetFormatedDate(array $data): array
     {

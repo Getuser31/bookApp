@@ -50,7 +50,10 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin/collection/create', [AdminController::class, 'createCollection'])->name('admin.collection.create');
     Route::post('/admin/collection', [AdminController::class, 'storeCollection'])->name('admin.collection.store');
     Route::delete('/admin/collection/{id}', [AdminController::class, 'deleteCollection'])->name('admin.collection.delete');
-    Route::put('/admin/collection/{id}', [AdminController::class, 'updateCollection'])->name('admin.collection.update');
+    Route::put('/admin/collection/{id}', [AdminController::class, 'updateCollection'])->name('admin.collection.update0');
+
+    Route::get('/admin/users', [AdminController::class, 'handleUsers'])->name('admin.users');
+    Route::post('/admin/users/seekUser', [AdminController::class, 'seekUser'])->name('admin.seekUser');
 });
 
 
