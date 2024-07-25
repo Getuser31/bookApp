@@ -74,7 +74,25 @@ class UserController
     public function checkUser(int $id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         $user = User::with('role')->find($id);
-        $role = $user->role;
         return view('User.checkUser', compact('user'));
+    }
+
+    public function deleteUser(int $id): RedirectResponse
+    {
+        $user = User::find($id);
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('success', 'User has been deleted');
+    }
+
+    public function listOfUsers(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $users = User::paginate(10);
+        return \view('User.listOfUsers', compact('users'));
+    }
+
+    public function UpdateUser(User $user): RedirectResponse
+    {
+
     }
 }

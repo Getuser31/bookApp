@@ -55,6 +55,8 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin/users', [AdminController::class, 'handleUsers'])->name('admin.users');
     Route::post('/admin/users/seekUser', [AdminController::class, 'seekUser'])->name('admin.seekUser');
     Route::post('/admin/user/create', [UserController::class, 'store'])->name('admin.user.create');
+    Route::delete('/admin/user/{id}', [UserController::class, 'deleteUser'])->name('admin.user.delete');
+    Route::get('/admin/userList', [UserController::class, 'listOfUsers'])->name('admin.user.list');
 });
 
 

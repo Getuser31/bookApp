@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $title

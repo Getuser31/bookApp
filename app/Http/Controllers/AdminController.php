@@ -363,11 +363,17 @@ class AdminController
         return view('admin.handleUsers', ['roles' => $roles]);
     }
 
-    public function seekUser(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    public function seekUser(Request $request): \Illuminate\Contracts\Foundation\Application|Factory|View|Application|RedirectResponse
     {
         $requestData = $request->all();
         $userName = $requestData['userName'];
-        $user = (new \App\Models\User)->findByUsername($userName);
+        $user = (new User)->findByUsername($userName);
+        if (!$user){
+            $user = (new User)->findByEmail($userName);
+        }
+        if (!$user) {
+            return redirect()->back()->with('error', 'User does not exist');
+        }
         return view('admin.seekUser', ['user' => $user]);
     }
 }

@@ -16,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $name
@@ -44,6 +44,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|User whereUpdatedAt($value)
  * @property int|null $role_id
  * @method static Builder|User whereRoleId($value)
+ * @property-read \App\Models\Role|null $role
  * @mixin Eloquent
  */
 class User extends Authenticatable
@@ -125,5 +126,10 @@ class User extends Authenticatable
     public function findByUsername(string $username): Model|Builder|User|null
     {
         return $this->with('role')->where('name', $username)->first();
+    }
+
+    public function findByEmail(string $email): Model|Builder|User|null
+    {
+        return $this->with('role')->where('email', $email)->first();
     }
 }
