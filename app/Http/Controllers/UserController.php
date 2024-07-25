@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
 class UserController
@@ -52,5 +55,26 @@ class UserController
         Auth::logout();
         Session::flush();
         return redirect()->intended('/');
+    }
+
+    public function store(StoreUserRequest $request): RedirectResponse
+    {
+        $validatedData = $request->validated();
+
+        $user = User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'role_id' => $validatedData['role_id'],
+        ]);
+
+        return redirect()->route('checkUser', ['id' => $user->id]);
+    }
+
+    public function checkUser(int $id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $user = User::with('role')->find($id);
+        $role = $user->role;
+        return view('User.checkUser', compact('user'));
     }
 }

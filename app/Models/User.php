@@ -59,6 +59,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id'
     ];
 
     /**
@@ -117,7 +118,7 @@ class User extends Authenticatable
      *
      * @param string $username The username to search for.
      * @return Model|\Illuminate\Database\Query\Builder|User|null The user model or null if not found.
-     * @see \Illuminate\Database\Eloquent\Model
+     * @see Model
      * @see \Illuminate\Database\Query\Builder
      * @see User
      */

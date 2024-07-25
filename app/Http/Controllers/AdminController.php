@@ -7,6 +7,7 @@ use App\Models\Author;
 use App\Models\Book;
 use App\Models\Collection;
 use App\Models\Genre;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -358,7 +359,8 @@ class AdminController
 
     public function handleUsers(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
-        return view('admin.handleUsers');
+        $roles = Role::all();
+        return view('admin.handleUsers', ['roles' => $roles]);
     }
 
     public function seekUser(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application

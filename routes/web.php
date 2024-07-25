@@ -54,9 +54,11 @@ Route::middleware([CheckAdminRole::class])->group(function () {
 
     Route::get('/admin/users', [AdminController::class, 'handleUsers'])->name('admin.users');
     Route::post('/admin/users/seekUser', [AdminController::class, 'seekUser'])->name('admin.seekUser');
+    Route::post('/admin/user/create', [UserController::class, 'store'])->name('admin.user.create');
 });
 
 
 Route::get('/login', [UserController::class, 'login'])->name('login');
 Route::post('/login', [UserController::class, 'loginPost'])->name('loginPost');
 route::get('/logout', [UserController::class, 'logout'])->name('logout');
+Route::get('/users/{id}', [UserController::class, 'checkUser'])->name('checkUser');
