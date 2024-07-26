@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -31,5 +31,10 @@ class Role extends Model
     protected $fillable = [
         'name'
     ];
+
+    public static function getUserRole()
+    {
+        return self::where('name', 'user')->first()->id;
+    }
 
 }

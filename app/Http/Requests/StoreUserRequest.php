@@ -15,9 +15,10 @@ class StoreUserRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Returns an array of validation rules for the Laravel application.
+     * The rules are used for validating the input data.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array An array containing the validation rules.
      */
     public function rules(): array
     {
@@ -25,7 +26,7 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'required|integer|exists:roles,id',
+            'role_id' => 'integer|exists:roles,id',
         ];
     }
 }

@@ -41,6 +41,11 @@
                     </a>
                 </div>
             </form>
+            <div>
+                <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="{{route('createAccount')}}">
+                    Create An Account
+                </a>
+            </div>
         </div>
     </div>
 

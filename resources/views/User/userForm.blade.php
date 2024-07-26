@@ -1,4 +1,9 @@
-<form method="post" action="{{route('admin.user.create')}}">
+<form method="post"
+      action="
+      @if(isset($user))
+          {{route('updateAccount', ['user' => $user])}}
+        @else{{route('register')}}"
+    @endif>
     @csrf
     <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="username">Username:</label>
@@ -7,6 +12,7 @@
             name="name"
             type="text"
             placeholder="username"
+            @if(isset($user))value="{{$user->name}}" @endif
             class="border border-gray-300 rounded-lg py-2 px-4 w-full max-w-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
     </div>
@@ -17,6 +23,7 @@
             name="email"
             type="email"
             placeholder="email"
+            @if(isset($user))value="{{$user->email}}" @endif
             class="border border-gray-300 rounded-lg py-2 px-4 w-full max-w-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
     </div>
@@ -41,19 +48,18 @@
         />
     </div>
     @if(session('admin'))
-    <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="role">Role:</label>
-        <select
-            id="role"
-            name="role_id"
-            type="dropdown"
-            class="border border-gray-300 rounded-lg py-2 px-4 w-full max-w-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            @foreach($roles as $role)
-                <option value="{{$role->id}}">{{$role->name}}</option>
-            @endforeach
-        </select>
-    </div>
-    @endif
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="role">Role:</label>
+            <select
+                id="role"
+                name="role_id"
+                type="dropdown"
+                class="border border-gray-300 rounded-lg py-2 px-4 w-full max-w-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                @foreach($roles as $role)
+                    <option value="{{$role->id}}">{{$role->name}}</option>
+                @endforeach
+            </select>
+        </div>
     <div class="flex items-center justify-between">
         <button
             type="submit"

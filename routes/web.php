@@ -21,6 +21,7 @@ Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('boo
 Route::post('/googleBook/', [BookController::class, 'googleBook'])->name('book.googleBook');
 Route::get('/googleBookStore/{id}', [BookController::class, 'googleBookStore'])->name('book.googleBookStore');
 
+//admin
 Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 
@@ -59,8 +60,11 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::get('/admin/userList', [UserController::class, 'listOfUsers'])->name('admin.user.list');
 });
 
-
+//User
 Route::get('/login', [UserController::class, 'login'])->name('login');
 Route::post('/login', [UserController::class, 'loginPost'])->name('loginPost');
 route::get('/logout', [UserController::class, 'logout'])->name('logout');
 Route::get('/users/{id}', [UserController::class, 'checkUser'])->name('checkUser');
+Route::get('/createAccount', [UserController::class, 'createAccount'])->name('createAccount');
+Route::post('/register', [UserController::class, 'register'])->name('register');
+Route::get('/updateAccount/{user}', [UserController::class, 'updateAccount'])->name('updateAccount');

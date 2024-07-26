@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -57,6 +58,11 @@ class UserController
         return redirect()->intended('/');
     }
 
+    public function createAccount(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        return view('User.createAccount');
+    }
+
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $validatedData = $request->validated();
@@ -91,8 +97,24 @@ class UserController
         return \view('User.listOfUsers', compact('users'));
     }
 
-    public function UpdateUser(User $user): RedirectResponse
+    public function updateAccount(User $user): RedirectResponse
     {
+
+    }
+
+    public function register(StoreUserRequest $request): RedirectResponse
+    {
+
+        $validatedData = $request->validated();
+        if (!isset($validatedData['role_id'])) {
+            $role_id = Role::getUserRole();
+            $validatedData['role_id'] = $role_id;
+        }
+
+        $user = User::storeFromRequest($validatedData);
+        Auth::login($user);
+
+        return redirect()->route('book.index');
 
     }
 }

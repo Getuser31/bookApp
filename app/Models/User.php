@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Eloquent;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +15,10 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -73,6 +75,23 @@ class User extends Authenticatable
         'remember_token',
     ];
     private mixed $role_id;
+
+    /**
+     * @param array $validatedData
+     * @return void
+     * @throws Exception
+     */
+    public static function checkIfUserAlreadyExist(array $validatedData): void
+    {
+        $user = self::find('email', $validatedData['email']);
+        if ($user) {
+            throw new Exception('User with this email already exists');
+        }
+        $user = self::find('name', $validatedData['name']);
+        if ($user) {
+            throw new Exception('User with this name already exists');
+        }
+    }
 
     public function checkAdmin(): bool
     {
@@ -131,5 +150,19 @@ class User extends Authenticatable
     public function findByEmail(string $email): Model|Builder|User|null
     {
         return $this->with('role')->where('email', $email)->first();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public  static function storeFromRequest(array $validatedData): Model|User
+    {
+        self::checkIfUserAlreadyExist($validatedData);
+        return User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'role_id' => $validatedData['role_id'],
+        ]);
     }
 }
