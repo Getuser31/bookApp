@@ -67,4 +67,5 @@ route::get('/logout', [UserController::class, 'logout'])->name('logout');
 Route::get('/users/{id}', [UserController::class, 'checkUser'])->name('checkUser');
 Route::get('/createAccount', [UserController::class, 'createAccount'])->name('createAccount');
 Route::post('/register', [UserController::class, 'register'])->name('register');
-Route::get('/updateAccount/{user}', [UserController::class, 'updateAccount'])->name('updateAccount');
+Route::get('/updateAccount', [UserController::class, 'updateAccount'])->name('updateAccount');
+Route::put('/updateAccount', [UserController::class, 'updateAccountPost'])->name('updateAccountPost');

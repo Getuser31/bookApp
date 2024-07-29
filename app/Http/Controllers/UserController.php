@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
+use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -94,17 +97,41 @@ class UserController
     public function listOfUsers(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         $users = User::paginate(10);
-        return \view('User.listOfUsers', compact('users'));
+        return view('User.listOfUsers', compact('users'));
     }
 
-    public function updateAccount(User $user): RedirectResponse
+    /**
+     * Updates the user account.
+     *
+     * This method updates a user's account information and returns a view with the updated user object and roles.
+     *
+     * @return View|Application|Factory|RedirectResponse|\Illuminate\Contracts\Foundation\Application Returns a view with the updated user object and roles.
+     * @throws ModelNotFoundException If the user cannot be found.
+     */
+    public function updateAccount(): View|Application|Factory|RedirectResponse|\Illuminate\Contracts\Foundation\Application
     {
+        $roles = Role::all();
+        $user =Auth::user();
 
+        return view('User.updateAccount', compact('user'), compact('roles'));
     }
 
+    /**
+     * @throws Exception
+     */
+    public function updateAccountPost(UpdateUserRequest $request): RedirectResponse
+    {
+        $user = Auth::user();
+        $user->update($request->validated());
+
+        return redirect()->route('updateAccount', $user)->with('status', 'User updated successfully!');
+    }
+
+    /**
+     * @throws Exception
+     */
     public function register(StoreUserRequest $request): RedirectResponse
     {
-
         $validatedData = $request->validated();
         if (!isset($validatedData['role_id'])) {
             $role_id = Role::getUserRole();
@@ -115,6 +142,5 @@ class UserController
         Auth::login($user);
 
         return redirect()->route('book.index');
-
     }
 }

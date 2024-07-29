@@ -24,7 +24,7 @@
 
     @if(session('admin'))
        @include('User.deleteUserForm')
-        <a href="" class="mt-10 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-red-blue">
+        <a href="{{route('updateAccount', ['user' => $user])}}" class="mt-10 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-red-blue">
             Update User
         </a>
     @endif
