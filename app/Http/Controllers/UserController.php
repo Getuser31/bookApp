@@ -36,23 +36,23 @@ class UserController
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-                // Authentication passed...
-                $user = Auth::user();
-                $role = $user->checkAdmin();
+            // Authentication passed...
+            $user = Auth::user();
+            $role = $user->checkAdmin();
             Session::put('admin', $role);
             return redirect()->route('book.index');
-            } else {
+        } else {
             return redirect()->back()->withErrors([
-                    'email' => 'Invalid email',
-                    'password' => 'Invalid password',
-                ]);
+                'email' => 'Invalid email',
+                'password' => 'Invalid password',
+            ]);
         }
     }
 
     /**
      * Logs out the currently authenticated user.
      *
-     * @return \Illuminate\Http\RedirectResponse The redirect response.
+     * @return RedirectResponse The redirect response.
      */
     public function logout(): RedirectResponse
     {
@@ -111,7 +111,7 @@ class UserController
     public function updateAccount(): View|Application|Factory|RedirectResponse|\Illuminate\Contracts\Foundation\Application
     {
         $roles = Role::all();
-        $user =Auth::user();
+        $user = Auth::user();
 
         return view('User.updateAccount', compact('user'), compact('roles'));
     }

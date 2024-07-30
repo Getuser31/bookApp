@@ -51,28 +51,28 @@ class GoogleBookService
     /**
      * @throws GuzzleException
      */
-    public function processGenre($genre): string|array
+    public function processGenre(string|array $genre): string|array
     {
-        if (is_array($genre)) {
-            $genre = implode('', $genre);
-        } elseif ($genre == '') {
-            $genre = $this->getBookData();
-            return $genre['genre'][0];
+        // If genre is an empty string, return the first genre from book data
+        if ($genre === '') {
+            return $this->getBookData()['genre'][0];
         }
 
-        $arr = explode("/", $genre);
+        $genres = is_string($genre) ? [$genre] : $genre;
 
-        if (is_array($arr)) {
-            $genreId = [];
-            foreach ($arr as $genre) {
-                $genre = Genre::firstOrCreate(['name' => $genre]);
-                $genreId[] = $genre->id;
-            }
-            return $genreId;
-        }
+        // Parse and clean genres
+        $genres = array_reduce($genres, function ($carry, $item) {
+            $parts = array_map('trim', preg_split('/[\/&]/', $item));
+            return array_merge($carry, $parts);
+        }, []);
 
-        return $genre;
+        // Remove duplicates and empty values
+        $genres = array_values(array_filter(array_unique($genres)));
 
+        // Fetch or create genre IDs
+        return array_map(function ($genreName) {
+            return Genre::firstOrCreate(['name' => $genreName])->id;
+        }, $genres);
     }
 
     /**
@@ -134,7 +134,6 @@ class GoogleBookService
     }
 
     /**
-     * @throws GuzzleException
      */
     public function processPicture(string $picture): RedirectResponse|File
     {

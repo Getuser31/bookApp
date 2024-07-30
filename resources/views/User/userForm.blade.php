@@ -11,11 +11,12 @@
 @php
 if(isset($user)) {
      $route =  route('updateAccountPost');
-     $method = 'POST';
+} else {
+    $route =  route('register');
 }
 @endphp
 
-<form method="{{$method}}" action="{{$route}}">
+<form method="POST" action="{{$route}}">
     @csrf
     @if(isset($user))  @method('PUT')@endif
     <div class="mb-4">
