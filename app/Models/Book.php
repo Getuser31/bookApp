@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $title
@@ -137,5 +137,22 @@ class Book extends Model
             $this->picture = $path;
         }
         return $validatedData;
+    }
+
+    public static function getListOfBooksFilterByGenreId(int $genreId, int $userId): array
+    {
+        return self::whereHas('users', function ($query) use ($genreId, $userId) {
+            $query->whereHas('users', function ($query) use ($genreId, $userId) {
+                $query->where('genre_id', $genreId);
+            });
+        })->toArray();
+    }
+
+    public static function getListOfBooksFilterByAuthorId(int $authorId, int $userId): array
+    {
+       return self::where('author_id', $authorId)
+       ->whereHas('users', function($query) use ($userId) {
+           $query->where('user_id', $userId);
+       })->get()->toArray();
     }
 }
