@@ -14,6 +14,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Class GoogleBookService
+ *
+ * A service class for interacting with the Google Books API and processing book data.
+ */
 class GoogleBookService
 {
     protected Client $client;
@@ -49,6 +54,16 @@ class GoogleBookService
     }
 
     /**
+     * Process the genre of a book.
+     *
+     * If the genre is an empty string, return the first genre from the book data.
+     * If the genre is a string, parse and clean it.
+     * If the genre is an array, iterate through each genre and parse and clean it.
+     * Remove any duplicates and empty values from the genres.
+     * Fetch or create genre IDs for each genre name.
+     *
+     * @param string|array $genre The genre(s) of the book.
+     * @return string|array The processed genre(s) of the book.
      * @throws GuzzleException
      */
     public function processGenre(string|array $genre): string|array
@@ -114,6 +129,12 @@ class GoogleBookService
         return $book;
     }
 
+    /**
+     * Checks if a book with the given Google ID already exists in the database.
+     *
+     * @param string $id The Google ID of the book.
+     * @return bool Returns true if a book with the given Google ID exists, otherwise returns false.
+     */
     public function checkIfAlreadyStored(string $id): bool
     {
         return Book::where('google_id', $id)->exists();
@@ -134,6 +155,10 @@ class GoogleBookService
     }
 
     /**
+     * Processes the picture by downloading it and returning a RedirectResponse or a File object.
+     *
+     * @param string $picture The URL of the picture to be processed.
+     * @return RedirectResponse|File The processed picture as a RedirectResponse if successful, or a File object if unsuccessful.
      */
     public function processPicture(string $picture): RedirectResponse|File
     {
@@ -165,8 +190,10 @@ class GoogleBookService
     }
 
     /**
-     * @param array $data
-     * @return array
+     * Formats the date of publication in the given data array and returns the updated array.
+     *
+     * @param array $data The data array containing the date of publication.
+     * @return array The updated data array with the formatted date of publication.
      * @throws Exception
      */
     public function GetFormatedDate(array $data): array
