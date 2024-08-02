@@ -141,11 +141,12 @@ class Book extends Model
 
     public static function getListOfBooksFilterByGenreId(int $genreId, int $userId): array
     {
-        return self::whereHas('users', function ($query) use ($genreId, $userId) {
-            $query->whereHas('users', function ($query) use ($genreId, $userId) {
-                $query->where('genre_id', $genreId);
-            });
-        })->toArray();
+        // Fetch books associated with a user and having the specified genre ID
+        return self::whereHas('users', function($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->whereHas('genres', function($query) use ($genreId) {
+            $query->where('genre_id', $genreId);
+        })->get()->toArray();
     }
 
     public static function getListOfBooksFilterByAuthorId(int $authorId, int $userId): array

@@ -40,6 +40,15 @@ class UserController
             $user = Auth::user();
             $role = $user->checkAdmin();
             Session::put('admin', $role);
+
+            // Create Sanctum Token
+            $deviceName = $request->userAgent(); // Or a custom device identifier
+            $abilities = ['*']; // Grant all permissions or customize
+            $token = $user->createToken($deviceName, $abilities)->plainTextToken;
+
+            // Store Token in Session
+            Session::put('api_token', $token);
+
             return redirect()->route('book.index');
         } else {
             return redirect()->back()->withErrors([
@@ -56,8 +65,12 @@ class UserController
      */
     public function logout(): RedirectResponse
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
         Session::flush();
+        // Invalidate the session to ensure all session data is removed
+        request()->session()->invalidate();
+        // Generate a new session token to prevent session fixation attacks
+        request()->session()->regenerateToken();
         return redirect()->intended('/');
     }
 

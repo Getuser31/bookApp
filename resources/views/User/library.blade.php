@@ -81,13 +81,16 @@
             <tbody id="book-table-body">
             @foreach($books as $book)
                 <tr id="book-row-{{$book->id}}" class="border-b border-gray-200 dark:border-gray-700"
-                    data-genre-id=@foreach($book->genres as $genre)"{{ $genre->id }}" @endforeach data-author-id="{{ $book->author->id }}">
+                    data-genre-id=@foreach($book->genres as $genre)"{{ $genre->id }}"
+                    @endforeach data-author-id="{{ $book->author->id }}">
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
                         <a href="{{route('book.show',  $book->id)}}"> {{ ($book->title)}}</a></td>
                     <td class="px-6 py-4">{{ ($book->date_of_publication)}}</td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->author->name }}</td>
                     <td class="px-6 py-4 w-1/4">{{\Illuminate\Support\Str::limit($book->description, 200)}}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">@foreach($book->genres as $genre) {{ $genre->name }} @endforeach</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">@foreach($book->genres as $genre)
+                            {{ $genre->name }}
+                        @endforeach</td>
                     <td class="px-6 py-4">{{ $book->collection->name ?? '' }}</td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->pivot->progression }}
                         %
@@ -138,7 +141,7 @@
 
                 //AJAX request
                 const xhr = new XMLHttpRequest();
-                xhr.open('GET', '/removeBook/' + bookId, true); // update this to your delete route
+                xhr.open('GET', '/removeBook/' + bookId, true);
                 xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
 
@@ -189,60 +192,111 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const genreCheckboxes = document.querySelectorAll('.genre-checkbox');
-            const authorCheckboxes = document.querySelectorAll('.author-checkbox');
-            const clearFilters = document.getElementById('clearFilter');
+                const genreCheckboxes = document.querySelectorAll('.genre-checkbox');
+                const authorCheckboxes = document.querySelectorAll('.author-checkbox');
+                const clearFilters = document.getElementById('clearFilter');
 
-            clearFilters.addEventListener('click', resetFilters);
+                clearFilters.addEventListener('click', resetFilters);
 
-            function resetFilters() {
-                document.querySelectorAll('#book-table-body tr')
-                    .forEach(row => {
-                        row.style.display = '';
+                function resetFilters() {
+                    document.querySelectorAll('#book-table-body tr')
+                        .forEach(row => {
+                            row.style.display = '';
+                        })
+
+                    genreCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+
+                    authorCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
                     })
+                }
+
+                let selectedGenres = [];
+                let selectedAuthors = [];
 
                 genreCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
+                    checkbox.addEventListener('change', filterBooks);
                 });
 
                 authorCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                })
-            }
+                    checkbox.addEventListener('change', filterBooks);
+                });
 
-            let selectedGenres = [];
-            let selectedAuthors = [];
+                function filterBooks() {
+                    selectedGenres = Array.from(genreCheckboxes)
+                        .filter(checkbox => checkbox.checked)
+                        .map(checkbox => checkbox.value);
 
-            genreCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', filterBooks);
-            });
+                    selectedAuthors = Array.from(authorCheckboxes)
+                        .filter(checkbox => checkbox.checked)
+                        .map(checkbox => checkbox.value);
 
-            authorCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', filterBooks);
-            });
+                    async function fetchCSRFToken() {
+                        try {
+                            const response = await fetch('http://localhost:8000/sanctum/csrf-cookie', {
+                                credentials: 'include', // Ensure cookies are sent and received
+                            });
 
-            function filterBooks() {
-                selectedGenres = Array.from(genreCheckboxes)
-                    .filter(checkbox => checkbox.checked)
-                    .map(checkbox => checkbox.value);
+                            if (!response.ok) {
+                                throw new Error(`Network response was not ok (${response.status})`);
+                            }
 
-                selectedAuthors = Array.from(authorCheckboxes)
-                    .filter(checkbox => checkbox.checked)
-                    .map(checkbox => checkbox.value);
+                            // Store the CSRF token from the response headers
+                            return response.headers.get('X-XSRF-TOKEN');
 
-                document.querySelectorAll('#book-table-body tr')
-                    .forEach(row => {
-                        const genreId = row.getAttribute('data-genre-id');
-                        const authorId = row.getAttribute('data-author-id');
-
-                        if ((!selectedGenres.length || selectedGenres.includes(genreId)) &&
-                            (!selectedAuthors.length || selectedAuthors.includes(authorId))) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
+                        } catch (error) {
+                            console.error('Fetch CSRF Token Error:', error);
+                            throw error;  // Let the error propagate
                         }
-                    });
+                    }
+
+                    function getCookie(name) {
+                        const matches = document.cookie.match(new RegExp(
+                            '(?:^|; )' + name.replace(/([.$?*|{}()[]\/+^])/g, '\\$1') + '=([^;]*)'
+                        ));
+                        return matches ? decodeURIComponent(matches[1]) : undefined;
+                    }
+
+                    async function callFilterLibrary(data) {
+                        const apiToken = '{{ session('api_token') }}'; // Get the token from the session
+                        await fetchCSRFToken(); // Ensure CSRF token is fetched
+                        try {
+                            const xsrfToken = getCookie('XSRF-TOKEN');
+
+                            const params = new URLSearchParams();
+                            params.append('authors', selectedAuthors);
+                            params.append('genre', selectedGenres);
+
+                            const response = await fetch('http://localhost:8000/api/filterLibrary', {
+                                method: 'POST',
+                                credentials: 'include',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-XSRF-TOKEN': xsrfToken, // Use the fetched token
+                                    'Authorization': `Bearer ${apiToken}`
+                                },
+                                body: params.toString(),
+                            });
+
+                            if (response.ok) {
+                                const result = await response.json();
+                                console.log(result);
+                            } else {
+                                const errorText = await response.text();
+                                console.error('Network response was not ok:', response.status, response.statusText, errorText);
+                            }
+                        } catch (error) {
+                            console.error('Fetch Library Error:', error);
+                        }
+                    }
+
+// Call the API endpoint with example data
+                    callFilterLibrary();
+                }
             }
-        });
+        )
+        ;
     </script>
 @endsection

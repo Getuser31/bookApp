@@ -6,20 +6,22 @@ use App\Http\Middleware\CheckAdminRole;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
-Route::get('/', [BookController::class, 'index'])->name('book.index');
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/', [BookController::class, 'index'])->name('book.index');
 
-Route::get('/library', [BookController::class, 'library'])->middleware('auth')->name('book.library');
-Route::get('/book/{id}', [BookController::class, 'show'])->name('book.show');
-Route::post('/updateProgression', [BookController::class, 'updateProgression'])->name('book.updateProgression');
-Route::post('/deleteBook/{id}', [BookController::class, 'deleteBook'])->name('book.deleteBook');
-Route::get('/addBook', [BookController::class, 'addBook'])->name('book.addBook');
-Route::get('/searchBook', [BookController::class, 'searchBook'])->name('book.searchBook');
-Route::get('/addBook/{id}', [BookController::class, 'addBookPost'])->name('book.addBookPost');
-Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('book.removeBook');
+    Route::get('/library', [BookController::class, 'library'])->middleware('auth')->name('book.library');
+    Route::get('/book/{id}', [BookController::class, 'show'])->name('book.show');
+    Route::post('/updateProgression', [BookController::class, 'updateProgression'])->name('book.updateProgression');
+    Route::post('/deleteBook/{id}', [BookController::class, 'deleteBook'])->name('book.deleteBook');
+    Route::get('/addBook', [BookController::class, 'addBook'])->name('book.addBook');
+    Route::get('/searchBook', [BookController::class, 'searchBook'])->name('book.searchBook');
+    Route::get('/addBook/{id}', [BookController::class, 'addBookPost'])->name('book.addBookPost');
+    Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('book.removeBook');
 
 //Google API
-Route::post('/googleBook/', [BookController::class, 'googleBook'])->name('book.googleBook');
-Route::get('/googleBookStore/{id}', [BookController::class, 'googleBookStore'])->name('book.googleBookStore');
+    Route::post('/googleBook/', [BookController::class, 'googleBook'])->name('book.googleBook');
+    Route::get('/googleBookStore/{id}', [BookController::class, 'googleBookStore'])->name('book.googleBookStore');
+});
 
 //admin
 Route::middleware([CheckAdminRole::class])->group(function () {
@@ -63,9 +65,12 @@ Route::middleware([CheckAdminRole::class])->group(function () {
 //User
 Route::get('/login', [UserController::class, 'login'])->name('login');
 Route::post('/login', [UserController::class, 'loginPost'])->name('loginPost');
-route::get('/logout', [UserController::class, 'logout'])->name('logout');
-Route::get('/users/{id}', [UserController::class, 'checkUser'])->name('checkUser');
-Route::get('/createAccount', [UserController::class, 'createAccount'])->name('createAccount');
-Route::post('/register', [UserController::class, 'register'])->name('register');
-Route::get('/updateAccount', [UserController::class, 'updateAccount'])->name('updateAccount');
-Route::put('/updateAccount', [UserController::class, 'updateAccountPost'])->name('updateAccountPost');
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    route::get('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::get('/users/{id}', [UserController::class, 'checkUser'])->name('checkUser');
+    Route::get('/createAccount', [UserController::class, 'createAccount'])->name('createAccount');
+    Route::post('/register', [UserController::class, 'register'])->name('register');
+    Route::get('/updateAccount', [UserController::class, 'updateAccount'])->name('updateAccount');
+    Route::put('/updateAccount', [UserController::class, 'updateAccountPost'])->name('updateAccountPost');
+});

@@ -28,9 +28,17 @@ class BookController extends Controller
         $authorsId = $request->input('authors');
         $genresId = $request->input('genres');
 
-        $booksFilterByAuthors = Book::getListOfBooksFilterByAuthorId($authorsId, $userId);
-        $booksFilterByGenres = Book::getListOfBooksFilterByGenreId($genresId, $userId);
+        $booksFilterByAuthors = [];
+        $booksFilterByGenres = [];
+        if ($authorsId){
+            $booksFilterByAuthors = Book::getListOfBooksFilterByAuthorId($authorsId, $userId);
+        }
+        if ($genresId) {
+            $booksFilterByGenres = Book::getListOfBooksFilterByGenreId($genresId, $userId);
+        }
 
-        return response()->json([]);
+        $books = array_merge($booksFilterByAuthors, $booksFilterByGenres);
+
+        return response()->json(['books' => $books]);
     }
 }
