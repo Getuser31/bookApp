@@ -45,7 +45,7 @@ class BookController extends Controller
      */
     public function library(): Factory|\Illuminate\Foundation\Application|View|Application
     {
-        $genres = Genre::all();
+        $genres = Genre::all()->sortBy('name');
         $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
         $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
         return view('user.library', [

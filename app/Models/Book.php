@@ -65,6 +65,24 @@ class Book extends Model
         'google_id'
     ];
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Collection|array $books
+     * @return array
+     */
+    public static function WithProgression(\Illuminate\Database\Eloquent\Collection|array $books): array
+    {
+// Transform books collection to include progression on the main object
+        $booksWithProgression = $books->map(function ($book) {
+            if ($book->users->isNotEmpty()) {
+                // Assuming there will be only one user since we filtered by user_id
+                $book->progression = $book->users->first()->pivot->progression;
+                $book->unsetRelation('users');
+            }
+            return $book;
+        });
+        return $booksWithProgression->toArray();
+    }
+
     public function storeFromRequest(array $validatedData): void
     {
         $this->title = $validatedData['title'];
@@ -139,21 +157,46 @@ class Book extends Model
         return $validatedData;
     }
 
-    public static function getListOfBooksFilterByGenreId(int $genreId, int $userId): array
+    public static function getListOfBooksFilterByGenreId(array $genreId, int $userId): array
     {
-        // Fetch books associated with a user and having the specified genre ID
-        return self::whereHas('users', function($query) use ($userId) {
+        // Fetch books associated with a user and have the specified genre ID
+        $books = self::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId);
-        })->whereHas('genres', function($query) use ($genreId) {
-            $query->where('genre_id', $genreId);
-        })->get()->toArray();
+        })->whereHas('genres', function ($query) use ($genreId) {
+            $query->whereIn('genre_id', $genreId);
+        })->with(['genres', 'author', 'users' => function ($query) use ($userId) {
+            $query->where('user_id', $userId)->withPivot('progression');
+        }])->get();
+
+        // Transform books collection to include progression on the main object
+        return self::WithProgression($books);
     }
 
-    public static function getListOfBooksFilterByAuthorId(int $authorId, int $userId): array
+    public static function getListOfBooksFilterByAuthorId(array $authorId, int $userId): array
     {
-       return self::where('author_id', $authorId)
-       ->whereHas('users', function($query) use ($userId) {
-           $query->where('user_id', $userId);
-       })->get()->toArray();
+        $books = self::where('author_id', $authorId)
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })->with(['genres', 'author', 'users' => function ($query) use ($userId) {
+                $query->where('user_id', $userId)->withPivot('progression');
+            }])->get();
+
+        // Transform books collection to include progression on the main object
+        return self::WithProgression($books);
+    }
+
+    public static function getListOfBooksFilterByAuthorIdAndGenreId(array $authorId, array $genreId, int $userId): array
+    {
+        $books = self::where('author_id', $authorId)
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->whereHas('genres', function ($query) use ($genreId) {
+                $query->where('genre_id', $genreId);
+            })->with(['genres', 'author', 'users' => function ($query) use ($userId) {
+                $query->where('user_id', $userId)->withPivot('progression');
+            }])->get();
+        return self::WithProgression($books);
+
     }
 }

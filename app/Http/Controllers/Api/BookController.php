@@ -25,19 +25,19 @@ class BookController extends Controller
     public function filterLibrary(Request $request): JsonResponse
     {
         $userId = Auth()->id();
-        $authorsId = $request->input('authors');
-        $genresId = $request->input('genres');
+        $authorsId = explode(',',$request->input('authors'));
+        $genresId = explode(',' ,$request->input('genres'));
 
-        $booksFilterByAuthors = [];
-        $booksFilterByGenres = [];
-        if ($authorsId){
-            $booksFilterByAuthors = Book::getListOfBooksFilterByAuthorId($authorsId, $userId);
+        if ($authorsId[0] != '' && $genresId['0'] == '') {
+            $books = Book::getListOfBooksFilterByAuthorId($authorsId, $userId);
+        }elseif ($genresId[0] != '' && $authorsId['0'] == '') {
+            $books = Book::getListOfBooksFilterByGenreId($genresId, $userId);
+        }elseif ($authorsId['0'] == '' && $genresId['0'] == '') {
+            $books = Auth()->user()->books()->with(['author', 'genres'])->get()->toArray();
         }
-        if ($genresId) {
-            $booksFilterByGenres = Book::getListOfBooksFilterByGenreId($genresId, $userId);
+        else {
+            $books = Book::getListOfBooksFilterByAuthorIdAndGenreId($authorsId, $genresId, $userId);
         }
-
-        $books = array_merge($booksFilterByAuthors, $booksFilterByGenres);
 
         return response()->json(['books' => $books]);
     }

@@ -199,18 +199,7 @@
                 clearFilters.addEventListener('click', resetFilters);
 
                 function resetFilters() {
-                    document.querySelectorAll('#book-table-body tr')
-                        .forEach(row => {
-                            row.style.display = '';
-                        })
-
-                    genreCheckboxes.forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
-
-                    authorCheckboxes.forEach(checkbox => {
-                        checkbox.checked = false;
-                    })
+                    location.reload();
                 }
 
                 let selectedGenres = [];
@@ -267,7 +256,7 @@
 
                             const params = new URLSearchParams();
                             params.append('authors', selectedAuthors);
-                            params.append('genre', selectedGenres);
+                            params.append('genres', selectedGenres);
 
                             const response = await fetch('http://localhost:8000/api/filterLibrary', {
                                 method: 'POST',
@@ -282,8 +271,52 @@
 
                             if (response.ok) {
                                 const result = await response.json();
-                                console.log(result);
-                            } else {
+                                const Books = result.books;
+                                console.log(Books);
+                                let tableBody = document.getElementById('book-table-body');
+                                tableBody.innerHTML = ''; // Clear the table body
+
+                                Books.forEach(book => {
+                                    // Create genres data attributes
+                                    let genresDataAttr = '';
+                                    book.genres.forEach(genre => {
+                                        genresDataAttr += ` data-genre-id="${genre.id}"`;
+                                    });
+
+                                    // Create the HTML string for each book row
+                                    let rowHTML = `
+            <tr id="book-row-${book.id}" class="border-b border-gray-200 dark:border-gray-700"${genresDataAttr} data-author-id="${book.author.id}">
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
+                    <a href="/book/show/${book.id}"> ${book.title}</a>
+                </td>
+                <td class="px-6 py-4">${book.date_of_publication}</td>
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">${book.author.name}</td>
+                <td class="px-6 py-4 w-1/4">${book.description.substring(0, 200)}</td>
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">${book.genres.map(genre => genre.name).join(' ')}</td>
+                <td class="px-6 py-4">${book.collection?.name ?? ''}</td>
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">${book.progression} %</td>
+                <td class="px-6 py-4">
+                    <form class="deleteBookForm" data-bookid="${book.id}">
+                        <meta name="csrf-token" content="">
+                        <input type="hidden" id="bookId" value="${book.id}">
+                        <button type='submit' class="h-8 w-8 text-red-500">
+                            <svg class="h-8 w-8 text-red-500" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                        </button>
+                    </form>
+                </td>
+            </tr>`;
+
+                                    // Append the row HTML to the table body
+                                    tableBody.insertAdjacentHTML('beforeend', rowHTML);
+                                });
+                            }
+                             else {
                                 const errorText = await response.text();
                                 console.error('Network response was not ok:', response.status, response.statusText, errorText);
                             }
@@ -291,8 +324,7 @@
                             console.error('Fetch Library Error:', error);
                         }
                     }
-
-// Call the API endpoint with example data
+                    // Call the API endpoint with example data
                     callFilterLibrary();
                 }
             }
