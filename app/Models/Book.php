@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use DateTime;
 use Eloquent;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -71,7 +73,7 @@ class Book extends Model
      */
     public static function RetrieveProgression(\Illuminate\Database\Eloquent\Collection|array $books): array
     {
-// Transform books collection to include progression on the main object
+        // Transform books collection to include progression on the main object
         $booksWithProgression = $books->map(function ($book) {
             if ($book->users->isNotEmpty()) {
                 // Assuming there will be only one user since we filtered by user_id
@@ -85,19 +87,32 @@ class Book extends Model
 
     public function storeFromRequest(array $validatedData): void
     {
+        $dateString = $validatedData['date_of_publication'];
+        $formattedDate = null;
+        try {
+            // Create a DateTime object from the date string
+            $dateTime = new DateTime($dateString);
+
+            // Format the DateTime object to ensure it's in the correct MySQL date format
+            $formattedDate = $dateTime->format('Y-m-d');
+        } catch (Exception $e) {
+            // Handle invalid date format error
+            echo "Error: Invalid date format.";
+        }
+
         $this->title = $validatedData['title'];
         $this->description = $validatedData['description'];
-        $this->date_of_publication = $validatedData['date_of_publication'];
+        $this->date_of_publication = $formattedDate;
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
         $this->google_id = $validatedData['google_id'];
-        $validatedData = $this->FormatUploadedFile($validatedData);
+        $this->FormatUploadedFile($validatedData);
 
         $this->save();
         // Sync genres
         if (isset($validatedData['genres'])) {
             $this->genres()->sync($validatedData['genres']);
-        }
+       }
         //Sync User
         $user = Auth::user();
         $user->books()->attach($this);
