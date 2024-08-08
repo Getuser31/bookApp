@@ -13,6 +13,8 @@ services:
           - DB_DATABASE=laravel # Replace 'laravel' with your actual database name
           - DB_USERNAME=laravel # Replace 'laravel' with your database username
           - DB_PASSWORD=laravel # Replace 'laravel' with your database password
+          - XDEBUG_CONFIG=client_port=9003
+
         depends_on:
             - mysql
         networks:
@@ -56,3 +58,5 @@ volumes:
 networks:
     laravel:
         driver: bridge
+
+

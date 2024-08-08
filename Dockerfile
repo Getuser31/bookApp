@@ -2,33 +2,56 @@ FROM php:8.2-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-     git \
-     nodejs \
-     npm \
-    libzip-dev zip unzip net-tools lsof && \
-    docker-php-ext-install pdo_mysql zip && \
-    rm -rf /var/lib/apt/lists/*
+    git \
+    nodejs \
+    npm \
+    libzip-dev \
+    zip \
+    unzip \
+    net-tools \
+    lsof \
+    # Install dependencies for adding PHP repositories
+    ca-certificates \
+    apt-transport-https \
+    gnupg \
+    lsb-release \
+    ca-certificates \
+    curl
 
-# Install Composer
-RUN apt-get install -y curl && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Update package lists
+RUN apt-get update
 
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+# Install PECL extensions (including Xdebug)
+RUN pecl install xdebug
+RUN docker-php-ext-enable xdebug
 
-# Set the working directory
+# Install other PHP extensions
+RUN docker-php-ext-install pdo_mysql zip
+
+# Copy Xdebug configuration (customize as needed)
+COPY docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/
+
+COPY php-fpm.conf /usr/local/etc/php/php-fpm.conf
+
+# Set workdir
 WORKDIR /var/www
 
-# Copy the application files into the container
+# Copy project files
 COPY . /var/www
 
-# Install Laravel dependencies
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install Composer dependencies
 RUN composer install --no-interaction --prefer-dist --no-scripts
 
-# Install NPM dependencies and build the frontend assets
+# Install Node.js dependencies
 RUN npm install && npm run build
 
-# Install composer dependencies
+# Generate optimized autoloader files
 RUN composer dump-autoload --optimize
 
-# Expose port 9000 and start PHP-FPM server
+# Expose port 9000 and start PHP-FPM
 EXPOSE 9000
 
+CMD ["php-fpm"]
