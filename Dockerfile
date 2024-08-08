@@ -52,6 +52,10 @@ RUN npm install && npm run build
 RUN composer dump-autoload --optimize
 
 # Expose port 9000 and start PHP-FPM
-EXPOSE 9000
+EXPOSE 9000 5173
 
-CMD ["php-fpm"]
+# Entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+CMD ["docker-entrypoint.sh"]

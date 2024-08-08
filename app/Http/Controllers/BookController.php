@@ -110,8 +110,8 @@ class BookController extends Controller
     {
         $search = $request->query('search', '');
         $books = Book::where('title', 'like', '%' . $search . '%')
-            ->orWhere('author', 'like', '%' . $search . '%')
-            ->orWhere('genre', 'like', '%' . $search . '%')
+         //   ->orWhere('author', 'like', '%' . $search . '%')
+           // ->orWhere('genre', 'like', '%' . $search . '%')
             ->get();
 
         return response()->json(['books' => $books]);
