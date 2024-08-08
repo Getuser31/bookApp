@@ -45,7 +45,7 @@ use Illuminate\Support\Facades\Auth;
  * @property string|null $picture
  * @method static Builder|Book wherePicture($value)
  * @property string|null $google_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Genre> $genres
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Genre> $genres
  * @property-read int|null $genres_count
  * @method static Builder|Book whereGoogleId($value)
  * @mixin Eloquent
@@ -69,7 +69,7 @@ class Book extends Model
      * @param \Illuminate\Database\Eloquent\Collection|array $books
      * @return array
      */
-    public static function WithProgression(\Illuminate\Database\Eloquent\Collection|array $books): array
+    public static function RetrieveProgression(\Illuminate\Database\Eloquent\Collection|array $books): array
     {
 // Transform books collection to include progression on the main object
         $booksWithProgression = $books->map(function ($book) {
@@ -169,7 +169,7 @@ class Book extends Model
         }])->get();
 
         // Transform books collection to include progression on the main object
-        return self::WithProgression($books);
+        return self::RetrieveProgression($books);
     }
 
     public static function getListOfBooksFilterByAuthorId(array $authorId, int $userId): array
@@ -182,7 +182,7 @@ class Book extends Model
             }])->get();
 
         // Transform books collection to include progression on the main object
-        return self::WithProgression($books);
+        return self::RetrieveProgression($books);
     }
 
     public static function getListOfBooksFilterByAuthorIdAndGenreId(array $authorId, array $genreId, int $userId): array
@@ -196,7 +196,7 @@ class Book extends Model
             })->with(['genres', 'author', 'users' => function ($query) use ($userId) {
                 $query->where('user_id', $userId)->withPivot('progression');
             }])->get();
-        return self::WithProgression($books);
+        return self::RetrieveProgression($books);
 
     }
 }
