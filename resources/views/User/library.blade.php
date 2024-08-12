@@ -88,9 +88,13 @@
                     <td class="px-6 py-4">{{ ($book->date_of_publication)}}</td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->author->name }}</td>
                     <td class="px-6 py-4 w-1/4">{{\Illuminate\Support\Str::limit($book->description, 200)}}</td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">@foreach($book->genres as $genre)
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">@foreach($book->genres->take(4) as $genre)
                             {{ $genre->name }}
-                        @endforeach</td>
+                        @endforeach
+                        @if ($book->genres->count() > 3)
+                            <span title="{{ $book->genres->pluck('name')->slice(3)->join(', ') }}"> and more...</span>
+                        @endif
+                    </td>
                     <td class="px-6 py-4">{{ $book->collection->name ?? '' }}</td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->pivot->progression }}
                         %
@@ -287,13 +291,22 @@
                                     let rowHTML = `
             <tr id="book-row-${book.id}" class="border-b border-gray-200 dark:border-gray-700"${genresDataAttr} data-author-id="${book.author.id}">
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
-                    <a href="/book/show/${book.id}"> ${book.title}</a>
+                    <a href="/book/${book.id}"> ${book.title}</a>
                 </td>
                 <td class="px-6 py-4">${book.date_of_publication}</td>
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">${book.author.name}</td>
                 <td class="px-6 py-4 w-1/4">${book.description.substring(0, 200)}</td>
-                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">${book.genres.map(genre => genre.name).join(' ')}</td>
-                <td class="px-6 py-4">${book.collection?.name ?? ''}</td>
+<td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">
+    ${(() => {
+                                        const displayedGenres = book.genres.slice(0, 3).map(genre => genre.name);
+                                        const remainingGenres = book.genres.slice(3).map(genre => genre.name);
+                                        let result = displayedGenres.join(', ');
+                                        if (remainingGenres.length > 0) {
+                                            result += ` <span title="${remainingGenres.join(', ')}">and more...</span>`;
+                                        }
+                                        return result;
+                                    })()}
+</td>                <td class="px-6 py-4">${book.collection?.name ?? ''}</td>
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">${book.progression} %</td>
                 <td class="px-6 py-4">
                     <form class="deleteBookForm" data-bookid="${book.id}">
@@ -315,8 +328,7 @@
                                     // Append the row HTML to the table body
                                     tableBody.insertAdjacentHTML('beforeend', rowHTML);
                                 });
-                            }
-                             else {
+                            } else {
                                 const errorText = await response.text();
                                 console.error('Network response was not ok:', response.status, response.statusText, errorText);
                             }
@@ -324,6 +336,7 @@
                             console.error('Fetch Library Error:', error);
                         }
                     }
+
                     // Call the API endpoint with example data
                     callFilterLibrary();
                 }
