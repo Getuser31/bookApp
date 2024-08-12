@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use DateTime;
 use Eloquent;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $title
@@ -45,9 +47,11 @@ use Illuminate\Support\Facades\Auth;
  * @property string|null $picture
  * @method static Builder|Book wherePicture($value)
  * @property string|null $google_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Genre> $genres
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Genre> $genres
  * @property-read int|null $genres_count
  * @method static Builder|Book whereGoogleId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Rating> $rating
+ * @property-read int|null $rating_count
  * @mixin Eloquent
  */
 class Book extends Model
@@ -65,21 +69,52 @@ class Book extends Model
         'google_id'
     ];
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Collection|array $books
+     * @return array
+     */
+    public static function RetrieveProgression(\Illuminate\Database\Eloquent\Collection|array $books): array
+    {
+        // Transform books collection to include progression on the main object
+        $booksWithProgression = $books->map(function ($book) {
+            if ($book->users->isNotEmpty()) {
+                // Assuming there will be only one user since we filtered by user_id
+                $book->progression = $book->users->first()->pivot->progression;
+                $book->unsetRelation('users');
+            }
+            return $book;
+        });
+        return $booksWithProgression->toArray();
+    }
+
     public function storeFromRequest(array $validatedData): void
     {
+        $dateString = $validatedData['date_of_publication'];
+        $formattedDate = null;
+        try {
+            // Create a DateTime object from the date string
+            $dateTime = new DateTime($dateString);
+
+            // Format the DateTime object to ensure it's in the correct MySQL date format
+            $formattedDate = $dateTime->format('Y-m-d');
+        } catch (Exception $e) {
+            // Handle invalid date format error
+            echo "Error: Invalid date format.";
+        }
+
         $this->title = $validatedData['title'];
         $this->description = $validatedData['description'];
-        $this->date_of_publication = $validatedData['date_of_publication'];
+        $this->date_of_publication = $formattedDate;
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
         $this->google_id = $validatedData['google_id'];
-        $validatedData = $this->FormatUploadedFile($validatedData);
+        $this->FormatUploadedFile($validatedData);
 
         $this->save();
         // Sync genres
         if (isset($validatedData['genres'])) {
             $this->genres()->sync($validatedData['genres']);
-        }
+       }
         //Sync User
         $user = Auth::user();
         $user->books()->attach($this);
@@ -92,7 +127,7 @@ class Book extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withPivot(['progression']);
+        return $this->belongsToMany(User::class)->withPivot(['progression', 'rating']);
     }
 
     public function author(): BelongsTo
@@ -103,6 +138,11 @@ class Book extends Model
     public function genres(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'book_genre');
+    }
+
+    public function rating(): BelongsToMany
+    {
+        return $this->belongsToMany(Rating::class, 'book_rating');
     }
 
     public static function getListOfAuthorsBasedOnUserLibrary(int $userId)
@@ -137,5 +177,48 @@ class Book extends Model
             $this->picture = $path;
         }
         return $validatedData;
+    }
+
+    public static function getListOfBooksFilterByGenreId(array $genreId, int $userId): array
+    {
+        // Fetch books associated with a user and have the specified genre ID
+        $books = self::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->whereHas('genres', function ($query) use ($genreId) {
+            $query->whereIn('genre_id', $genreId);
+        })->with(['genres', 'author', 'users' => function ($query) use ($userId) {
+            $query->where('user_id', $userId)->withPivot('progression');
+        }])->get();
+
+        // Transform books collection to include progression on the main object
+        return self::RetrieveProgression($books);
+    }
+
+    public static function getListOfBooksFilterByAuthorId(array $authorId, int $userId): array
+    {
+        $books = self::where('author_id', $authorId)
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })->with(['genres', 'author', 'users' => function ($query) use ($userId) {
+                $query->where('user_id', $userId)->withPivot('progression');
+            }])->get();
+
+        // Transform books collection to include progression on the main object
+        return self::RetrieveProgression($books);
+    }
+
+    public static function getListOfBooksFilterByAuthorIdAndGenreId(array $authorId, array $genreId, int $userId): array
+    {
+        $books = self::where('author_id', $authorId)
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->whereHas('genres', function ($query) use ($genreId) {
+                $query->where('genre_id', $genreId);
+            })->with(['genres', 'author', 'users' => function ($query) use ($userId) {
+                $query->where('user_id', $userId)->withPivot('progression');
+            }])->get();
+        return self::RetrieveProgression($books);
+
     }
 }

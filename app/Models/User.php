@@ -16,6 +16,7 @@ use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  *
@@ -47,11 +48,13 @@ use Illuminate\Support\Facades\Hash;
  * @property int|null $role_id
  * @method static Builder|User whereRoleId($value)
  * @property-read \App\Models\Role|null $role
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read int|null $tokens_count
  * @mixin Eloquent
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -122,7 +125,7 @@ class User extends Authenticatable
      */
     public function books(): BelongsToMany
     {
-        return $this->belongsToMany(Book::class)->withPivot('progression');
+        return $this->belongsToMany(Book::class)->withPivot(['progression', 'rating']);
     }
 
     /**
