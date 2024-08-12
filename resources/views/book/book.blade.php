@@ -35,7 +35,7 @@
                     </form>
                 </li>
                 <li><b>Rating</b>
-                    <span id="ratingDisplay">{{$rating->rating}}</span>
+                    <span id="ratingDisplay">{{ $rating->rating ?? '' }}</span>
                     <form id="ratingForm">
                         <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
                         <label for="rating">Give a rate</label>

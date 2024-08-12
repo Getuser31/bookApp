@@ -75,7 +75,10 @@ class BookController extends Controller
         }
 
         $ratingId = BookRating::getRating($bookId, $userId);
-        $rating = Rating::find($ratingId)->first();
+        $rating = null;
+        if($ratingId != null) {
+            $rating = Rating::find($ratingId)->first();
+        }
 
         if(!$rating) {
             $rating = Rating::create([

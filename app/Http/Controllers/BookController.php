@@ -66,7 +66,10 @@ class BookController extends Controller
     {
         $book = Book::with('users')->findOrFail($id);
         $ratingId = BookRating::getRating($book->id, auth()->id());
-        $rating = Rating::find($ratingId)->first();
+        $rating = null;
+        if($ratingId){
+            $rating = Rating::find($ratingId)->first();
+        }
         $progression = null;
         $belongToUser = null;
         /** @var User $user */
