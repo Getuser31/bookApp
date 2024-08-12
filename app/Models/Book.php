@@ -50,6 +50,8 @@ use Illuminate\Support\Facades\Auth;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Genre> $genres
  * @property-read int|null $genres_count
  * @method static Builder|Book whereGoogleId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Rating> $rating
+ * @property-read int|null $rating_count
  * @mixin Eloquent
  */
 class Book extends Model
@@ -125,7 +127,7 @@ class Book extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withPivot(['progression']);
+        return $this->belongsToMany(User::class)->withPivot(['progression', 'rating']);
     }
 
     public function author(): BelongsTo
@@ -136,6 +138,11 @@ class Book extends Model
     public function genres(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'book_genre');
+    }
+
+    public function rating(): BelongsToMany
+    {
+        return $this->belongsToMany(Rating::class, 'book_rating');
     }
 
     public static function getListOfAuthorsBasedOnUserLibrary(int $userId)

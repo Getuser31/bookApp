@@ -248,7 +248,7 @@
                         return matches ? decodeURIComponent(matches[1]) : undefined;
                     }
 
-                    async function callFilterLibrary(data) {
+                    async function callFilterLibrary() {
                         const apiToken = '{{ session('api_token') }}'; // Get the token from the session
                         await fetchCSRFToken(); // Ensure CSRF token is fetched
                         try {

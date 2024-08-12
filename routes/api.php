@@ -11,7 +11,11 @@ Route::group(['middleware' => 'api'], function() {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('index', BookController::class);
+    Route::apiResource('index', BookController::class)->names('api.books.index');
     Route::any('filterLibrary', [BookController::class, 'filterLibrary'])
-        ->name('filterLibrary');
+        ->name('api.filterLibrary');
+
+    Route::post('updateRating', [BookController::class, 'updateRating'])
+        ->name('api.updateRating');
 });
+

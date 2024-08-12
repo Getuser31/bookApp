@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $name
@@ -25,6 +25,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Genre whereId($value)
  * @method static Builder|Genre whereName($value)
  * @method static Builder|Genre whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Book> $books
+ * @property-read int|null $books_count
  * @mixin Eloquent
  */
 class Genre extends Model
