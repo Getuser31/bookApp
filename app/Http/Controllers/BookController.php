@@ -65,11 +65,7 @@ class BookController extends Controller
     public function show(int $id): Factory|\Illuminate\Foundation\Application|View|Application
     {
         $book = Book::with('users')->findOrFail($id);
-        $ratingId = BookRating::getRating($book->id, auth()->id());
-        $rating = null;
-        if($ratingId){
-            $rating = Rating::find($ratingId)->first();
-        }
+        $rating = BookRating::getRating($book->id, auth()->id());
         $progression = null;
         $belongToUser = null;
         /** @var User $user */

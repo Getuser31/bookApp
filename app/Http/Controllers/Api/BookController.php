@@ -20,26 +20,25 @@ class BookController extends Controller
         $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
         $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
         return response()->json([
-           'books' => $books,
-           'authors' => $authors,
-           'genres' => $genres
-       ]);
+            'books' => $books,
+            'authors' => $authors,
+            'genres' => $genres
+        ]);
     }
 
     public function filterLibrary(Request $request): JsonResponse
     {
         $userId = Auth()->id();
-        $authorsId = explode(',',$request->input('authors'));
-        $genresId = explode(',' ,$request->input('genres'));
+        $authorsId = explode(',', $request->input('authors'));
+        $genresId = explode(',', $request->input('genres'));
 
         if ($authorsId[0] != '' && $genresId['0'] == '') {
             $books = Book::getListOfBooksFilterByAuthorId($authorsId, $userId);
-        }elseif ($genresId[0] != '' && $authorsId['0'] == '') {
+        } elseif ($genresId[0] != '' && $authorsId['0'] == '') {
             $books = Book::getListOfBooksFilterByGenreId($genresId, $userId);
-        }elseif ($authorsId['0'] == '' && $genresId['0'] == '') {
+        } elseif ($authorsId['0'] == '' && $genresId['0'] == '') {
             $books = Auth()->user()->books()->with(['author', 'genres'])->get()->toArray();
-        }
-        else {
+        } else {
             $books = Book::getListOfBooksFilterByAuthorIdAndGenreId($authorsId, $genresId, $userId);
         }
 
@@ -48,53 +47,40 @@ class BookController extends Controller
 
     public function updateRating(Request $request): JsonResponse
     {
-        //Validate Request Input
-        $validator = Validator::make($request->all(), [
-            'bookId' => 'required|exists:books,id',
-            'rating' => 'required|integer|min:1|max:10',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 400);
-        }
-
-        $bookId = $request->input('bookId');
-        $ratingInput = $request->input('rating');
-
-        // Find the book by ID or fail
-        Book::findOrFail($bookId);
-
-        //Attach User
-        $userId = Auth::id();
-        if (!$userId) {
-            return response()->json([
-                'error' => 'Unauthorized'
-            ], 401);
-        }
-
-        $ratingId = BookRating::getRating($bookId, $userId);
-        $rating = null;
-        if($ratingId != null) {
-            $rating = Rating::find($ratingId)->first();
-        }
-
-        if(!$rating) {
-            $rating = Rating::create([
-                'rating' => $ratingInput,
+        try {
+            // Validate Request Input
+            $validated = $request->validate([
+                'bookId' => 'required|exists:books,id',
+                'rating' => 'required|integer|min:1|max:10',
             ]);
-        } else {
-            $rating->update([
-                'rating' => $ratingInput,
-            ]);
+
+            $bookId = $validated['bookId'];
+            $ratingInput = $validated['rating'];
+
+            // Attach User
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            $userId = $user->id;
+
+            // Get the existing BookRating record or create a new instance
+            $bookRating = BookRating::firstOrNew(
+                ['book_id' => $bookId, 'user_id' => $userId]
+            );
+
+            // Update the rating value
+            $bookRating->rating = $ratingInput;
+
+            // Save the BookRating record
+            $bookRating->save();
+
+            return response()->json(['message' => 'Rating updated successfully'], 200);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        // Update or create rating in the book_rating table
-        BookRating::updateOrCreate(
-            ['book_id' => $bookId, 'user_id' => $userId, 'rating_id' => $rating->id],
-        );
-
-        return response()->json(['message' => 'Rating updated successfully']);
     }
 }
