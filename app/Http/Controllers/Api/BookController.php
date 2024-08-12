@@ -61,7 +61,7 @@ class BookController extends Controller
         }
 
         $bookId = $request->input('bookId');
-        $rating = $request->input('rating');
+        $ratingInput = $request->input('rating');
 
         // Find the book by ID or fail
         Book::findOrFail($bookId);
@@ -74,15 +74,22 @@ class BookController extends Controller
             ], 401);
         }
 
-        $rating = Rating::create([
-            'rating' => $rating,
-        ]);
+        $ratingId = BookRating::getRating($bookId, $userId);
+        $rating = Rating::find($ratingId)->first();
 
-        $ratingId = $rating->id;
+        if(!$rating) {
+            $rating = Rating::create([
+                'rating' => $ratingInput,
+            ]);
+        } else {
+            $rating->update([
+                'rating' => $ratingInput,
+            ]);
+        }
 
         // Update or create rating in the book_rating table
         BookRating::updateOrCreate(
-            ['book_id' => $bookId, 'user_id' => $userId, 'rating_id' => $ratingId],
+            ['book_id' => $bookId, 'user_id' => $userId, 'rating_id' => $rating->id],
         );
 
         return response()->json(['message' => 'Rating updated successfully']);

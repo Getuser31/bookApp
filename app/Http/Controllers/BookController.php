@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\BookRating;
 use App\Models\Genre;
+use App\Models\Rating;
 use App\Models\User;
 use App\Services\GoogleBookService;
 use GuzzleHttp\Exception\GuzzleException;
@@ -32,7 +34,7 @@ class BookController extends Controller
         }
 
         /** @var LengthAwarePaginator $books */
-        $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
+        $books = Auth()->user()->books()->with(['author', 'genres', 'rating'])->paginate(10);
 
 
         return view('books',  ['books' => $books]);
@@ -63,6 +65,8 @@ class BookController extends Controller
     public function show(int $id): Factory|\Illuminate\Foundation\Application|View|Application
     {
         $book = Book::with('users')->findOrFail($id);
+        $ratingId = BookRating::getRating($book->id, auth()->id());
+        $rating = Rating::find($ratingId)->first();
         $progression = null;
         $belongToUser = null;
         /** @var User $user */
@@ -73,7 +77,7 @@ class BookController extends Controller
                 $belongToUser = true;
             }
         }
-        return view('book.book', ['book' => $book, 'progression' => $progression, 'belongToUser' => $belongToUser]);
+        return view('book.book', ['book' => $book, 'progression' => $progression, 'belongToUser' => $belongToUser, 'rating' => $rating]);
     }
 
     /**

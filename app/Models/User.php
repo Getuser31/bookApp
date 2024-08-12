@@ -125,7 +125,7 @@ class User extends Authenticatable
      */
     public function books(): BelongsToMany
     {
-        return $this->belongsToMany(Book::class)->withPivot(['progression', 'rating']);
+        return $this->belongsToMany(Book::class)->withPivot(['progression']);
     }
 
     /**
