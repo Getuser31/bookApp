@@ -140,11 +140,6 @@ class Book extends Model
         return $this->belongsToMany(Genre::class, 'book_genre');
     }
 
-    public function rating(): BelongsToMany
-    {
-        return $this->belongsToMany(Rating::class, 'book_rating');
-    }
-
     public static function getListOfAuthorsBasedOnUserLibrary(int $userId)
     {
         return self::whereHas('users', function ($query) use ($userId) {

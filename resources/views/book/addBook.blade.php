@@ -31,7 +31,7 @@
             () => {
                 const value = searchInput.value;
                 if (value) {
-                    let url = "https://www.googleapis.com/books/v1/volumes?q=" + value
+                    let url = "https://www.googleapis.com/books/v1/volumes?q=" + value + "&langRestrict=fr"
 
                     fetch(url, {
                         method: 'GET',
@@ -66,11 +66,14 @@
                                 genreElement.textContent = `Genre: ${item.volumeInfo.categories ? item.volumeInfo.categories.join(', ') : 'N/A'}`;
                                 resultItem.appendChild(genreElement);
 
-                                let descriptionElement = document.createElement('p');
-                                descriptionElement.textContent = `Description: ${ item.volumeInfo.description.length > 250
-                                    ? item.volumeInfo.description.substring(0, 247) + '...'
-                                    : item.volumeInfo.description || 'N/A'}`;
-                                resultItem.appendChild(descriptionElement);
+                                if(item.volumeInfo.description){
+                                    let descriptionElement = document.createElement('p');
+                                    descriptionElement.textContent = `Description: ${ item.volumeInfo.description.length > 250
+                                        ? item.volumeInfo.description.substring(0, 247) + '...'
+                                        : item.volumeInfo.description || 'N/A'}`;
+                                    resultItem.appendChild(descriptionElement);
+                                }
+
 
                                 if (item.volumeInfo.imageLinks && item.volumeInfo.imageLinks.thumbnail) {
                                     let thumbnailElement = document.createElement('img');
@@ -86,7 +89,7 @@
                                 form.method = 'POST';
                                 form.action = '/googleBook';
 
-// Add CSRF token input to the form
+                                // Add CSRF token input to the form
                                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                                 const csrfInput = document.createElement('input');
                                 csrfInput.type = 'hidden';
@@ -94,10 +97,10 @@
                                 csrfInput.value = csrfToken;
                                 form.appendChild(csrfInput);
 
-// Append the form to the document body
+                                // Append the form to the document body
                                 document.body.appendChild(form);
 
-// Make result item clickable and going to book detail page
+                                // Make result item clickable and going to book detail page
                                 resultItem.addEventListener('click', function () {
                                     const book = {
                                         id: item.id,
@@ -122,7 +125,7 @@
                                     // Submit the form
                                     form.submit();
                                 });
-// Append the result item to the results div
+                                // Append the result item to the results div
                                 resultsDivApi.appendChild(resultItem);
                             });
                         })

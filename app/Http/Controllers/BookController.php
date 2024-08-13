@@ -34,7 +34,7 @@ class BookController extends Controller
         }
 
         /** @var LengthAwarePaginator $books */
-        $books = Auth()->user()->books()->with(['author', 'genres', 'rating'])->paginate(10);
+        $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
 
 
         return view('books',  ['books' => $books]);
@@ -66,6 +66,9 @@ class BookController extends Controller
     {
         $book = Book::with('users')->findOrFail($id);
         $rating = BookRating::getRating($book->id, auth()->id());
+        if($rating !== null){
+            $rating = $rating->rating;
+        }
         $progression = null;
         $belongToUser = null;
         /** @var User $user */
