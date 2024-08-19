@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
-use App\Models\Rating;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class BookController extends Controller
 {

@@ -90,6 +90,9 @@ class Book extends Model
     public function storeFromRequest(array $validatedData): void
     {
         $dateString = $validatedData['date_of_publication'];
+        /**
+         * @var string $formattedDate The formatted date value.
+         */
         $formattedDate = null;
         try {
             // Create a DateTime object from the date string

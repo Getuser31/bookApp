@@ -46,9 +46,9 @@ class GoogleBookService
             'title' => $data['volumeInfo']['title'],
             'authors' => $data['volumeInfo']['authors'],
             'date_of_publication' => $data['volumeInfo']['publishedDate'],
-            'description' => $data['volumeInfo']['description'],
+            'description' => $data['volumeInfo']['description'] ?? null,
             'picture' => $data['volumeInfo']['imageLinks']['thumbnail'] ?? null,
-            'genres' => $data['volumeInfo']['categories'] ?? 'No title available',
+            'genres' => $data['volumeInfo']['categories'] ?? 'No genre available',
             'google_id' => $data['id']
         ];
     }
@@ -70,7 +70,7 @@ class GoogleBookService
     {
         // If genre is an empty string, return the first genre from book data
         if ($genre === '') {
-            return $this->getBookData()['genre'][0];
+            return '';
         }
 
         $genres = is_string($genre) ? [$genre] : $genre;
