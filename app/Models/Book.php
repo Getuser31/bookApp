@@ -219,4 +219,38 @@ class Book extends Model
         return self::RetrieveProgression($books);
 
     }
+
+    /**
+     * Returns the number of books that have been started by a specific user.
+     *
+     * @param int $userId The ID of the user.
+     * @return int The number of books started by the user.
+     *
+     * @see \App\Models\Book
+     * @see \App\Models\User
+     * @see \Illuminate\Database\Eloquent\Builder::whereHas
+     * @see \Illuminate\Database\Eloquent\Builder::where
+     * @see \Illuminate\Database\Eloquent\Builder::count
+     */
+    public static function BooksStarted(int $userId): int
+    {
+        return self::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                ->where('progression', '>', 0);
+        })->count();
+    }
+
+    /**
+     * Returns the number of books that have not been started by the specified user.
+     *
+     * @param int $userId The ID of the user.
+     * @return int The number of books that have not been started by the user.
+     */
+    public static function BooksNotStarted(int $userId): int
+    {
+        return self::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                ->where('progression', 0);
+        })->count();
+    }
 }

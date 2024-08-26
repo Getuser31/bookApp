@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Book;
+use App\Models\BookRating;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
@@ -160,7 +162,15 @@ class UserController
     public function userProfile(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         $user = Auth::user();
-        $user = User::with('books')->find($user->id);
-        return view('User.profile', compact('user'));
+        $userWithBooks = User::with('books')->find($user->id);
+        $averageRanking = BookRating::getAverageBookRating($user->id);
+        $booksStarted = Book::BooksStarted($user->id);
+        $bookNotStarted = Book::BooksNotStarted($user->id);
+        return view('User.profile', [
+            'user' => $userWithBooks,
+            'averageRanking' => $averageRanking,
+            'bookStarted' => $booksStarted,
+            'bookNotStarted' => $bookNotStarted
+        ]);
     }
 }

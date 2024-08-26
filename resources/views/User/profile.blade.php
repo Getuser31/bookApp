@@ -10,8 +10,9 @@
             <div class="statistics">
                 <p>Statistics :</p>
                 <p>{{$user->books->count()}} Total books belonging</p>
-                <p># Books started</p>
-                <p># Book not started</p>
+                <p>{{intval($averageRanking)}}/10 average ranking</p>
+                <p>{{$bookStarted}} Book(s) started</p>
+                <p>{{$bookNotStarted}} Book(s) not started</p>
                 <p># Book in wishlist</p>
             </div>
 
