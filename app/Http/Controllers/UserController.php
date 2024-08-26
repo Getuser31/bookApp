@@ -156,4 +156,11 @@ class UserController
 
         return redirect()->route('book.index');
     }
+
+    public function userProfile(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $user = Auth::user();
+        $user = User::with('books')->find($user->id);
+        return view('User.profile', compact('user'));
+    }
 }

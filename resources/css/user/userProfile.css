@@ -1,0 +1,21 @@
+.outer-container {
+    @apply flex justify-center;
+}
+
+.container {
+    width: 80%;
+    max-width: none;
+    @apply flex;
+}
+
+.statistics, .userData {
+    @apply flex-1 p-5 border m-2;
+}
+
+.statistics {
+    /* additional custom styles if needed */
+}
+
+.userData {
+    /* additional custom styles if needed */
+}
