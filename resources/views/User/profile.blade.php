@@ -24,6 +24,8 @@
                     <li>{{$bookNotStarted}} Book{{$bookNotStarted > 1 ? 's' : ''}} not started</li>
                     <li># Book in wishlist</li>
                 </ul>
+
+                <h3 class="h-4 text-lg font-medium leading-6 text-gray-900 mt-4">Preference:</h3>
             </div>
 
             <div class="userData p-4 bg-white rounded-lg shadow-md">
@@ -47,11 +49,12 @@
                 </form>
                 <!-- Button to open modal -->
                 <button
-                    class="bg-indigo-600 hover:bg-indigo-700 border border-transparent text-white font-bold py-2 px-4 rounded-md shadow-sm"
+                    class="inline-flex items-center px-4 py-2 mt-5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     onclick="toggleModal()"
                 >
                     Update Password
                 </button>
+
             </div>
         </div>
     </div>

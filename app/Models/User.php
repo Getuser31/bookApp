@@ -20,7 +20,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $name

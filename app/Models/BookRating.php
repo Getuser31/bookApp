@@ -4,6 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property int $book_id
+ * @property int $user_id
+ * @property int $rating
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereBookId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereUserId($value)
+ * @mixin \Eloquent
+ */
 class BookRating extends Pivot
 {
     protected $table = 'book_rating';
