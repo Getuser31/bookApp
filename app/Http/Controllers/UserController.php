@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserDataRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Book;
 use App\Models\BookRating;
@@ -140,6 +141,14 @@ class UserController
         $user->update($request->validated());
 
         return redirect()->route('updateAccount', $user)->with('status', 'User updated successfully!');
+    }
+
+    public function UpdateUserData(UpdateUserDataRequest $request): RedirectResponse
+    {
+        $user = Auth::user();
+        $user->update($request->validated());
+
+        return redirect()->route('userProfile', $user)->with('status', 'Personal data successfully updated!');
     }
 
     /**
