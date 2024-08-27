@@ -1,9 +1,19 @@
 <?php
 
+/**
+ * Represents the UserController class in the Laravel application.
+ *
+ * This class is responsible for handling user-related actions, such as user authentication, registration, account management, and profile display. It interacts with the User model, Role model, Book model, BookRating model, and various request classes.
+ *
+ * @package App\Http\Controllers
+ * @version v11.7.0
+ */
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserDataRequest;
+use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Book;
 use App\Models\BookRating;
@@ -20,6 +30,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
+/**
+ *
+ */
 class UserController
 {
     /**
@@ -96,12 +109,30 @@ class UserController
         return redirect()->route('checkUser', ['id' => $user->id]);
     }
 
+    /**
+     * Checks the user information.
+     *
+     * This method retrieves the user information including the associated role based on the given ID and returns a view with the user object.
+     *
+     * @param int $id The ID of the user to check.
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application Returns a view with the user object.
+     * @throws ModelNotFoundException If the user with the given ID cannot be found.
+     */
     public function checkUser(int $id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         $user = User::with('role')->find($id);
         return view('User.checkUser', compact('user'));
     }
 
+    /**
+     * Deletes a user.
+     *
+     * This method deletes a user with the specified ID and redirects to the admin.users route.
+     *
+     * @param int $id The ID of the user to be deleted.
+     * @return RedirectResponse Redirects to the admin.users route.
+     * @throws ModelNotFoundException If the user with the specified ID cannot be found.
+     */
     public function deleteUser(int $id): RedirectResponse
     {
         $user = User::find($id);
@@ -110,6 +141,12 @@ class UserController
         return redirect()->route('admin.users')->with('success', 'User has been deleted');
     }
 
+    /**
+     * Retrieves a list of users.
+     *
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application The view instance showing the list of users.
+     *      The view instance showing the list of users.
+     */
     public function listOfUsers(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         $users = User::paginate(10);
@@ -133,7 +170,13 @@ class UserController
     }
 
     /**
-     * @throws Exception
+     * Updates the user account.
+     *
+     * This method updates a user's account information based on the given request data.
+     *
+     * @param UpdateUserRequest $request The request data containing the updates for the user account.
+     * @return RedirectResponse Redirects the user to the updateAccount route with a success message.
+     * @throws ModelNotFoundException If the user cannot be found.
      */
     public function updateAccountPost(UpdateUserRequest $request): RedirectResponse
     {
@@ -152,7 +195,13 @@ class UserController
     }
 
     /**
-     * @throws Exception
+     * Registers a new user.
+     *
+     * This method registers a new user based on the provided user data and returns a redirect response to the book index page.
+     *
+     * @param StoreUserRequest $request The request containing the validated user data.
+     * @return RedirectResponse Returns a redirect response to the book index page.
+     * @throws ModelNotFoundException|Exception If the user role cannot be found.
      */
     public function register(StoreUserRequest $request): RedirectResponse
     {
@@ -168,6 +217,14 @@ class UserController
         return redirect()->route('book.index');
     }
 
+    /**
+     * Displays the user's profile.
+     *
+     * This method retrieves the user object from the authentication system and fetches additional information such as the user's books, average book rating, books started, and books not started. It then returns a view with the user's profile information and the fetched data.
+     *
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application Returns a view with the user's profile details, including the user's books, average book rating, books started, and books not started.
+     * @throws ModelNotFoundException If the user cannot be found.
+     */
     public function userProfile(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
     {
         $user = Auth::user();
@@ -181,5 +238,13 @@ class UserController
             'bookStarted' => $booksStarted,
             'bookNotStarted' => $bookNotStarted
         ]);
+    }
+
+    public function updatePassword(UpdateUserPasswordRequest $request): RedirectResponse
+    {
+        $user = Auth::user();
+        $user->update($request->validated());
+
+        return redirect()->route('userProfile', $user)->with('status', 'Password updated successfully!');
     }
 }
