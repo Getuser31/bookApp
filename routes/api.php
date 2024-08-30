@@ -17,5 +17,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('updateRating', [BookController::class, 'updateRating'])
         ->name('api.updateRating');
+
+    Route::post('updateFavorite', [BookController::class, 'updateFavorite'])
+        ->name('api.updateFavorite');
 });
 

@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="api-token" content="{{ session('api_token') }}">
     <title>@yield('title')</title>
 
     <!-- Styles -->
     @vite(['resources/css/app.css'])
     @stack('styles')
+
+    <!-- Scripts -->
+    @vite(['resources/js/app.js'])
+    @stack('scripts')
 </head>
 <body>
 
@@ -34,7 +39,5 @@
 </div>
 @yield('content')
 
-<!-- Scripts -->
-@vite(['resources/js/app.js'])
 </body>
 </html>

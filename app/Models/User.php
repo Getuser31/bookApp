@@ -20,7 +20,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -126,7 +126,7 @@ class User extends Authenticatable
      */
     public function books(): BelongsToMany
     {
-        return $this->belongsToMany(Book::class)->withPivot(['progression']);
+        return $this->belongsToMany(Book::class)->withPivot(['progression', 'favorite']);
     }
 
     /**

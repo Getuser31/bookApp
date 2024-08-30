@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -81,5 +82,27 @@ class BookController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function updateFavorite(Request $request): JsonResponse
+    {
+
+        try {
+            $favorite = $request->input('favorite');
+            if ($favorite === 'false'){
+                $favorite = false;
+            } else {
+                $favorite = true;
+            }
+            $bookId = $request->input('bookId');
+            $book = Book::findOrFail($bookId);
+            $user = Auth::user();
+            $user->books()->updateExistingPivot($book, ['favorite' => $favorite]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
+
+        return response()->json(['success' => true]);
+
     }
 }

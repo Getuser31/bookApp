@@ -26,6 +26,9 @@
                 </ul>
 
                 <h3 class="h-4 text-lg font-medium leading-6 text-gray-900 mt-4">Preference:</h3>
+                <ul class="list-disc list-inside space-y-2">
+
+                </ul>
             </div>
 
             <div class="userData p-4 bg-white rounded-lg shadow-md">
@@ -44,7 +47,7 @@
                     </div>
 
                     <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Envoyer
+                        Submit
                     </button>
                 </form>
                 <!-- Button to open modal -->

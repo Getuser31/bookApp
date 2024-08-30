@@ -16,8 +16,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * 
- *
  * @property int $id
  * @property string $title
  * @property string $date_of_publication
@@ -50,7 +48,7 @@ use Illuminate\Support\Facades\Auth;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Genre> $genres
  * @property-read int|null $genres_count
  * @method static Builder|Book whereGoogleId($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Rating> $rating
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Rating> $rating
  * @property-read int|null $rating_count
  * @mixin Eloquent
  */
@@ -130,7 +128,7 @@ class Book extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withPivot(['progression']);
+        return $this->belongsToMany(User::class)->withPivot(['progression', 'favorite']);
     }
 
     public function author(): BelongsTo

@@ -34,7 +34,7 @@
                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     </form>
                 </li>
-                <li><b>Rating</b>
+                <li><b>Rating:</b>
                     <span id="ratingDisplay">{{ $rating ?? '' }}</span>
                     <form id="ratingForm">
                         <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
@@ -44,6 +44,14 @@
                         <input type="submit" value="Update"
                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     </form>
+                </li>
+                <li>
+                    <form id="favoriteForm">
+                        <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
+                        <label for="favorite">Favorite</label>
+                        <input type="checkbox" name="favorite" id="favorite" {{$favorite ? 'checked' : ''}}>
+                    </form>
+
                 </li>
             @else
                 <a href="{{route('book.addBookPost', ['id' => $book->id])}}"
@@ -79,68 +87,41 @@
     </script>
 
     <script>
-        document.getElementById('ratingForm').addEventListener('submit', async function(e) {
-            e.preventDefault(); // To prevent the default form submission
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const ratingForm = document.getElementById('ratingForm');
+        const favoriteButton = document.getElementById('favorite');
+        const ratingField = document.getElementById('ratingField');
+        const bookIdField = document.getElementById('bookId');
 
-            async function fetchCSRFToken() {
-                try {
-                    const response = await fetch('http://localhost:8000/sanctum/csrf-cookie', {
-                        credentials: 'include', // Ensure cookies are sent and received
-                    });
-                    if (!response.ok) {
-                        throw new Error(`Network response was not ok (${response.status})`);
-                    }
-                    // Store the CSRF token from the response headers
-                    return response.headers.get('X-XSRF-TOKEN');
-                } catch (error) {
-                    console.error('Fetch CSRF Token Error:', error);
-                    throw error;  // Let the error propagate
-                }
-            }
+        ratingForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const ratingValue = ratingField.value;
+          const bookId = bookIdField.value;
 
-            function getCookie(name) {
-                const matches = document.cookie.match(new RegExp(
-                    '(?:^|; )' + name.replace(/([.$?*|{}()[]\/+^])/g, '\\$1') + '=([^;]*)'
-                ));
-                return matches ? decodeURIComponent(matches[1]) : undefined;
-            }
+          const params = new URLSearchParams();
+          params.append('rating', ratingValue);
+          params.append('bookId', bookId);
 
-            async function updateRating() {
-                let ratingValue = document.getElementById('ratingField').value;
-                let bookId = document.getElementById('bookId').value;
-
-                const apiToken = '{{ session('api_token') }}'; // Get the token from the session
-                await fetchCSRFToken(); // Ensure CSRF token is fetched
-
-                try {
-                    const xsrfToken = getCookie('XSRF-TOKEN');
-                    const params = new URLSearchParams();
-                    params.append('rating', ratingValue);
-                    params.append('bookId', bookId);
-                    const response = await fetch('{{route('api.updateRating')}}', {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-XSRF-TOKEN': xsrfToken, // Use the fetched token
-                            'Authorization': `Bearer ${apiToken}`
-                        },
-                        body: params.toString(),
-                    });
-                    if (response.ok) {
-                        document.getElementById('ratingDisplay').innerHTML = ratingValue;
-                    } else {
-                        const errorText = await response.text();
-                        console.error('Network response was not ok:', response.status, response.statusText, errorText);
-                    }
-                } catch (error) {
-                    console.error('Update Rating Error:', error);
-                }
-            }
-
-            // Call the function to update rating
-            await updateRating();
+          const response = await makePostRequest('{{route('api.updateRating')}}', params);
+          if (response && response.ok) {
+            document.getElementById('ratingDisplay').innerHTML = ratingValue;
+          }
         });
+
+        favoriteButton.addEventListener('click', async function (e) {
+          const favorite = favoriteButton.checked;
+          const bookId = bookIdField.value;
+
+          const params = new URLSearchParams();
+          params.append('favorite', favorite);
+          params.append('bookId', bookId);
+
+          const response = await makePostRequest('{{route('api.updateFavorite')}}', params);
+          if (response && response.ok) {
+            favoriteButton.checked = favorite;
+          }
+        });
+      });
     </script>
 
 @endsection

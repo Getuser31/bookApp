@@ -29,7 +29,7 @@ class BookController extends Controller
      */
     public function index(): Factory|\Illuminate\Foundation\Application|View|Application|RedirectResponse
     {
-        if(!Auth::check()){
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
 
@@ -37,7 +37,7 @@ class BookController extends Controller
         $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
 
 
-        return view('books',  ['books' => $books]);
+        return view('books', ['books' => $books]);
     }
 
     /**
@@ -66,20 +66,28 @@ class BookController extends Controller
     {
         $book = Book::with('users')->findOrFail($id);
         $rating = BookRating::getRating($book->id, auth()->id());
-        if($rating !== null){
+        if ($rating !== null) {
             $rating = $rating->rating;
         }
         $progression = null;
+        $favorite = null;
         $belongToUser = null;
         /** @var User $user */
         if (isset($book->users)) {
             $user = $book->users->first();
-            if($user != null){
+            if ($user != null) {
                 $progression = $user->pivot->progression;
+                $favorite = $user->pivot->favorite;
                 $belongToUser = true;
             }
         }
-        return view('book.book', ['book' => $book, 'progression' => $progression, 'belongToUser' => $belongToUser, 'rating' => $rating]);
+        return view('book.book', [
+            'book' => $book,
+            'progression' => $progression,
+            'belongToUser' => $belongToUser,
+            'rating' => $rating,
+            'favorite' => $favorite
+        ]);
     }
 
     /**
