@@ -13,17 +13,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserDataRequest;
+use App\Http\Requests\UpdateUserIndexPreferenceRequest;
+use App\Http\Requests\UpdateUserLanguagePreference;
 use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Book;
 use App\Models\BookRating;
+use App\Models\DefaultLanguage;
+use App\Models\IndexPreference;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserPreference;
 use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -232,11 +238,17 @@ class UserController
         $averageRanking = BookRating::getAverageBookRating($user->id);
         $booksStarted = Book::BooksStarted($user->id);
         $bookNotStarted = Book::BooksNotStarted($user->id);
+        $indexPreferences = IndexPreference::all();
+        $defaultLanguages = DefaultLanguage::all();
+        $userPreferences = UserPreference::getUserPreference($user->id);
         return view('User.profile', [
             'user' => $userWithBooks,
             'averageRanking' => $averageRanking,
             'bookStarted' => $booksStarted,
-            'bookNotStarted' => $bookNotStarted
+            'bookNotStarted' => $bookNotStarted,
+            'indexPreferences' => $indexPreferences,
+            'userPreferences' => $userPreferences,
+            'defaultLanguages' => $defaultLanguages
         ]);
     }
 
@@ -246,5 +258,41 @@ class UserController
         $user->update($request->validated());
 
         return redirect()->route('userProfile', $user)->with('status', 'Password updated successfully!');
+    }
+
+    public function updateIndexPreference(UpdateUserIndexPreferenceRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+        $userPreference = UserPreference::getUserPreference($user->id);
+        if($userPreference){
+            $userPreference->update($request->validated());
+        } else {
+            $language = DefaultLanguage::first();
+            $validated = $request->validated();
+            UserPreference::create([
+                'user_id' => $user->id,
+                'index_preference_id' => $validated['index_preference_id'],
+                'default_language_id' => $language
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function updateLanguage(UpdateUserLanguagePreference $request): JsonResponse
+    {
+        $user = Auth::user();
+        $userPreference = UserPreference::getUserPreference($user->id);
+        if($userPreference){
+            $userPreference->update($request->validated());
+        } else {
+            $language = $request->validated();
+            UserPreference::create([
+                'user_id' => $user->id,
+                'default_language_id' => $language
+            ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

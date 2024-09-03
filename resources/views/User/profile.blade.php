@@ -26,9 +26,35 @@
                 </ul>
 
                 <h3 class="h-4 text-lg font-medium leading-6 text-gray-900 mt-4">Preference:</h3>
-                <ul class="list-disc list-inside space-y-2">
+                <div class="list-disc list-inside space-y-2">
+                    <form method="post" class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+                        @csrf
+                        <div class="mb-4">
+                            <label for="indexPreferences" class="block text-sm font-medium text-gray-700 mb-2">Choose an
+                                index preference</label>
+                            <select name="index_preference_id" id="indexPreferences"
+                                    class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                @foreach($indexPreferences as $preferences)
+                                    <option value="{{$preferences->id}}"
+                                        {{$preferences->id == $userPreferences->index_preference_id ? 'selected' : ''}}>
+                                        {{$preferences->name}}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <label for="language" class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                            <select name="lanuage" id="language"
+                                    class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                @foreach($defaultLanguages as $defaultLanguage)
+                                    <option value="{{$defaultLanguage->id}}"
+                                        {{$defaultLanguage->id == $userPreferences->default_language_id ? 'selected' : ''}}>
+                                        {{$defaultLanguage->language}}
+                                    </option>
+                                @endforeach
+                            </select>
 
-                </ul>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <div class="userData p-4 bg-white rounded-lg shadow-md">
@@ -38,15 +64,18 @@
 
                     <div>
                         <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                        <input type="text" name="name" id="username" value="{{$user->name}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <input type="text" name="name" id="username" value="{{$user->name}}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                     </div>
 
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" name="email" id="email" value="{{$user->email}}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <input type="email" name="email" id="email" value="{{$user->email}}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                     </div>
 
-                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Submit
                     </button>
                 </form>
@@ -63,7 +92,8 @@
     </div>
 
     <!-- Modal Background -->
-    <div id="modal" class="{{ $errors->any() ? '' : 'hidden' }} fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+    <div id="modal"
+         class="{{ $errors->any() ? '' : 'hidden' }} fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
         <!-- Modal Container -->
         <div class="bg-white w-1/2 rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center border-b pb-3">
@@ -77,7 +107,8 @@
 
                     <!-- Display Validation Errors -->
                     @if ($errors->any())
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                             role="alert">
                             <strong class="font-bold">Whoops!</strong>
                             <span class="block sm:inline">There were some problems with your input.</span>
                             <ul class="mt-3 list-disc list-inside">
@@ -89,10 +120,13 @@
                     @endif
 
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <input type="password" name="password" id="password"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
 
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Repeat Password</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Repeat
+                        Password</label>
+                    <input type="password" name="password_confirmation" id="password_confirmation"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
 
                     <div class="flex justify-end pt-2 mt-4">
                         <button
@@ -118,6 +152,29 @@
         function toggleModal() {
             document.getElementById('modal').classList.toggle('hidden');
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const prefForm = document.getElementById('indexPreferences');
+            const languageForm = document.getElementById('language');
+
+            prefForm.addEventListener('change', async function (e) {
+                let prefValue = document.getElementById('indexPreferences').value;
+
+                const params = new URLSearchParams();
+                params.append('index_preference_id', prefValue);
+
+                await makePostRequest('{{route('api.updateIndexPreference')}}', params);
+            })
+
+            languageForm.addEventListener('change', async function(e) {
+                let languageValue = document.getElementById('language').value;
+
+                const params = new URLSearchParams();
+                params.append('default_language_id', languageValue);
+
+               await makePostRequest('{{route('api.updateLanguage')}}', params);
+            })
+        })
     </script>
 
 @endsection
