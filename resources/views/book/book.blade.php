@@ -1,6 +1,6 @@
 @extends('index')
 
-
+@vite('resources/css/book/book.css')
 @section('content')
 
     <h1>{!! $book->title !!}</h1>
@@ -34,15 +34,17 @@
                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     </form>
                 </li>
-                <li><b>Rating:</b>
-                    <span id="ratingDisplay">{{ $rating ?? '' }}</span>
+                <li>
+                    <span hidden id="ratingDisplay">{{ $rating ?? '' }}</span>
                     <form id="ratingForm">
                         <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
-                        <label for="rating">Give a rate</label>
-                        <input type="number" id="ratingField" name="ratingField" min="0" max="10">
+                        <div id="starContainer" data-current-rating="{{ $rating ?? 0 }}">
+                            @for ($i = 1; $i <= 10; $i++)
+                                <span class="star" data-value="{{ $i }}">&#9733;</span>
+                            @endfor
+                        </div>
+                        <input type="hidden" id="ratingField" name="ratingField" min="0" max="10" value="{{ $rating ?? 0 }}">
                         <input type="hidden" id="bookId" value="{{$book->id}}">
-                        <input type="submit" value="Update"
-                               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     </form>
                 </li>
                 <li>
@@ -87,41 +89,67 @@
     </script>
 
     <script>
-      document.addEventListener('DOMContentLoaded', (event) => {
-        const ratingForm = document.getElementById('ratingForm');
-        const favoriteButton = document.getElementById('favorite');
-        const ratingField = document.getElementById('ratingField');
-        const bookIdField = document.getElementById('bookId');
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const stars = document.querySelectorAll('.star');
+            const ratingDisplay = document.getElementById('ratingDisplay');
+            const favoriteButton = document.getElementById('favorite');
+            const ratingField = document.getElementById('ratingField');
+            const bookIdField = document.getElementById('bookId');
+            const currentRating = parseInt(document.getElementById('starContainer').getAttribute('data-current-rating'));
 
-        ratingForm.addEventListener('submit', async function (e) {
-          e.preventDefault();
-          const ratingValue = ratingField.value;
-          const bookId = bookIdField.value;
+            // Function to set star selection based on rating
+            function setStarSelection(rating) {
+                stars.forEach(star => star.classList.remove('selected'));
+                for (let i = 0; i < rating; i++) {
+                    stars[i].classList.add('selected');
+                }
+            }
 
-          const params = new URLSearchParams();
-          params.append('rating', ratingValue);
-          params.append('bookId', bookId);
+            // Initialize stars based on current rating
+            setStarSelection(currentRating);
+            ratingField.value = currentRating;
 
-          const response = await makePostRequest('{{route('api.updateRating')}}', params);
-          if (response && response.ok) {
-            document.getElementById('ratingDisplay').innerHTML = ratingValue;
-          }
+            stars.forEach(star => {
+                star.addEventListener('click', async function () {
+                    const rating = this.getAttribute('data-value');
+                    ratingField.value = rating;
+
+                    // Update the display
+                    ratingDisplay.textContent = rating;
+
+                    // Reset and select stars
+                    stars.forEach(s => s.classList.remove('selected'));
+                    for (let i = 0; i < rating; i++) {
+                        stars[i].classList.add('selected');
+                    }
+                    const ratingValue = ratingField.value;
+                    const bookId = bookIdField.value;
+
+                    const params = new URLSearchParams();
+                    params.append('rating', ratingValue);
+                    params.append('bookId', bookId);
+
+                    const response = await makePostRequest('{{route('api.updateRating')}}', params);
+                    if (response && response.ok) {
+                        document.getElementById('ratingDisplay').innerHTML = ratingValue;
+                    }
+                });
+            });
+
+            favoriteButton.addEventListener('click', async function (e) {
+                const favorite = favoriteButton.checked;
+                const bookId = bookIdField.value;
+
+                const params = new URLSearchParams();
+                params.append('favorite', favorite);
+                params.append('bookId', bookId);
+
+                const response = await makePostRequest('{{route('api.updateFavorite')}}', params);
+                if (response && response.ok) {
+                    favoriteButton.checked = favorite;
+                }
+            });
         });
-
-        favoriteButton.addEventListener('click', async function (e) {
-          const favorite = favoriteButton.checked;
-          const bookId = bookIdField.value;
-
-          const params = new URLSearchParams();
-          params.append('favorite', favorite);
-          params.append('bookId', bookId);
-
-          const response = await makePostRequest('{{route('api.updateFavorite')}}', params);
-          if (response && response.ok) {
-            favoriteButton.checked = favorite;
-          }
-        });
-      });
     </script>
 
 @endsection

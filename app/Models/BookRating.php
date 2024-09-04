@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $book_id
@@ -29,6 +29,16 @@ class BookRating extends Pivot
     protected $table = 'book_rating';
 
     protected $fillable = ['book_id', 'user_id', 'rating_id'];
+
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public static function getRating(int $book_id, int $user_id){
         return self::where('book_id', $book_id)->where('user_id', $user_id)->first();

@@ -49,7 +49,7 @@ class BookController extends Controller
     {
         $genres = Genre::all()->sortBy('name');
         $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
-        $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
+        $books = Auth()->user()->books()->with(['author', 'genres', 'ratings'])->paginate(10);
         return view('user.library', [
             'books' => $books,
             'genres' => $genres,

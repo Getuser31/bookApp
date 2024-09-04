@@ -1,5 +1,6 @@
 @extends('index')
 
+@vite('resources/css/book/book.css')
 @section('content')
     <div class="p-4">
 
@@ -73,7 +74,7 @@
                 <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800">Auteur</th>
                 <th scope="col" class="px-6 py-3">Synopsis:</th>
                 <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800">Genre</th>
-                <th scope="col" class="px-6 py-3">Collection</th>
+                <th scope="col" class="px-6 py-3">Rating</th>
                 <th scope="col" class="px-6 py-3 bg-gray-50 dark:bg-gray-800">Progression</th>
                 <th scope="col" class="px-6 py-3">Delete</th>
             </tr>
@@ -95,7 +96,13 @@
                             <span title="{{ $book->genres->pluck('name')->slice(3)->join(', ') }}"> and more...</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4">{{ $book->collection->name ?? '' }}</td>
+                    <td class="px-6 py-4" id="starContainer" data-current-rating="{{ $book->ratings->first()->rating ?? 0 }}">
+                            @for ($i = 1; $i <= 10; $i++)
+                                <span class="star" data-value="{{ $i }}">&#9733;</span>
+                            <input type="hidden" id="ratingField" name="ratingField" min="0" max="10" value="{{ $book->ratings->first()->rating ?? 0 }}">
+
+                        @endfor
+                    </td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap bg-gray-50 dark:text-white dark:bg-gray-800">{{ $book->pivot->progression }}
                         %
                     </td>
@@ -343,5 +350,27 @@
             }
         )
         ;
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const bookRows = document.querySelectorAll('tr[id^="book-row-"]');
+
+            bookRows.forEach((row) => {
+                const stars = row.querySelectorAll('.star');
+                // Get the current rating from the data attribute
+                const currentRating = parseInt(row.querySelector('#starContainer').getAttribute('data-current-rating'));
+                // Function to set star selection based on rating
+                function setStarSelection(rating) {
+                    stars.forEach(star => star.classList.remove('selected'));
+                    for (let i = 0; i < rating; i++) {
+                        stars[i].classList.add('selected');
+                    }
+                }
+
+                // Initialize stars based on current rating
+                setStarSelection(currentRating);
+            });
+        });
     </script>
 @endsection
