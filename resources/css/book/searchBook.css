@@ -1,0 +1,42 @@
+.relative {
+    position: relative;
+}
+
+#searchApiResults {
+    z-index: 1000; /* Ensures the results frame is above other content */
+    width: 100%; /* Takes the full width of the parent container */
+    top: 100%; /* Positions it right below the search box*/
+}
+
+@media (min-width: 640px) {
+    #searchApiResults {
+        /* For medium and larger screens, set a fixed width */
+        min-width: 24rem;
+    }
+}
+
+.search-result-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.search-result-item img.thumbnail {
+    width: 60px;
+    height: auto;
+    margin-right: 10px;
+}
+
+.search-result-item .content {
+    flex: 1;
+}
+
+.search-result-item .content p {
+    margin: 5px 0;
+}
+
+.search-result-item:hover {
+    background-color: #f9f9f9;
+}

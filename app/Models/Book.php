@@ -14,6 +14,7 @@ use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use function Laravel\Prompts\error;
 
 /**
  * @property int $id
@@ -93,14 +94,20 @@ class Book extends Model
          */
         $formattedDate = null;
         try {
-            // Create a DateTime object from the date string
+            // Try to create a DateTime object directly from the date string
             $dateTime = new DateTime($dateString);
 
             // Format the DateTime object to ensure it's in the correct MySQL date format
             $formattedDate = $dateTime->format('Y-m-d');
         } catch (Exception $e) {
-            // Handle invalid date format error
-            echo "Error: Invalid date format.";
+            // Try to create a DateTime object using createFromFormat method
+            $dateTime = DateTime::createFromFormat('d/m/Y', $dateString);
+
+            if ($dateTime) {
+                $formattedDate = $dateTime->format('Y-m-d');
+            } else {
+                throw new \Error( "Error: Invalid date format.");
+            }
         }
 
         $this->title = $validatedData['title'];
