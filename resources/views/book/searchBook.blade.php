@@ -10,6 +10,11 @@
     <div class="absolute left-0 right-0 bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-auto mt-1 hidden" id="searchApiResults"></div>
 </div>
 
-@vite(['resources/js/searchBook.js'])
 @vite(['resources/css/book/searchBook.css'])
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeBookSearch('GoogleBookSearch', 'searchApiResults', window.defaultLanguage);
+    });
+</script>
 
