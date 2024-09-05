@@ -34,6 +34,11 @@ class UserPreference extends Model
 
     protected $fillable = ['default_language_id', 'user_id', 'index_preference_id'];
 
+    protected $attributes = [
+        'default_language_id' => 1, // Default language ID, set to 1
+        'index_preference_id' => 1,  // Default index preference ID, set to 1
+    ];
+
     public static function getUserPreference(int $userId): UserPreference|null
     {
         return UserPreference::where('user_id', $userId)->first();

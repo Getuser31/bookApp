@@ -62,7 +62,14 @@ class UserController
             $user = Auth::user();
             $role = $user->checkAdmin();
             $userPreference = UserPreference::getUserPreference($user->id);
-            $defaultLanguage = $userPreference->defaultLanguage;
+            if(!$userPreference){
+                $defaultLanguage = DefaultLanguage::first();
+                UserPreference::create([
+                    'user_id' => $user->id
+                ]);
+            } else {
+                $defaultLanguage = $userPreference->defaultLanguage;
+            }
             Session::put('admin', $role);
             Session::put('language', $defaultLanguage->language);
 

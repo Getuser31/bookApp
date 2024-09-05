@@ -2,7 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  *
@@ -11,17 +15,17 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $book_id
  * @property int $user_id
  * @property int $rating
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating query()
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereBookId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereRating($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BookRating whereUserId($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|BookRating newModelQuery()
+ * @method static Builder|BookRating newQuery()
+ * @method static Builder|BookRating query()
+ * @method static Builder|BookRating whereBookId($value)
+ * @method static Builder|BookRating whereCreatedAt($value)
+ * @method static Builder|BookRating whereId($value)
+ * @method static Builder|BookRating whereRating($value)
+ * @method static Builder|BookRating whereUpdatedAt($value)
+ * @method static Builder|BookRating whereUserId($value)
  * @mixin \Eloquent
  */
 class BookRating extends Pivot
@@ -30,17 +34,18 @@ class BookRating extends Pivot
 
     protected $fillable = ['book_id', 'user_id', 'rating_id'];
 
-    public function book()
+    public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public static function getRating(int $book_id, int $user_id){
+    public static function getRating(int $book_id, int $user_id): Model|Builder|BookRating|null
+    {
         return self::where('book_id', $book_id)->where('user_id', $user_id)->first();
     }
 
@@ -50,7 +55,7 @@ class BookRating extends Pivot
      * @param int $user_id The ID of the user.
      * @return float The average rating for the user's books.
      */
-    public static function getAverageBookRating(int $user_id)
+    public static function getAverageBookRating(int $user_id): float
     {
         return self::where('user_id', $user_id)->avg('rating');
     }

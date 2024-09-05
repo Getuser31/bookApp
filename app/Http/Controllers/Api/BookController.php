@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
-use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -26,6 +25,12 @@ class BookController extends Controller
         ]);
     }
 
+    /**
+     * Filters the library books based on the provided authors and genres.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function filterLibrary(Request $request): JsonResponse
     {
         $userId = Auth()->id();
