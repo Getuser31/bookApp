@@ -61,7 +61,10 @@ class UserController
             // Authentication passed...
             $user = Auth::user();
             $role = $user->checkAdmin();
+            $userPreference = UserPreference::getUserPreference($user->id);
+            $defaultLanguage = $userPreference->defaultLanguage;
             Session::put('admin', $role);
+            Session::put('language', $defaultLanguage->language);
 
             // Create Sanctum Token
             $deviceName = $request->userAgent(); // Or a custom device identifier
@@ -264,7 +267,7 @@ class UserController
     {
         $user = Auth::user();
         $userPreference = UserPreference::getUserPreference($user->id);
-        if($userPreference){
+        if ($userPreference) {
             $userPreference->update($request->validated());
         } else {
             $language = DefaultLanguage::first();
@@ -283,16 +286,20 @@ class UserController
     {
         $user = Auth::user();
         $userPreference = UserPreference::getUserPreference($user->id);
-        if($userPreference){
-            $userPreference->update($request->validated());
+        $language = $request->validated();
+        if ($userPreference) {
+            $userPreference->update($language);
         } else {
-            $language = $request->validated();
             UserPreference::create([
                 'user_id' => $user->id,
                 'default_language_id' => $language
             ]);
         }
+        Session::put('language', $userPreference->defaultLanguage->language);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'language' => Session::get('language')
+        ]);
     }
 }

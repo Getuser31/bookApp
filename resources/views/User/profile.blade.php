@@ -166,13 +166,31 @@
                 await makePostRequest('{{route('api.updateIndexPreference')}}', params);
             })
 
-            languageForm.addEventListener('change', async function(e) {
+            languageForm.addEventListener('change', async function (e) {
+                e.preventDefault();
                 let languageValue = document.getElementById('language').value;
 
                 const params = new URLSearchParams();
                 params.append('default_language_id', languageValue);
 
-               await makePostRequest('{{route('api.updateLanguage')}}', params);
+                try {
+                    const response = await makePostRequest('{{ route('api.updateLanguage') }}', params);
+                    if (response && response.ok) {
+                        const responseBody = await response.json();
+                        if (responseBody.success) {
+                            console.log('Language session updated to: ' + responseBody.language);
+                            // Update the JavaScript variable with the new session value
+                            window.defaultLanguage = responseBody.language;
+                            console.log('Updated defaultLanguage:', window.defaultLanguage);
+                        } else {
+                            console.error('Failed to update language session:', responseBody.message);
+                        }
+                    } else {
+                        console.error('Request failed with status:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Request Error:', error);
+                }
             })
         })
     </script>

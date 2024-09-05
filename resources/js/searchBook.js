@@ -1,4 +1,4 @@
-let searchInput = document.getElementById('GoogleBookSearch')
+
 document.getElementById('GoogleBookSearch').addEventListener('keydown', function(e) {
     if (e.key === 'Enter' || e.keyCode === 13) {
         e.preventDefault();  // To ensure the form isn't submitted
@@ -7,8 +7,8 @@ document.getElementById('GoogleBookSearch').addEventListener('keydown', function
         console.log("Search initiated: ", value);
 
         if (value) {
-            let url = "https://www.googleapis.com/books/v1/volumes?q=" + value + "&langRestrict=fr";
-
+            let url = "https://www.googleapis.com/books/v1/volumes?q=" + value + "&langRestrict=" + defaultLanguage;
+            console.log(url);
             fetch(url, {
                 method: 'GET',
                 headers: {

@@ -13,6 +13,11 @@
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
     @stack('scripts')
+    <script>
+        // Initial PHP session data to JavaScript
+        window.defaultLanguage = @json(Session::get('language'));
+        console.log('Initial defaultLanguage:', window.defaultLanguage);
+    </script>
 </head>
 <body>
 
