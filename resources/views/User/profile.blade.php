@@ -22,6 +22,7 @@
                     <li>{{intval($averageRanking)}}/10 average ranking</li>
                     <li>{{$bookStarted}} Book{{$bookStarted > 1 ? 's' : ''}} started</li>
                     <li>{{$bookNotStarted}} Book{{$bookNotStarted > 1 ? 's' : ''}} not started</li>
+                    <li>{{$booksFinished}} book{{$booksFinished > 1 ? 's' : ''}} finished</li>
                     <li># Book in wishlist</li>
                 </ul>
 

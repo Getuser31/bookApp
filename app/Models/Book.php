@@ -246,7 +246,16 @@ class Book extends Model
     {
         return self::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId)
-                ->where('progression', '>', 0);
+                ->where('progression', '>', 0)
+                ->Where('progression', '<', 100);
+        })->count();
+    }
+
+    public static function BooksFinished(int $userId): int
+    {
+        return self::whereHas('users', function($query) use ($userId){
+            $query->where('user_id', $userId)
+            ->where('progression', '=', 100);
         })->count();
     }
 

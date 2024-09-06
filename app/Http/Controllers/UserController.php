@@ -247,6 +247,7 @@ class UserController
         $userWithBooks = User::with('books')->find($user->id);
         $averageRanking = BookRating::getAverageBookRating($user->id);
         $booksStarted = Book::BooksStarted($user->id);
+        $booksFinished = Book::BooksFinished($user->id);
         $bookNotStarted = Book::BooksNotStarted($user->id);
         $indexPreferences = IndexPreference::all();
         $defaultLanguages = DefaultLanguage::all();
@@ -258,7 +259,8 @@ class UserController
             'bookNotStarted' => $bookNotStarted,
             'indexPreferences' => $indexPreferences,
             'userPreferences' => $userPreferences,
-            'defaultLanguages' => $defaultLanguages
+            'defaultLanguages' => $defaultLanguages,
+            'booksFinished' => $booksFinished
         ]);
     }
 
