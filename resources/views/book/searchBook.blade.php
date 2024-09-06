@@ -13,8 +13,14 @@
 @vite(['resources/css/book/searchBook.css'])
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        initializeBookSearch('GoogleBookSearch', 'searchApiResults', window.defaultLanguage);
+    searchInput = document.getElementById('GoogleBookSearch');
+
+    searchInput.addEventListener('keydown', function (e) {
+        if(e.key === 'Enter') {
+            e.preventDefault();
+            let title = e.target.value;
+            initializeBookSearch('GoogleBookSearch', 'searchApiResults',window.defaultLanguage, title);
+        }
     });
 </script>
 

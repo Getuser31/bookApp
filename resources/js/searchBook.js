@@ -1,7 +1,10 @@
 const API_URL = 'https://www.googleapis.com/books/v1/volumes';
 
-function getSearchQueryUrl(query, language) {
-    return `${API_URL}?q=${query}&langRestrict=${language}`;
+function getSearchQueryUrl(Title, language, author = null) {
+    if (author) {
+        return `${API_URL}?q=intitle:${Title}+inauthor:${author}&langRestrict=${language}`;
+    }
+    return `${API_URL}?q=intitle:${Title}&langRestrict=${language}`;
 }
 
 function handleFetchResponse(response) {
@@ -106,32 +109,36 @@ function submitBookForm(book, csrfToken) {
     form.submit();
 }
 
-function initializeBookSearch(GOOGLE_BOOK_SEARCH_ID, SEARCH_API_RESULTS_ID, defaultLanguage) {
-    document.getElementById(GOOGLE_BOOK_SEARCH_ID).addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.keyCode === 13) {
-            e.preventDefault();  // To ensure the form isn't submitted
-            const query = e.target.value;
-            const resultsDivApi = document.getElementById(SEARCH_API_RESULTS_ID);
-            console.log("Search initiated: ", query);
-            if (query) {
-                const url = getSearchQueryUrl(query, defaultLanguage);
-                fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                })
-                    .then(handleFetchResponse)
-                    .then(data => handleFetchData(data, resultsDivApi))
-                    .catch(handleError);
-            } else {
-                resultsDivApi.classList.add('hidden');
-            }
-        }
-    });
+function formatString(str) {
+    return str.replace(/ /g, "+");
+}
 
-    // Close resultsDivApi when clicking outside
-    document.addEventListener('click', function(event) {
+function initializeBookSearch(GOOGLE_BOOK_SEARCH_ID, SEARCH_API_RESULTS_ID, defaultLanguage, Title, Author = null) {
+    const resultsDivApi = document.getElementById(SEARCH_API_RESULTS_ID);
+    console.log("Search initiated: ", Title);
+    if (Title) {
+        let url
+        if (Author) {
+             url = getSearchQueryUrl(formatString(Title), defaultLanguage, formatString(Author));
+        } else {
+             url = getSearchQueryUrl(formatString(Title), defaultLanguage);
+        }
+        console.log(url)
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(handleFetchResponse)
+            .then(data => handleFetchData(data, resultsDivApi))
+            .catch(handleError);
+    } else {
+        resultsDivApi.classList.add('hidden');
+    }
+
+// Close resultsDivApi when clicking outside
+    document.addEventListener('click', function (event) {
         const resultsDivApi = document.getElementById(SEARCH_API_RESULTS_ID);
         const searchBar = document.getElementById(GOOGLE_BOOK_SEARCH_ID);
         if (!searchBar.contains(event.target) && !resultsDivApi.contains(event.target)) {
@@ -140,4 +147,4 @@ function initializeBookSearch(GOOGLE_BOOK_SEARCH_ID, SEARCH_API_RESULTS_ID, defa
     });
 }
 
-export { initializeBookSearch };
+export {initializeBookSearch};

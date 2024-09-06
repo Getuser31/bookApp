@@ -56,8 +56,20 @@
     </section>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            initializeBookSearch('bookSearch', 'searchResults', window.defaultLanguage);
+        let searchButton = document.getElementById('googleSearchButton');
+
+        searchButton.addEventListener('click', function () {
+            let author = document.getElementById('author').value;
+            let title = document.getElementById('bookSearch').value;
+
+            const languageSelect = document.getElementById('language');
+            // Get the selected <option> element
+            const selectedOption = languageSelect.options[languageSelect.selectedIndex];
+            // Get the text content of the selected <option>
+            const selectedLanguage = selectedOption.text;
+
+            console.log(author);
+            initializeBookSearch('bookSearch', 'searchResults', selectedLanguage, title, author);
         });
     </script>
 @endsection
