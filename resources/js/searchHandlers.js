@@ -26,7 +26,7 @@ export function createButton() {
     moreResultsButton.id = 'moreResultsButton';
 
     moreResultsButton.addEventListener('click', function () {
-        window.location.href = 'https://www.example.com';
+        window.location.href = "http://localhost:8000/addBook"
     });
 
     document.getElementById('searchApiResults').appendChild(moreResultsButton);

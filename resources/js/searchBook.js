@@ -1,10 +1,13 @@
 const API_URL = 'https://www.googleapis.com/books/v1/volumes';
 
-function getSearchQueryUrl(Title, language, author = null) {
+let currentPage = 1; // Initialize current page as a global variable
+
+function getSearchQueryUrl(Title, language, author = null, startIndex = 0) {
+    let query = `${API_URL}?q=intitle:${Title}&langRestrict=${language}&startIndex=${startIndex}&maxResults=10`;
     if (author) {
-        return `${API_URL}?q=intitle:${Title}+inauthor:${author}&langRestrict=${language}`;
+        query = `${API_URL}?q=intitle:${Title}+inauthor:${author}&langRestrict=${language}&startIndex=${startIndex}&maxResults=10`;
     }
-    return `${API_URL}?q=intitle:${Title}&langRestrict=${language}`;
+    return query;
 }
 
 function handleFetchResponse(response) {
@@ -13,17 +16,126 @@ function handleFetchResponse(response) {
 
 function handleFetchData(data, resultsDivApi) {
     console.log("Data received: ", data);
+
     resultsDivApi.innerHTML = ''; // Clear previous data
     const books = data.items || [];
     books.forEach(item => {
         let resultItem = createResultItem(item);
         resultsDivApi.appendChild(resultItem);
     });
+    if (data.totalItems > 10) {
+        let nbOfPages = Math.ceil(data.totalItems / 10);
+        window.nbOfPages = nbOfPages;
+        renderPagination(nbOfPages, currentPage); // Use the global current page
+    }
     resultsDivApi.classList.remove('hidden');
 }
 
+function renderPagination(nbOfPages, currentPage) {
+    let pagination = document.getElementById('pagination');
+    if (!pagination) {
+        let container = document.createElement('div');
+        container.className = 'max-w-2xl mx-auto';
+        document.body.appendChild(container);
+
+        let contentDiv = document.createElement('div');
+        contentDiv.id = 'content';
+        contentDiv.className = 'bg-white p-6 rounded-lg shadow-lg mb-4';
+        container.appendChild(contentDiv);
+
+        let paginationUl = document.createElement('ul');
+        paginationUl.className = 'pagination flex justify-center space-x-2';
+        paginationUl.id = 'pagination';
+        container.appendChild(paginationUl);
+
+        pagination = paginationUl;
+    } else {
+        pagination.innerHTML = ''; // Clear existing pagination elements
+    }
+
+    if (nbOfPages <= 7) {
+        for (let i = 1; i <= nbOfPages; i++) {
+            addPageItem(pagination, i, currentPage);
+        }
+    } else {
+        if (currentPage <= 4) {
+            for (let i = 1; i <= 5; i++) {
+                addPageItem(pagination, i, currentPage);
+            }
+            addEllipsis(pagination);
+            addPageItem(pagination, nbOfPages, currentPage);
+        } else if (currentPage > nbOfPages - 4) {
+            addPageItem(pagination, 1, currentPage);
+            addEllipsis(pagination);
+            for (let i = nbOfPages - 4; i <= nbOfPages; i++) {
+                addPageItem(pagination, i, currentPage);
+            }
+        } else {
+            addPageItem(pagination, 1, currentPage);
+            addEllipsis(pagination);
+            for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                addPageItem(pagination, i, currentPage);
+            }
+            addEllipsis(pagination);
+            addPageItem(pagination, nbOfPages, currentPage);
+        }
+    }
+}
+
+function addPageItem(pagination, page, currentPage) {
+    let li = document.createElement('li');
+    li.className = 'cursor-pointer inline-block';
+    if (page === currentPage) {
+        li.classList.add('font-bold', 'text-red-500');
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#';
+    anchor.innerText = page;
+    anchor.className = 'block px-3 py-1 rounded-lg hover:bg-gray-200';
+    li.appendChild(anchor);
+
+    li.addEventListener('click', function () {
+        currentPage = page;
+        loadPageContent(currentPage);
+        renderPagination(window.nbOfPages, currentPage);
+    });
+    pagination.appendChild(li);
+}
+
+function addEllipsis(pagination) {
+    let li = document.createElement('li');
+    li.className = 'inline-block';
+    li.innerText = '...';
+    pagination.appendChild(li);
+}
+
+function loadPageContent(page) {
+    currentPage = page; // Update the global current page
+    const resultsDivApi = document.getElementById(window.SEARCH_API_RESULTS_ID);
+    const startIndex = (page - 1) * 10;
+
+    let url = getSearchQueryUrl(
+        formatString(window.Title),
+        window.defaultLanguage,
+        window.Author ? formatString(window.Author) : null,
+        startIndex
+    );
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(handleFetchResponse)
+        .then(data => {
+            handleFetchData(data, resultsDivApi);
+        })
+        .catch(handleError);
+}
+
 function handleError(error) {
-    console.error('Error:', error);  // Log any errors
+    console.error('Error:', error); // Log any errors
 }
 
 function createResultItem(item) {
@@ -113,17 +225,18 @@ function formatString(str) {
 }
 
 function initializeBookSearch(GOOGLE_BOOK_SEARCH_ID, SEARCH_API_RESULTS_ID, defaultLanguage, Title, Author = null) {
+    window.GOOGLE_BOOK_SEARCH_ID = GOOGLE_BOOK_SEARCH_ID;
+    window.SEARCH_API_RESULTS_ID = SEARCH_API_RESULTS_ID;
+    window.defaultLanguage = defaultLanguage;
+    window.Title = Title;
+    window.Author = Author;
+
     return new Promise((resolve, reject) => {
         const resultsDivApi = document.getElementById(SEARCH_API_RESULTS_ID);
         console.log("Search initiated: ", Title);
         if (Title) {
-            let url
-            if (Author) {
-                url = getSearchQueryUrl(formatString(Title), defaultLanguage, formatString(Author));
-            } else {
-                url = getSearchQueryUrl(formatString(Title), defaultLanguage);
-            }
-            console.log(url)
+            let url = getSearchQueryUrl(formatString(Title), defaultLanguage, Author ? formatString(Author) : null);
+            console.log(url);
             fetch(url, {
                 method: 'GET',
                 headers: {
@@ -155,4 +268,4 @@ function initializeBookSearch(GOOGLE_BOOK_SEARCH_ID, SEARCH_API_RESULTS_ID, defa
     });
 }
 
-export {initializeBookSearch};
+export { initializeBookSearch };
