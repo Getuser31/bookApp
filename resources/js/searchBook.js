@@ -20,7 +20,6 @@ function handleFetchData(data, resultsDivApi) {
         resultsDivApi.appendChild(resultItem);
     });
     resultsDivApi.classList.remove('hidden');
-    console.log("Results appended to the DOM.");
 }
 
 function handleError(error) {
@@ -114,36 +113,45 @@ function formatString(str) {
 }
 
 function initializeBookSearch(GOOGLE_BOOK_SEARCH_ID, SEARCH_API_RESULTS_ID, defaultLanguage, Title, Author = null) {
-    const resultsDivApi = document.getElementById(SEARCH_API_RESULTS_ID);
-    console.log("Search initiated: ", Title);
-    if (Title) {
-        let url
-        if (Author) {
-             url = getSearchQueryUrl(formatString(Title), defaultLanguage, formatString(Author));
-        } else {
-             url = getSearchQueryUrl(formatString(Title), defaultLanguage);
-        }
-        console.log(url)
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(handleFetchResponse)
-            .then(data => handleFetchData(data, resultsDivApi))
-            .catch(handleError);
-    } else {
-        resultsDivApi.classList.add('hidden');
-    }
-
-// Close resultsDivApi when clicking outside
-    document.addEventListener('click', function (event) {
+    return new Promise((resolve, reject) => {
         const resultsDivApi = document.getElementById(SEARCH_API_RESULTS_ID);
-        const searchBar = document.getElementById(GOOGLE_BOOK_SEARCH_ID);
-        if (!searchBar.contains(event.target) && !resultsDivApi.contains(event.target)) {
+        console.log("Search initiated: ", Title);
+        if (Title) {
+            let url
+            if (Author) {
+                url = getSearchQueryUrl(formatString(Title), defaultLanguage, formatString(Author));
+            } else {
+                url = getSearchQueryUrl(formatString(Title), defaultLanguage);
+            }
+            console.log(url)
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(handleFetchResponse)
+                .then(data => {
+                    handleFetchData(data, resultsDivApi);
+                    resolve(); // Resolve after data is handled
+                })
+                .catch(error => {
+                    handleError(error);
+                    reject(error); // Reject if there's an error
+                });
+        } else {
             resultsDivApi.classList.add('hidden');
+            resolve(); // Resolve if no title given
         }
+
+        // Close resultsDivApi when clicking outside
+        document.addEventListener('click', function (event) {
+            const resultsDivApi = document.getElementById(SEARCH_API_RESULTS_ID);
+            const searchBar = document.getElementById(GOOGLE_BOOK_SEARCH_ID);
+            if (!searchBar.contains(event.target) && !resultsDivApi.contains(event.target)) {
+                resultsDivApi.classList.add('hidden');
+            }
+        });
     });
 }
 

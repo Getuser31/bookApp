@@ -5,7 +5,7 @@
 #searchApiResults {
     z-index: 1000; /* Ensures the results frame is above other content */
     width: 100%; /* Takes the full width of the parent container */
-    top: 100%; /* Positions it right below the search box*/
+    top: 100%; /* Positions it right below the search box */
 }
 
 @media (min-width: 640px) {
@@ -17,7 +17,8 @@
 
 .search-result-item {
     display: flex;
-    align-items: flex-start;
+    justify-content: space-between; /* Spread items to extreme ends */
+    align-items: center; /* Align items vertically centered */
     padding: 10px;
     border-bottom: 1px solid #ddd;
     cursor: pointer;
@@ -30,7 +31,7 @@
 }
 
 .search-result-item .content {
-    flex: 1;
+    flex: 1; /* Take available width */
 }
 
 .search-result-item .content p {
@@ -39,4 +40,27 @@
 
 .search-result-item:hover {
     background-color: #f9f9f9;
+}
+
+
+/* CSS to style the button */
+.more-results-button {
+    background-color: #008CBA; /* Blue background */
+    border: none; /* Remove borders */
+    color: white; /* White text */
+    padding: 10px 20px; /* Adjusted padding for consistency */
+    text-align: center; /* Centered text */
+    text-decoration: none; /* Remove underline */
+    font-size: 16px; /* Increase font size */
+    cursor: pointer; /* Pointer/hand icon on hover */
+    border-radius: 4px; /* Rounded corners */
+    transition-duration: 0.4s; /* 0.4 second transition effect to hover state */
+    align-self: flex-start; /* Optional: To align the button start if content height is big*/
+}
+
+/* Hover effects */
+.more-results-button:hover {
+    background-color: white; /* White background */
+    color: #008CBA; /* Blue text */
+    border: 2px solid #008CBA; /* Blue border */
 }

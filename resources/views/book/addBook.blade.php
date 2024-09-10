@@ -68,7 +68,6 @@
             // Get the text content of the selected <option>
             const selectedLanguage = selectedOption.text;
 
-            console.log(author);
             initializeBookSearch('bookSearch', 'searchResults', selectedLanguage, title, author);
         });
     </script>

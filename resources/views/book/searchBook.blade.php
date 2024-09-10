@@ -7,20 +7,20 @@
 />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <div class="absolute left-0 right-0 bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-auto mt-1 hidden" id="searchApiResults"></div>
-</div>
+    <div class="absolute left-0 right-0 bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-auto mt-1 hidden" id="searchApiResults">
+        <div class="search-result-item">
+            <div class="thumbnail">
+                <img src="thumbnail.png" alt="Thumbnail">
+            </div>
+            <div class="content">
+                <!-- Your other content here -->
+                <p>Some result content</p>
+            </div>
+            <button class="more-results-button">More results</button>
+        </div>
+    </div></div>
 
 @vite(['resources/css/book/searchBook.css'])
 
-<script>
-    searchInput = document.getElementById('GoogleBookSearch');
 
-    searchInput.addEventListener('keydown', function (e) {
-        if(e.key === 'Enter') {
-            e.preventDefault();
-            let title = e.target.value;
-            initializeBookSearch('GoogleBookSearch', 'searchApiResults',window.defaultLanguage, title);
-        }
-    });
-</script>
 
