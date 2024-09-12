@@ -236,7 +236,7 @@ function initializeBookSearch(GOOGLE_BOOK_SEARCH_ID, SEARCH_API_RESULTS_ID, defa
         console.log("Search initiated: ", Title);
         if (Title) {
             let url = getSearchQueryUrl(formatString(Title), defaultLanguage, Author ? formatString(Author) : null);
-            console.log(url);
+
             fetch(url, {
                 method: 'GET',
                 headers: {

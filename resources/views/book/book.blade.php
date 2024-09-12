@@ -3,64 +3,88 @@
 @vite('resources/css/book/book.css')
 @section('content')
 
-    <h1>{!! $book->title !!}</h1>
-    <div>
-        @if (file_exists(public_path($book->picture)))
-            <img src="{{ asset('/'.$book->picture) }}" alt="book picture"
-                 style="float: left; max-width: 200px; height: 100%; object-fit: contain; margin-right: 10px;">
-        @else
-            <img src="{{$book->picture}}" alt="book picture"
-                 style="float: left; max-width: 200px; height: 100%; object-fit: contain; margin-right: 10px;">
-        @endif
-        <ul>
-            <li><b>Date de publication: </b>{{ $book->date_of_publication}}</li>
-            <li><b>Auteur: </b>{{ $book->author->name }}</li>
-            <li><b>Synopsis: </b>
-                <p>{!! $book->description !!}</p></li>
-            <li><b>Genre: </b>{{collect($book->genres)->pluck('name')->implode(' / ')}}</li>
-            @if($book->collection)
-                <li><b>Collection</b>{{ $book->collection->name }}</li>
-            @endif
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">{!! $book->title !!}</h1>
 
-            @if($belongToUser)
-                <li><b>Progression: </b>
-                    <span id="progressionDisplay">{{$progression}}</span>
-                    <form id="progressionForm">
-                        <meta name="csrf-token" content="{{ csrf_token() }}">
-                        <label for="progressionField">Set Progression:</label>
-                        <input type="number" id="progressionField" name="progressionField" min="0" max="100">
-                        <input type="hidden" id="bookId" value="{{$book->id}}">
-                        <input type="submit" value="Update"
-                               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    </form>
-                </li>
-                <li>
-                    <span hidden id="ratingDisplay">{{ $rating ?? '' }}</span>
-                    <form id="ratingForm">
-                        <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
-                        <div id="starContainer" data-current-rating="{{ $rating ?? 0 }}">
-                            @for ($i = 1; $i <= 10; $i++)
-                                <span class="star" data-value="{{ $i }}">&#9733;</span>
-                            @endfor
-                        </div>
-                        <input type="hidden" id="ratingField" name="ratingField" min="0" max="10" value="{{ $rating ?? 0 }}">
-                        <input type="hidden" id="bookId" value="{{$book->id}}">
-                    </form>
-                </li>
-                <li>
-                    <form id="favoriteForm">
-                        <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
-                        <label for="favorite">Favorite</label>
-                        <input type="checkbox" name="favorite" id="favorite" {{$favorite ? 'checked' : ''}}>
-                    </form>
+        <div class="flex">
+            <div class="w-96 h-64 mr-8">
+                @if (file_exists(public_path($book->picture)))
+                    <img src="{{ asset('/'.$book->picture) }}" alt="book picture"
+                         class="object-contain h-full w-full">
+                @else
+                    <img src="{{$book->picture}}" alt="book picture"
+                         class="object-contain h-full w-full">
+                @endif
+            </div>
 
-                </li>
-            @else
-                <a href="{{route('book.addBookPost', ['id' => $book->id])}}"
-                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">add book</a>
-            @endif
-        </ul>
-        <br>
+            <div>
+                <ul class="list-none">
+                    <li class="mb-2">
+                        <span class="font-semibold">Date de publication:</span> {{ $book->date_of_publication}}
+                    </li>
+                    <li class="mb-2">
+                        <span class="font-semibold">Auteur:</span> {{ $book->author->name }}
+                    </li>
+                    <li class="mb-2">
+                        <span class="font-semibold">Synopsis:</span>
+                        <p>{!! $book->description !!}</p>
+                    </li>
+                    <li class="mb-2">
+                        <span class="font-semibold">Genre:</span> {{collect($book->genres)->pluck('name')->implode(' / ')}}
+                    </li>
+                    @if($book->collection)
+                        <li class="mb-2">
+                            <span class="font-semibold">Collection:</span> {{ $book->collection->name }}
+                        </li>
+                    @endif
+
+                    @if($belongToUser)
+                        <li class="mb-2">
+                            <span class="font-semibold">Progression:</span>
+                            <span id="progressionDisplay">{{$progression}}</span> %
+                            <form id="progressionForm" class="inline-block ml-4">
+                                <meta name="csrf-token" content="{{ csrf_token() }}">
+                                <label for="progressionField" class="sr-only">Set Progression:</label>
+                                <input type="number" id="progressionField" name="progressionField" min="0" max="100"
+                                       class="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                                <input type="hidden" id="bookId" value="{{$book->id}}">
+                                <button type="submit"
+                                        class="ml-2 px-3 py-1 bg-blue-500 hover:bg-blue-700 text-white text-sm rounded-md">
+                                    Update
+                                </button>
+                            </form>
+                        </li>
+                        <li class="mb-2">
+                            <span hidden id="ratingDisplay">{{ $rating ?? '' }}</span>
+                            <form id="ratingForm" class="inline-block">
+                                <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
+                                <div id="starContainer" data-current-rating="{{ $rating ?? 0 }}" class="flex">
+                                    @for ($i = 1; $i <= 10; $i++)
+                                        <span class="star cursor-pointer text-2xl" data-value="{{ $i }}">&#9733;</span>
+                                    @endfor
+                                </div>
+                                <input type="hidden" id="ratingField" name="ratingField" min="0" max="10"
+                                       value="{{ $rating ?? 0 }}">
+                                <input type="hidden" id="bookId" value="{{$book->id}}">
+                            </form>
+                        </li>
+                        <li class="mb-2">
+                            <form id="favoriteForm" class="flex items-center">
+                                <meta name="csrf-token-rating" id='csrf-token-rating' content="{{csrf_token()}}">
+                                <input type="checkbox" name="favorite" id="favorite" {{$favorite ? 'checked' : ''}}
+                                class="mr-2">
+                                <label for="favorite" class="font-semibold">Favorite</label>
+                            </form>
+                        </li>
+                    @else
+                        <a href="{{route('book.addBookPost', ['id' => $book->id])}}"
+                           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md inline-block">
+                            Add book
+                        </a>
+                    @endif
+                </ul>
+            </div>
+        </div>
     </div>
 
     <script>

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
-use App\Models\Rating;
 use App\Models\User;
 use App\Services\GoogleBookService;
 use GuzzleHttp\Exception\GuzzleException;
@@ -105,8 +104,11 @@ class BookController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function addBook(): Factory|\Illuminate\Foundation\Application|View|Application
+    public function addBook(string $title = null): Factory|\Illuminate\Foundation\Application|View|Application
     {
+        if ($title){
+            return view('book.addBook', ['title' => $title]);
+        }
         return view('book.addBook');
     }
 
@@ -145,6 +147,12 @@ class BookController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Remove a book associated with the authenticated user.
+     *
+     * @param int $id The ID of the book to be removed.
+     * @return JsonResponse Returns a JSON response indicating success.
+     */
     public function removeBook(int $id): JsonResponse
     {
         $user = Auth::user();

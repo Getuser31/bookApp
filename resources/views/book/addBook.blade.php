@@ -15,6 +15,7 @@
                     type="text"
                     placeholder="Search for a book"
                     id="bookSearch"
+                    value="{{$title ?? ''}}"
                 >
             </div>
 
@@ -70,5 +71,12 @@
 
             initializeBookSearch('bookSearch', 'searchResults', selectedLanguage, title, author);
         });
+
+        document.addEventListener('DOMContentLoaded', function (){
+            let title = document.getElementById('bookSearch').value;
+            if(title !== ''){
+                searchButton.click();
+            }
+        })
     </script>
 @endsection

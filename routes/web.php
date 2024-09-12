@@ -13,7 +13,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/book/{id}', [BookController::class, 'show'])->name('book.show');
     Route::post('/updateProgression', [BookController::class, 'updateProgression'])->name('book.updateProgression');
     Route::post('/deleteBook/{id}', [BookController::class, 'deleteBook'])->name('book.deleteBook');
-    Route::get('/addBook', [BookController::class, 'addBook'])->name('book.addBook');
+    Route::get('/addBook/{title?}', [BookController::class, 'addBook'])->name('book.addBook');
     Route::get('/searchBook', [BookController::class, 'searchBook'])->name('book.searchBook');
     Route::get('/addBook/{id}', [BookController::class, 'addBookPost'])->name('book.addBookPost');
     Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('book.removeBook');

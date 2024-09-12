@@ -12,21 +12,21 @@ export async function handleEnterKey(e) {
         }
         try {
             await initializeBookSearch('GoogleBookSearch', 'searchApiResults', window.defaultLanguage, title);
-            createButton();
+            createButton(title);
         } catch (error) {
             console.error('Error initializing book search:', error);
         }
     }
 }
 
-export function createButton() {
+export function createButton(title) {
     let moreResultsButton = document.createElement('button');
     moreResultsButton.textContent = 'More results';
     moreResultsButton.classList.add('more-results-button');
     moreResultsButton.id = 'moreResultsButton';
 
     moreResultsButton.addEventListener('click', function () {
-        window.location.href = "http://localhost:8000/addBook"
+        window.location.href = "http://localhost:8000/addBook/"+title;
     });
 
     document.getElementById('searchApiResults').appendChild(moreResultsButton);
