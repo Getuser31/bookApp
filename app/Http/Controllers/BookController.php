@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddNoteRequest;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
+use App\Models\Notes;
 use App\Models\User;
 use App\Services\GoogleBookService;
 use GuzzleHttp\Exception\GuzzleException;
@@ -65,6 +67,7 @@ class BookController extends Controller
     {
         $book = Book::with('users')->findOrFail($id);
         $rating = BookRating::getRating($book->id, auth()->id());
+        $notes = Notes::getNotesForBookAndUser(auth()->id(), $book->id);
         if ($rating !== null) {
             $rating = $rating->rating;
         }
@@ -85,7 +88,8 @@ class BookController extends Controller
             'progression' => $progression,
             'belongToUser' => $belongToUser,
             'rating' => $rating,
-            'favorite' => $favorite
+            'favorite' => $favorite,
+            'notes' => $notes
         ]);
     }
 
@@ -202,6 +206,19 @@ class BookController extends Controller
         $book = $googleBookService->storeBook($id);
 
         return redirect(route('book.show', ['id' => $book->id]));
+
+    }
+
+    public function storeNote(addNoteRequest $request)
+    {
+        // Creating the note using mass assignment
+        Notes::create([
+            'content' => $request->input('content'),
+            'user_id' => Auth::id(),
+            'book_id' => $request->input('book_id'),
+        ]);
+
+        return redirect()->back()->with('success', 'Note added successfully.');
 
     }
 }

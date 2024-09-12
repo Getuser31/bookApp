@@ -17,6 +17,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/searchBook', [BookController::class, 'searchBook'])->name('book.searchBook');
     Route::get('/addBook/{id}', [BookController::class, 'addBookPost'])->name('book.addBookPost');
     Route::get('/removeBook/{id}', [BookController::class, 'removeBook'])->name('book.removeBook');
+    Route::post('/storeNote', [BookController::class, 'storeNote'])->name('notes.store');
 
 //Google API
     Route::post('/googleBook/', [BookController::class, 'googleBook'])->name('book.googleBook');
