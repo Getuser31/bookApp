@@ -93,21 +93,6 @@ class BookController extends Controller
         ]);
     }
 
-    /**
-     * Updates the progression of a book for the authenticated user.
-     *
-     * @param Request $request The HTTP request containing the book ID and the new progression.
-     * @return JsonResponse The JSON response indicating the success of the update.
-     */
-    public function updateProgression(Request $request): JsonResponse
-    {
-        $book = Book::findOrFail($request->input('bookId'));
-        $user = Auth::user();
-        $user->books()->updateExistingPivot($book, ['progression' => $request->input('progression')]);
-
-        return response()->json(['success' => true]);
-    }
-
     public function addBook(string $title = null): Factory|\Illuminate\Foundation\Application|View|Application
     {
         if ($title){
