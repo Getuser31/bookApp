@@ -110,4 +110,31 @@ class BookController extends Controller
         return response()->json(['success' => true]);
 
     }
+
+    public function updateProgression(Request $request): JsonResponse
+    {
+        try {
+            // Validate Request Input
+            $validated = $request->validate([
+                'bookId' => 'required|exists:books,id',
+                'progression' => 'required|integer|min:1|max:100',
+            ]);
+            $progression = $validated['progression'];
+
+            // Attach User
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            $book = Book::findOrFail($request->input('bookId'));
+            $user->books()->updateExistingPivot($book, ['progression' => $progression]);
+
+            return response()->json(['message' => 'Progression updated successfully'], 200);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
