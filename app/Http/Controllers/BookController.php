@@ -194,7 +194,7 @@ class BookController extends Controller
 
     }
 
-    public function storeNote(addNoteRequest $request)
+    public function storeNote(addNoteRequest $request): RedirectResponse
     {
         // Creating the note using mass assignment
         Notes::create([

@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use function Laravel\Prompts\error;
 
 /**
+ * 
+ *
  * @property int $id
  * @property string $title
  * @property string $date_of_publication
@@ -51,6 +53,8 @@ use function Laravel\Prompts\error;
  * @method static Builder|Book whereGoogleId($value)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Rating> $rating
  * @property-read int|null $rating_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BookRating> $ratings
+ * @property-read int|null $ratings_count
  * @mixin Eloquent
  */
 class Book extends Model

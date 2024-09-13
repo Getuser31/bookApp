@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $language
@@ -26,6 +26,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder|UserPreference whereLanguage($value)
  * @method static Builder|UserPreference whereUpdatedAt($value)
  * @method static Builder|UserPreference whereUserId($value)
+ * @property int|null $default_language_id
+ * @property-read \App\Models\DefaultLanguage|null $defaultLanguage
+ * @method static Builder|UserPreference whereDefaultLanguageId($value)
  * @mixin \Eloquent
  */
 class UserPreference extends Model

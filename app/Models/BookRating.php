@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $book_id
@@ -26,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|BookRating whereRating($value)
  * @method static Builder|BookRating whereUpdatedAt($value)
  * @method static Builder|BookRating whereUserId($value)
+ * @property-read \App\Models\Book|null $book
+ * @property-read \App\Models\User|null $user
  * @mixin \Eloquent
  */
 class BookRating extends Pivot

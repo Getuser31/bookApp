@@ -6,6 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property int $user_id
+ * @property int $book_id
+ * @property string $content
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Book|null $book
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes whereBookId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Notes whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Notes extends Model
 {
     use HasFactory;
