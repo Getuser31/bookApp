@@ -130,6 +130,11 @@ class BookController extends Controller
             $book = Book::findOrFail($request->input('bookId'));
             $user->books()->updateExistingPivot($book, ['progression' => $progression]);
 
+            if ($progression == 100){
+                $date = new \DateTime('now');
+                $user->books()->updateExistingPivot($book, ['completed_at' => $date]);
+            }
+
             return response()->json(['message' => 'Progression updated successfully'], 200);
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 400);
