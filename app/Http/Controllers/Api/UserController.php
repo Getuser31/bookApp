@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Session;
 
 class UserController
 {
-    
+
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
@@ -39,7 +39,9 @@ class UserController
 
             // Store Token in Session
             Session::put('api_token', $token);
-            return response()->json(['success' => 'login successful'], 200);
+            return response()->json([
+                'success' => 'login successful',
+                'token' => $token], 200);
         } else {
             return Response()->json(['error' => 'Wrong username or password'], 401);
         }

@@ -10,7 +10,7 @@
     <div class="absolute left-0 right-0 bg-white border border-gray-300 rounded shadow-md max-h-60 overflow-auto mt-1 hidden" id="searchApiResults">
         <div class="search-result-item">
             <div class="thumbnail">
-                <img src="thumbnail.png" alt="Thumbnail">
+                <img src="#" alt="Thumbnail">
             </div>
             <div class="content">
                 <!-- Your other content here -->

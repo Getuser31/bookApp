@@ -19,7 +19,8 @@ class CorsMiddleware
             return response('', 204)
                 ->header('Access-Control-Allow-Origin', 'http://localhost:3000') // React App URL
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type');
+                ->header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type')
+                ->header('Access-Control-Allow-Credentials', 'true');
         }
 
         $response = $next($request);
@@ -27,6 +28,7 @@ class CorsMiddleware
         return $response
             ->header('Access-Control-Allow-Origin', 'http://localhost:3000') // React App URL
             ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type');
+            ->header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type')
+            ->header('Access-Control-Allow-Credentials', 'true');
     }
 }
