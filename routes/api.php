@@ -18,6 +18,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::any('filterLibrary', [BookController::class, 'filterLibrary'])
         ->name('api.filterLibrary');
 
+    Route::get('/book/{id}', [BookController::class, 'bookShow'])->name('api.books.show');
+
     Route::post('updateRating', [BookController::class, 'updateRating'])
         ->name('api.updateRating');
 

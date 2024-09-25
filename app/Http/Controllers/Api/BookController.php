@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
+use App\Models\Notes;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -17,11 +19,42 @@ class BookController extends Controller
     {
         $genres = Genre::all();
         $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
-        $books = Auth()->user()->books()->with(['author', 'genres'])->paginate(10);
+        $books = Auth()->user()->books()->with(['author', 'genres'])->get();
         return response()->json([
             'books' => $books,
             'authors' => $authors,
             'genres' => $genres
+        ]);
+    }
+
+    public function bookShow(int $id): JsonResponse
+    {
+        $book = Book::with('users', 'author', 'genres')->findOrFail($id);
+        $rating = BookRating::getRating($book->id, auth()->id());
+        $notes = Notes::getNotesForBookAndUser(auth()->id(), $book->id);
+        if ($rating !== null) {
+            $rating = $rating->rating;
+        }
+        $progression = null;
+        $favorite = null;
+        $belongToUser = null;
+        /** @var User $user */
+        if (isset($book->users)) {
+            $user = $book->users->first();
+            if ($user != null) {
+                $progression = $user->pivot->progression;
+                $favorite = $user->pivot->favorite;
+                $belongToUser = true;
+            }
+        }
+
+        return response()->json([
+            'book' => $book,
+            'progression' => $progression,
+            'belongToUser' => $belongToUser,
+            'rating' => $rating,
+            'favorite' => $favorite,
+            'notes' => $notes
         ]);
     }
 
