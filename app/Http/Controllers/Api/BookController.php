@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\AddNoteRequest;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
 use App\Models\Notes;
 use App\Models\User;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -174,5 +177,21 @@ class BookController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function storeNote(addNoteRequest $request): JsonResponse
+    {
+        // Creating the note using mass assignment
+        $note = Notes::create([
+            'content' => $request->input('content'),
+            'user_id' => Auth::id(),
+            'book_id' => $request->input('bookId'),
+        ]);
+
+        return response()->json([
+            'note' => $note,
+            'success' => true
+        ]);
+
     }
 }
