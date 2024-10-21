@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\UpdateUserDataRequest;
 use App\Http\Requests\UpdateUserIndexPreferenceRequest;
 use App\Http\Requests\UpdateUserLanguagePreference;
 use App\Models\Book;
@@ -15,6 +16,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -128,5 +130,13 @@ class UserController
             'success' => true,
             'language' => Session::get('language')
         ]);
+    }
+
+    public function UpdateUserData(UpdateUserDataRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user->update($request->validated());
+
+        return response()->json(['success' => true, 'message' => 'Personal data successfully updated!']) ;
     }
 }

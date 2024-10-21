@@ -41,5 +41,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('userProfile', [UserController::class, 'userProfile'])
         ->name('api.userProfile');
+
+    Route::post('updateUserData', [UserController::class, 'UpdateUserData'])
+        ->name('api.updateUserData');
 });
 
