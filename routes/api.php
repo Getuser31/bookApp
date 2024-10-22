@@ -44,5 +44,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('updateUserData', [UserController::class, 'UpdateUserData'])
         ->name('api.updateUserData');
+
+    Route::post('updatePassword', [UserController::class, 'updatePassword'])
+        ->name('api.updatePassword');
+
+    Route::get('addGoogleBook/{id}', [BookController::class, 'googleBookStore'])
+        ->name('api.addGoogleBook');
 });
 

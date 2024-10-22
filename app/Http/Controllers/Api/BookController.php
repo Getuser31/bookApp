@@ -8,7 +8,10 @@ use App\Models\BookRating;
 use App\Models\Genre;
 use App\Models\Notes;
 use App\Models\User;
+use App\Services\GoogleBookService;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -57,6 +60,19 @@ class BookController extends Controller
             'favorite' => $favorite,
             'notes' => $notes
         ]);
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws ValidationException
+     */
+    public function googleBookStore(string $id): JsonResponse
+    {
+        $googleBookService = new GoogleBookService($id);
+        $book = $googleBookService->storeBook($id);
+
+        return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);
+
     }
 
     /**

@@ -5,21 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\UpdateUserDataRequest;
 use App\Http\Requests\UpdateUserIndexPreferenceRequest;
 use App\Http\Requests\UpdateUserLanguagePreference;
+use App\Http\Requests\UpdateUserPasswordRequest;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\DefaultLanguage;
 use App\Models\IndexPreference;
 use App\Models\User;
 use App\Models\UserPreference;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 
 class UserController
@@ -64,12 +59,12 @@ class UserController
      * Retrieves the authenticated user's profile details along with related data such as books,
      * average book ranking, and user preferences.
      *
-     * @return \Illuminate\Http\JsonResponse Returns a JSON response containing user profile details,
+     * @return JsonResponse Returns a JSON response containing user profile details,
      *                                       average book ranking, books started, books not started,
      *                                       index preferences, user preferences, default languages,
      *                                       and books finished.
      */
-    public function userProfile()
+    public function userProfile(): JsonResponse
     {
         $user = Auth::user();
         $userWithBooks = User::with('books')->find($user->id);
@@ -92,6 +87,10 @@ class UserController
         ]);
     }
 
+    /**
+     * @param UpdateUserIndexPreferenceRequest $request
+     * @return JsonResponse
+     */
     public function updateIndexPreference(UpdateUserIndexPreferenceRequest $request): JsonResponse
     {
         $user = Auth::user();
@@ -111,6 +110,10 @@ class UserController
         return response()->json(['success' => true]);
     }
 
+    /**
+     * @param UpdateUserLanguagePreference $request
+     * @return JsonResponse
+     */
     public function updateLanguage(UpdateUserLanguagePreference $request): JsonResponse
     {
         $user = Auth::user();
@@ -132,11 +135,30 @@ class UserController
         ]);
     }
 
+    /**
+     * @param UpdateUserDataRequest $request
+     * @return JsonResponse
+     */
     public function UpdateUserData(UpdateUserDataRequest $request): JsonResponse
     {
         $user = Auth::user();
         $user->update($request->validated());
 
         return response()->json(['success' => true, 'message' => 'Personal data successfully updated!']) ;
+    }
+
+    /**
+     * Updates the authenticated user's password using validated input from the request.
+     *
+     * @param UpdateUserPasswordRequest $request The request instance containing the validated password data.
+     *
+     * @return JsonResponse Returns a JSON response indicating the success of the password update operation.
+     */
+    public function updatePassword(UpdateUserPasswordRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user->update($request->validated());
+
+        return Response()->json(['success' => true, 'message' => 'Password updated successfully!']);
     }
 }
