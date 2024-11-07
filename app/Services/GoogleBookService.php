@@ -64,7 +64,6 @@ class GoogleBookService
      *
      * @param string|array $genre The genre(s) of the book.
      * @return string|array The processed genre(s) of the book.
-     * @throws GuzzleException
      */
     public function processGenre(string|array $genre): string|array
     {
@@ -112,8 +111,11 @@ class GoogleBookService
         $genres = $this->processGenre($data['genres']);
         $data['genres'] = $genres;
 
-        $picture = $this->processPicture(str($data['picture']));
-        $data['picture'] = $picture;
+
+        if ($data['picture'] !== null) {
+            $picture = $this->processPicture(str($data['picture']));
+            $data['picture'] = $picture;
+        }
 
         $validator = Validator::make($data, (new StoreBookPost())->rules());
 

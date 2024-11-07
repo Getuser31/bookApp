@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Services\GoogleBookService;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -72,7 +71,6 @@ class BookController extends Controller
         $book = $googleBookService->storeBook($id);
 
         return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);
-
     }
 
     /**
@@ -207,5 +205,20 @@ class BookController extends Controller
             'success' => true
         ]);
 
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function library(): JsonResponse
+    {
+        $genres = Genre::all()->sortBy('name');
+        $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
+        $books = Auth()->user()->books()->with(['author', 'genres', 'ratings'])->get();
+        return response()->json([
+            'books' => $books,
+            'genres' => $genres,
+            'authors' => $authors
+        ]);
     }
 }

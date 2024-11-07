@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBookPost extends FormRequest
@@ -17,7 +18,7 @@ class StoreBookPost extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
@@ -30,7 +31,7 @@ class StoreBookPost extends FormRequest
             'genres.*' => 'exists:genres,id',
             'google_id' => 'nullable|max:255',
             'collection_id' => 'nullable|exists:collections,id',
-            'picture' => 'required|file|image|max:5000',
+            'picture' => 'nullable|file|image|max:5000',
         ];
     }
 }

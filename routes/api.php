@@ -50,5 +50,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('addGoogleBook/{id}', [BookController::class, 'googleBookStore'])
         ->name('api.addGoogleBook');
+
+    Route::get('library', [BookController::class, 'library'])
+        ->name('api.library');
 });
 
