@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\AddNoteRequest;
+use App\Http\Requests\StoreBookPost;
+use App\Models\Author;
 use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\Genre;
@@ -10,6 +12,7 @@ use App\Models\Notes;
 use App\Models\User;
 use App\Services\GoogleBookService;
 use GuzzleHttp\Exception\GuzzleException;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -220,5 +223,62 @@ class BookController extends Controller
             'genres' => $genres,
             'authors' => $authors
         ]);
+    }
+
+    /**
+     * Return list of All Genres
+     * @return JsonResponse
+     */
+    public function handleGenre(): JsonResponse
+    {
+        $genres = Genre::all();
+        return response()->json([
+            'genres' => $genres
+        ]);
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function handleAuthors(): JsonResponse
+    {
+        $authors = Author::all();
+        return response()->json([
+            'authors' => $authors
+        ]);
+    }
+
+    /**
+     * Store a new author.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function storeAuthor(Request $request): JsonResponse
+    {
+        $author = new Author();
+        $validatedData = $request->validate(['author' => 'required|max:255']);
+        $author->name = $validatedData['author'];
+        $author->save();
+
+        return response()->json(['success' => true, 'message' => 'author added to library', 'id' => $author->id]);
+
+    }
+
+    /**
+     * Store a new book.
+     *
+     * @param StoreBookPost $request The incoming request object.
+     * @return JsonResponse The redirect response after storing the book.
+     */
+    public function storeBook(StoreBookPost $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+
+        $book = new Book();
+        $book->storeFromRequest($validatedData);
+
+
+        return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);
     }
 }

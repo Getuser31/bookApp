@@ -14,10 +14,9 @@ use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use function Laravel\Prompts\error;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $title
@@ -119,7 +118,7 @@ class Book extends Model
         $this->date_of_publication = $formattedDate;
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
-        $this->google_id = $validatedData['google_id'];
+        $this->google_id = $validatedData['google_id'] ?? null;
         $this->FormatUploadedFile($validatedData);
 
         $this->save();
@@ -240,11 +239,11 @@ class Book extends Model
      * @param int $userId The ID of the user.
      * @return int The number of books started by the user.
      *
-     * @see \App\Models\Book
-     * @see \App\Models\User
-     * @see \Illuminate\Database\Eloquent\Builder::whereHas
-     * @see \Illuminate\Database\Eloquent\Builder::where
-     * @see \Illuminate\Database\Eloquent\Builder::count
+     * @see Book
+     * @see User
+     * @see Builder::whereHas
+     * @see Builder::where
+     * @see Builder::count
      */
     public static function BooksStarted(int $userId): int
     {

@@ -53,5 +53,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('library', [BookController::class, 'library'])
         ->name('api.library');
+
+    Route::get('/getGenres', [BookController::class, 'handleGenre'])
+        ->name('api.getGenres');
+
+    Route::get('/getAuthors', [BookController::class, 'handleAuthors'])
+        ->name('api.getAuthors');
+
+    Route::post('/storeBook', [BookController::class, 'storeBook'])
+        ->name('api.storeBook');
+
+    Route::post('/storeAuthor', [BookController::class, 'storeAuthor'])
+        ->name('api.storeAuthor');
 });
 
