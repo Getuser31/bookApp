@@ -11,8 +11,8 @@ use App\Models\Genre;
 use App\Models\Notes;
 use App\Models\User;
 use App\Services\GoogleBookService;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -259,8 +259,11 @@ class BookController extends Controller
         $author = new Author();
         $validatedData = $request->validate(['author' => 'required|max:255']);
         $author->name = $validatedData['author'];
-        $author->save();
-
+        try {
+            $author->save();
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
         return response()->json(['success' => true, 'message' => 'author added to library', 'id' => $author->id]);
 
     }
@@ -276,7 +279,12 @@ class BookController extends Controller
         $validatedData = $request->validated();
 
         $book = new Book();
-        $book->storeFromRequest($validatedData);
+        try {
+            $book->storeFromRequest($validatedData);
+        } catch (Exception $e){
+            return response()->json(['error' => $e->getMessage()]);
+        }
+
 
 
         return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);

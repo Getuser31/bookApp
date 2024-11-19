@@ -34,4 +34,21 @@ class StoreBookPost extends FormRequest
             'picture' => 'nullable|file|image|max:5000',
         ];
     }
+
+    /**
+     * Get the custom error messages for validation rules.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'The title field is required.',
+            'description.required' => 'The description field is required.',
+            'author_id.required' => 'The author field is required.',
+            'author_id.exists' => 'The selected author does not exist.',
+            'genres.required' => 'At least one genre is required.',
+            'genres.*.exists' => 'The selected genre does not exist.',
+        ];
+    }
 }
