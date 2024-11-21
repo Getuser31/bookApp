@@ -295,18 +295,21 @@ class BookController extends Controller
     public function updateBook(StoreBookPost $request, int $id): JsonResponse
     {
         $book = Book::findOrFail($id);
-        $newBook = new Book();
-        $validatedData = $request->validated();
-        $newBook->storeFromRequest($validatedData);
-
         $user = Auth::user();
-        $newBook->user_id = $user->id;
-        $newBook->save();
-        $user->books()->detach($book);
-        if ($book->google_id === null) {
-            $book->delete();
+        $validatedData = $request->validated();
+
+        if ($book->user_id === $user->id){ // It's already a book that belong to the user, so just update it
+            $book->storeFromRequest($validatedData);
+            $bookId = $book->id;
+        } else { // This is a google Book API, we need to create new one to let the original available
+            $newBook = new Book();
+            $newBook->storeFromRequest($validatedData);
+            $newBook->user_id = $user->id;
+            $newBook->save();
+            $user->books()->detach($book);
+            $bookId = $newBook->id;
         }
 
-        return response()->json(['success' => true, 'message' => 'book updated', 'id' => $newBook->id]);
+        return response()->json(['success' => true, 'message' => 'book updated', 'id' => $bookId]);
     }
 }
