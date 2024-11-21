@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -68,7 +69,8 @@ class Book extends Model
         'genre_id',
         'collection_id',
         'picture',
-        'google_id'
+        'google_id',
+        'user_id'
     ];
 
     /**
@@ -91,27 +93,7 @@ class Book extends Model
 
     public function storeFromRequest(array $validatedData): void
     {
-        $dateString = $validatedData['date_of_publication'];
-        /**
-         * @var string $formattedDate The formatted date value.
-         */
-        $formattedDate = null;
-        try {
-            // Try to create a DateTime object directly from the date string
-            $dateTime = new DateTime($dateString);
-
-            // Format the DateTime object to ensure it's in the correct MySQL date format
-            $formattedDate = $dateTime->format('Y-m-d');
-        } catch (Exception $e) {
-            // Try to create a DateTime object using createFromFormat method
-            $dateTime = DateTime::createFromFormat('d/m/Y', $dateString);
-
-            if ($dateTime) {
-                $formattedDate = $dateTime->format('Y-m-d');
-            } else {
-                throw new \Error( "Error: Invalid date format.");
-            }
-        }
+        $formattedDate = $this->getFormattedDate($validatedData['date_of_publication']);
 
         $this->title = $validatedData['title'];
         $this->description = $validatedData['description'];
@@ -119,7 +101,10 @@ class Book extends Model
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
         $this->google_id = $validatedData['google_id'] ?? null;
-        $this->FormatUploadedFile($validatedData);
+        if (isset($validatedData['picture'])){
+            $this->FormatUploadedFile($validatedData);
+        }
+
 
         $this->save();
         // Sync genres
@@ -151,7 +136,7 @@ class Book extends Model
         return $this->belongsToMany(Genre::class, 'book_genre');
     }
 
-    public function ratings()
+    public function ratings(): HasMany
     {
         return $this->hasMany(BookRating::class); // Relationship to book ratings
     }
@@ -274,5 +259,32 @@ class Book extends Model
             $query->where('user_id', $userId)
                 ->where('progression', 0);
         })->count();
+    }
+
+    /**
+     * @param $date_of_publication
+     * @return string
+     */
+    public function getFormattedDate($date_of_publication): string
+    {
+        $dateString = $date_of_publication;
+
+        try {
+            // Try to create a DateTime object directly from the date string
+            $dateTime = new DateTime($dateString);
+
+            // Format the DateTime object to ensure it's in the correct MySQL date format
+            $formattedDate = $dateTime->format('Y-m-d');
+        } catch (Exception $e) {
+            // Try to create a DateTime object using createFromFormat method
+            $dateTime = DateTime::createFromFormat('d/m/Y', $dateString);
+
+            if ($dateTime) {
+                $formattedDate = $dateTime->format('Y-m-d');
+            } else {
+                throw new \Error("Error: Invalid date format.");
+            }
+        }
+        return $formattedDate;
     }
 }

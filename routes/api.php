@@ -65,5 +65,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/storeAuthor', [BookController::class, 'storeAuthor'])
         ->name('api.storeAuthor');
+
+    Route::post('/updateBook/{id}', [BookController::class, 'updateBook'])
+        ->name('api.updateBook');
 });
 

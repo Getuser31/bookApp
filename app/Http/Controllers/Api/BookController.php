@@ -277,16 +277,36 @@ class BookController extends Controller
     public function storeBook(StoreBookPost $request): JsonResponse
     {
         $validatedData = $request->validated();
-
         $book = new Book();
+
         try {
             $book->storeFromRequest($validatedData);
         } catch (Exception $e){
             return response()->json(['error' => $e->getMessage()]);
         }
-
-
-
         return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);
+    }
+
+    /**
+     * @param StoreBookPost $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function updateBook(StoreBookPost $request, int $id): JsonResponse
+    {
+        $book = Book::findOrFail($id);
+        $newBook = new Book();
+        $validatedData = $request->validated();
+        $newBook->storeFromRequest($validatedData);
+
+        $user = Auth::user();
+        $newBook->user_id = $user->id;
+        $newBook->save();
+        $user->books()->detach($book);
+        if ($book->google_id === null) {
+            $book->delete();
+        }
+
+        return response()->json(['success' => true, 'message' => 'book updated', 'id' => $newBook->id]);
     }
 }
