@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $user_id
@@ -47,7 +47,12 @@ class Notes extends Model
     }
 
 
-    public static function getNotesForBookAndUser(int $user_id, int $book_id)
+    /**
+     * @param int $user_id
+     * @param int $book_id
+     * @return \Illuminate\Database\Eloquent\Collection|array
+     */
+    public static function getNotesForBookAndUser(int $user_id, int $book_id): \Illuminate\Database\Eloquent\Collection|array
     {
         return self::whereHas('user', function ($query) use ($user_id) {
             $query->where('id', $user_id);

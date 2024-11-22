@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $book_id
@@ -46,6 +46,11 @@ class BookRating extends Pivot
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @param int $book_id
+     * @param int $user_id
+     * @return Model|Builder|BookRating|null
+     */
     public static function getRating(int $book_id, int $user_id): Model|Builder|BookRating|null
     {
         return self::where('book_id', $book_id)->where('user_id', $user_id)->first();

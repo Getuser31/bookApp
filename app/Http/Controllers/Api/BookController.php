@@ -13,6 +13,9 @@ use App\Models\User;
 use App\Services\GoogleBookService;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -299,7 +302,8 @@ class BookController extends Controller
         $validatedData = $request->validated();
 
         if ($book->user_id === $user->id){ // It's already a book that belong to the user, so just update it
-            $book->storeFromRequest($validatedData);
+            $validatedData['date_of_publication'] = $book->getFormattedDate($validatedData['date_of_publication']);
+            $book->update($validatedData);
             $bookId = $book->id;
         } else { // This is a google Book API, we need to create new one to let the original available
             $newBook = new Book();
@@ -307,9 +311,45 @@ class BookController extends Controller
             $newBook->user_id = $user->id;
             $newBook->save();
             $user->books()->detach($book);
+
+            $this->migrateBookAttributes($validatedData, $book, $newBook, $user);
             $bookId = $newBook->id;
         }
 
         return response()->json(['success' => true, 'message' => 'book updated', 'id' => $bookId]);
+    }
+
+    /**
+     * @param mixed $validatedData
+     * @param Model|Collection|array|Book $book
+     * @param Book $newBook
+     * @param User|Authenticatable|null $user
+     * @return void
+     */
+    private function migrateBookAttributes(mixed $validatedData, Model|Collection|array|Book $book, Book $newBook, User|Authenticatable|null $user): void
+    {
+        if (!isset($validatedData['picture'])) { // We need to transfer original picture @todo upload a copy to avoid problem when delete original picture
+            $newBook->picture = $book->picture;
+            $newBook->save();
+        }
+
+        // If the book has already been rated, we have to transfer it to the new book
+        $rating = new BookRating();
+        $isRated = $rating->getRating($book->id, $user->id);
+        if ($isRated) {
+            $isRated->book_id = $newBook->id;
+            $isRated->save();
+        }
+
+        //If the book belong some notes, we have to transfer it to the new book
+        $notes = new Notes();
+        $doesBookGetNotes = $notes->getNotesForBookAndUser($user->id, $book->id);
+        if ($doesBookGetNotes) {
+            foreach ($doesBookGetNotes as $note) {
+                $note->book_id = $newBook->id;
+                $note->save();
+            }
+
+        }
     }
 }
