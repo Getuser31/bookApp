@@ -101,7 +101,7 @@ class Book extends Model
         $this->collection_id = $validatedData['collection_id'] ?? null;
         $this->author_id = $validatedData['author_id'];
         $this->google_id = $validatedData['google_id'] ?? null;
-        if (isset($validatedData['picture'])){
+        if (isset($validatedData['picture'])) {
             $this->FormatUploadedFile($validatedData);
         }
 
@@ -110,7 +110,7 @@ class Book extends Model
         // Sync genres
         if (isset($validatedData['genres'])) {
             $this->genres()->sync($validatedData['genres']);
-       }
+        }
         //Sync User
         $user = Auth::user();
         $user->books()->attach($this);
@@ -241,9 +241,9 @@ class Book extends Model
 
     public static function BooksFinished(int $userId): int
     {
-        return self::whereHas('users', function($query) use ($userId){
+        return self::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId)
-            ->where('progression', '=', 100);
+                ->where('progression', '=', 100);
         })->count();
     }
 
@@ -286,5 +286,15 @@ class Book extends Model
             }
         }
         return $formattedDate;
+    }
+
+    /**
+     * @param int $authorId
+     * @return \Illuminate\Database\Eloquent\Collection|array
+     */
+    public static function getListOfBooksBasedOnAuthor(int $authorId): \Illuminate\Database\Eloquent\Collection|array
+    {
+        return self::where('author_id', $authorId)
+            ->where('user_id', null)->get();
     }
 }

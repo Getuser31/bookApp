@@ -1,6 +1,7 @@
 <?php
 
 // routes/api.php
+use App\Http\Controllers\Api\AuthorController;
 use App\Http\Controllers\Api\BookController;
 
 use App\Http\Controllers\Api\UserController;
@@ -68,5 +69,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/updateBook/{id}', [BookController::class, 'updateBook'])
         ->name('api.updateBook');
+
+    Route::get('/getBookFromAuthor/{id}', [AuthorController::class, 'bookFromAuthor'])
+        ->name('api.getBookFromAuthor');
 });
 
