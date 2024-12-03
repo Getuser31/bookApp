@@ -15,7 +15,9 @@ Route::group(['middleware' => 'api'], function () {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('index', BookController::class)->names('api.books.index');
+    Route::apiResource('index', BookController::class)
+        ->names('api.books.index');
+
     Route::any('filterLibrary', [BookController::class, 'filterLibrary'])
         ->name('api.filterLibrary');
 

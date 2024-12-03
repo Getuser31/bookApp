@@ -10,6 +10,7 @@ use App\Models\BookRating;
 use App\Models\Genre;
 use App\Models\Notes;
 use App\Models\User;
+use App\Models\UserPreference;
 use App\Services\GoogleBookService;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -26,13 +27,29 @@ class BookController extends Controller
 {
     public function index(): JsonResponse
     {
-        $genres = Genre::all();
-        $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
-        $books = Auth()->user()->books()->with(['author', 'genres'])->get();
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $preferences = UserPreference::getUserPreference($user->id);
+        $preferenceIndex = $preferences->index_preference_id;
+
+        if ($preferenceIndex === 1) {
+            $books = Book::getBooksFromUserOrderByDateCreationDesc($user->id);
+        } elseif ($preferenceIndex === 2){
+            $books = Book::getBooksNotFinishedByUserOrderByDateCreationDesc($user->id);
+        } elseif ($preferenceIndex === 3) {
+            $books = $user->books()->with(['author', 'genres'])->get();
+        }elseif ($preferenceIndex === 4) {
+            $books =  Book::getBooksFromUserOrderByRatingDesc($user->id);
+        } else {
+            $books = $user->books()->with(['author', 'genres'])->get();
+        }
+
         return response()->json([
             'books' => $books,
-            'authors' => $authors,
-            'genres' => $genres
         ]);
     }
 

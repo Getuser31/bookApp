@@ -53,7 +53,7 @@ use Illuminate\Support\Facades\Auth;
  * @method static Builder|Book whereGoogleId($value)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Rating> $rating
  * @property-read int|null $rating_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BookRating> $ratings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, BookRating> $ratings
  * @property-read int|null $ratings_count
  * @mixin Eloquent
  */
@@ -89,6 +89,31 @@ class Book extends Model
             return $book;
         });
         return $booksWithProgression->toArray();
+    }
+
+    /**
+     * @param int $userId
+     * @return \Closure
+     */
+    public static function getUserProgression(int $userId): \Closure
+    {
+        return function ($book) use ($userId) {
+            // Access the user's progression from the pivot
+            $user = $book->users->firstWhere('id', $userId);
+
+            if ($user) {
+                // Move progression to book->pivot->progression
+                $book->pivot = (object)[
+                    'progression' => data_get($user->pivot, 'progression')
+                ];
+            } else {
+                $book->pivot = null;
+            }
+
+            $book->unsetRelation('users');
+
+            return $book;
+        };
     }
 
     public function storeFromRequest(array $validatedData): void
@@ -296,5 +321,64 @@ class Book extends Model
     {
         return self::where('author_id', $authorId)
             ->where('user_id', null)->get();
+    }
+
+    /**
+     * Retrieve books associated with a user that have not been completed,
+     * ordered by their creation date in descending order.
+     *
+     * @param int $userId The ID of the user.
+     * @return array|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     *
+     * @method static Builder|self whereHas(string $relation, \Closure $callback)
+     * @method static Builder|self orderBy(string $column, string $direction = 'asc')
+     * @method static \Illuminate\Support\Collection get()
+     */
+    public static function getBooksNotFinishedByUserOrderByDateCreationDesc(int $userId): array|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+    {
+        return self::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                ->where('progression', '<', 100);
+        })
+            ->with(['genres', 'author', 'users' => function($query) use ($userId){
+                $query->where('user_id', $userId)
+                    ->select('users.id');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(self::getUserProgression($userId));
+    }
+
+    /**
+     * Retrieve a collection of books associated with a specific user, ordered by creation date in descending order.
+     *
+     * @param int $userId Identifier of the user whose books are to be retrieved.
+     * @return \Illuminate\Support\Collection A collection of books with associated genres and author information.
+     *
+     * @method static Builder|Book whereHasUserId($value)
+     * @method static Builder|Book withGenres()
+     * @method static Builder|Book withAuthor()
+     */
+    public static function getBooksFromUserOrderByDateCreationDesc(int $userId): \Illuminate\Support\Collection
+    {
+        return self::whereHas('users', function ($query) use ($userId){
+            $query->where('user_id', $userId);
+        })
+            ->with(['genres', 'author'])
+            ->get()
+            ->map(self::getUserProgression($userId));
+    }
+
+    public static function getBooksFromUserOrderByRatingDesc(int $userId)
+    {
+        return self::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+            ->leftJoin('book_rating', 'books.id', '=', 'book_rating.book_id') // Join with the BookRating table
+            ->select('books.*') // Select all fields from books table
+            ->with(['genres', 'author', 'ratings'])
+            ->orderBy('book_rating.rating', 'desc') // Order by the rating column in book_ratings
+            ->get()
+            ->map(self::getUserProgression($userId));
     }
 }
