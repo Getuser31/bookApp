@@ -365,6 +365,7 @@ class Book extends Model
             $query->where('user_id', $userId);
         })
             ->with(['genres', 'author'])
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(self::getUserProgression($userId));
     }

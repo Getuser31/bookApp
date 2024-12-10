@@ -1,10 +1,11 @@
 <?php
 
 // routes/api.php
+use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthorController;
 use App\Http\Controllers\Api\BookController;
-
 use App\Http\Controllers\Api\UserController;
+use App\Http\Middleware\CheckAdminRole;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 
@@ -74,5 +75,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/getBookFromAuthor/{id}', [AuthorController::class, 'bookFromAuthor'])
         ->name('api.getBookFromAuthor');
+});
+
+//admin
+Route::middleware([CheckAdminRole::class])->group(function () {
+    Route::get('handleGenre', [AdminController::class, 'handleGenre'])
+        ->name('api.handleGenre');
+
+    Route::delete('deleteGenre/{id}', [AdminController::class, 'deleteGenre'])
+        ->name('api.deleteGenre');
+
+    Route::post('updateGenre/{id}', [AdminController::class, 'updateGenre'])
+        ->name('api/updateGenre');
 });
 
