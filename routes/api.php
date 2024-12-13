@@ -87,5 +87,8 @@ Route::middleware([CheckAdminRole::class])->group(function () {
 
     Route::post('updateGenre/{id}', [AdminController::class, 'updateGenre'])
         ->name('api/updateGenre');
+
+    Route::post('addNewGenre', [AdminController::class, 'storeGenre'])
+        ->name('api.addNewGenre');
 });
 

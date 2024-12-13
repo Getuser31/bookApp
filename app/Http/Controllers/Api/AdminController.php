@@ -41,7 +41,10 @@ class AdminController
         $genre->name = $validatedData['name'];
         $genre->save();
 
-        return response()->json(['message' => 'Genre has been created']);
+        return response()->json([
+            'message' => 'Genre has been created',
+            'genre' => $genre
+        ]);
     }
 
     public function deleteGenre(int $id): JsonResponse
