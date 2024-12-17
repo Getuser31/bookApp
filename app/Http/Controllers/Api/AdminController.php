@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Http\Requests\AuthorRequest;
 use App\Http\Requests\GenreRequest;
+use App\Models\Author;
 use App\Models\Genre;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Request;
 
@@ -53,5 +56,67 @@ class AdminController
 
         $genre->delete();
         return response()->json(['message' => 'Genre has been deleted']);
+    }
+
+    public function handleAuthors(): JsonResponse
+    {
+        $authors = Author::all();
+        return response()->json(['authors' => $authors]);
+    }
+
+    /**
+     * Update the specified author's information in the database.
+     *
+     * @param int $id The unique identifier of the author to be updated.
+     * @param AuthorRequest $request The HTTP request containing validated author data.
+     * @return JsonResponse The JSON response indicating the result of the update operation.
+     */
+    public function updateAuthor(int $id, AuthorRequest $request): JsonResponse
+    {
+        $author = Author::findOrFail($id);
+        if (!$author){
+            return response()->json(['message' => 'Author not found']);
+        }
+        if ($request->validated()){
+            $author->name = $request->validated()['name'];
+            $author->save();
+            return response()->json(['message' => 'Author updated']);
+        }
+        return response()->json(['message' => 'Author not updated']);
+    }
+
+    /**
+     * Remove the specified author from the database.
+     *
+     * @param int $id The unique identifier of the author to be deleted.
+     * @return JsonResponse The JSON response confirming the deletion of the author.
+     */
+    public function deleteAuthor(int $id): JsonResponse
+    {
+        $author = Author::findOrFail($id);
+        if (!$author){
+            return response()->json(['message' => 'Author not found']);
+        }
+        $author->delete();
+        return response()->json(['message' => 'Author deleted']);
+    }
+
+    /**
+     * Store a new author record in the database.
+     *
+     * @param AuthorRequest $request The HTTP request containing validated data for the new author.
+     * @return JsonResponse The JSON response confirming the creation of the author.
+     */
+    public function storeAuthor(AuthorRequest $request): JsonResponse
+    {
+        $author = new Author();
+        $validatedData = $request->validated();
+        $author->name = $validatedData['name'];
+        $author->save();
+
+        return response()->json([
+            'message' => 'Author has been created',
+            'author' => $author
+        ]);
     }
 }

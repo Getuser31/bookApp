@@ -90,5 +90,18 @@ Route::middleware([CheckAdminRole::class])->group(function () {
 
     Route::post('addNewGenre', [AdminController::class, 'storeGenre'])
         ->name('api.addNewGenre');
+
+    Route::get('handleAuthors', [AdminController::class, 'handleAuthors'])
+        ->name('api.handleAuthors');
+
+    Route::post('updateAuthor/{id}', [AdminController::class, 'updateAuthor'])
+        ->name('api.updateAuthor');
+
+    Route::delete('deleteAuthor/{id}', [AdminController::class, 'deleteAuthor'])
+        ->name('api.deleteAuthor');
+
+
+    Route::post('addNewAuthor', [AdminController::class, 'storeAuthor'])
+        ->name('api.addNewAuthor');
 });
 
