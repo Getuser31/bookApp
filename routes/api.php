@@ -75,6 +75,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/getBookFromAuthor/{id}', [AuthorController::class, 'bookFromAuthor'])
         ->name('api.getBookFromAuthor');
+
+    Route::delete('/removeBook/{id}', [BookController::class, 'removeBook'])
+        ->name('api.removeBook');
 });
 
 //admin
@@ -100,8 +103,16 @@ Route::middleware([CheckAdminRole::class])->group(function () {
     Route::delete('deleteAuthor/{id}', [AdminController::class, 'deleteAuthor'])
         ->name('api.deleteAuthor');
 
-
     Route::post('addNewAuthor', [AdminController::class, 'storeAuthor'])
         ->name('api.addNewAuthor');
+
+    Route::get('handleBooks', [AdminController::class, 'handleBooks'])
+        ->name('api.handleBooks');
+
+    Route::delete('deleteBook/{id}', [AdminController::class, 'deleteBook'])
+        ->name('api.deleteBook');
+
+    Route::get('/handleUsers', [AdminController::class, 'handleUsers'])
+        ->name('api.handleUsers');
 });
 

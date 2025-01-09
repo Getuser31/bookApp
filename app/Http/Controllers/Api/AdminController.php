@@ -6,10 +6,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\AuthorRequest;
 use App\Http\Requests\GenreRequest;
 use App\Models\Author;
+use App\Models\Book;
 use App\Models\Genre;
-use http\Env\Response;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Request;
 
 class AdminController
 {
@@ -118,5 +119,56 @@ class AdminController
             'message' => 'Author has been created',
             'author' => $author
         ]);
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function handleBooks(): JsonResponse
+    {
+        $books = Book::all();
+
+        return response()->json([
+            'books' => $books
+        ]);
+    }
+
+    /**
+     * Delete the specified book from the database.
+     *
+     * @param int $id The unique identifier of the book to be deleted.
+     * @return JsonResponse The JSON response indicating the result of the delete operation.
+     */
+    public function deleteBook(int $id): JsonResponse
+    {
+        $book = Book::find($id);
+
+        if (!$book) {
+            return response()->json(['message' => 'Book not found'], 404);
+        }
+
+        try {
+            $book->delete();
+        } catch (\Exception $e) {
+            // Return 500 status for server error
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+        // Return 200 status (default) for success
+        return response()->json(['message' => 'Book deleted'], 200);
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function handleUsers(): JsonResponse
+    {
+         $users = User::All();
+         $roles = Role::all();
+
+         return response()->json([
+             'users' => $users,
+             'roles' => $roles
+         ]);
     }
 }

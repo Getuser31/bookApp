@@ -369,4 +369,22 @@ class BookController extends Controller
 
         }
     }
+
+    /**
+     * Remove a book from the authenticated user's collection.
+     *
+     * @param int $id The ID of the book to be removed.
+     * @return JsonResponse
+     */
+    public function removeBook(int $id): JsonResponse
+    {
+        $book = Book::findOrFail($id);
+        if(!$book){
+            return response()->json(['error' => 'Book not found'], 404);
+        }
+        $user = Auth::user();
+        $user->books()->detach($id);
+
+        return response()->json(['success' => true]);
+    }
 }
