@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\CheckAdminRole;
 use App\Http\Middleware\CorsMiddleware;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

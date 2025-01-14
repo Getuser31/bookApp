@@ -81,7 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 //admin
-Route::middleware([CheckAdminRole::class])->group(function () {
+Route::middleware(['auth:sanctum', CheckAdminRole::class])->group(function () {
     Route::get('handleGenre', [AdminController::class, 'handleGenre'])
         ->name('api.handleGenre');
 

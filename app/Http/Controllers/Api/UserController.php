@@ -49,6 +49,7 @@ class UserController
             Session::put('api_token', $token);
             return response()->json([
                 'success' => 'login successful',
+                'user' => $user,
                 'token' => $token], 200);
         } else {
             return Response()->json(['error' => 'Wrong username or password'], 401);

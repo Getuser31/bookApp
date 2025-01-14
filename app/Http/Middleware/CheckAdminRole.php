@@ -15,7 +15,9 @@ class CheckAdminRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->role == 'admin') {
+        $user = $request->user();
+        $role = $user->role->name;
+        if ($user && $role !== 'Admin') {
             // User role is not admin
             // Redirect to home page with some text in session
             return redirect()->route('book.index')->with('error', 'You do not have admin access');
