@@ -6,6 +6,7 @@ use App\Http\Requests\StoreBookPost;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\Genre;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -133,7 +134,29 @@ class GoogleBookService
     {
         //CHECK IF ALREADY STORED
         if ($this->checkIfAlreadyStored($id) === true) {
-            return Book::where('google_id', $id)->first();
+            $book = Book::where('google_id', $id)->whereNull('user_id')->first()
+                ?? Book::where('google_id', $id)->first();
+            $user = Auth::user();
+
+            if (empty($book->picture)) {
+                try {
+                    $data = $this->getBookData();
+                    if (!empty($data['picture'])) {
+                        $picture = $this->downloadPicture(str($data['picture']));
+                        if ($picture instanceof File) {
+                            $book->FormatUploadedFile(['picture' => $picture]);
+                            $book->save();
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    // Non-critical — proceed without refreshing picture
+                }
+            }
+
+            if ($user && !$user->books()->where('books.id', $book->id)->exists()) {
+                $user->books()->attach($book);
+            }
+            return $book;
         }
 
         //PREPARE TO STORE NEW
@@ -192,38 +215,30 @@ class GoogleBookService
     }
 
     /**
-     * Processes the picture by downloading it and returning a RedirectResponse or a File object.
-     *
-     * @param string $picture The URL of the picture to be processed.
-     * @return RedirectResponse|File The processed picture as a RedirectResponse if successful, or a File object if unsuccessful.
+     * @throws GuzzleException
      */
     public function processPicture(string $picture): RedirectResponse|File
     {
-        function downloadPicture(string $pictureUrl): ?string
-        {
-            $client = new Client();
-            $tmpFilePath = storage_path('app/images/temporary_picture.jpg');
-            $response = $client->get($pictureUrl, ['sink' => $tmpFilePath]);
-
-            if ($response->getStatusCode() === 200) {
-                return $tmpFilePath;
-            }
-            return null;
+        $file = $this->downloadPicture($picture);
+        if ($file) {
+            return $file;
         }
+        return back()->withErrors(['picture' => 'Unable to download picture']);
+    }
 
-        function processDownloadedPicture(string $filePath): File
-        {
-            return new File($filePath);
+    private function downloadPicture(string $pictureUrl): ?File
+    {
+        $dir = storage_path('app/images');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
         }
-
-        // Download the picture with Guzzle
-        $pictureUrl = $picture;
-        $downloadedFilePath = downloadPicture($pictureUrl);
-        if ($downloadedFilePath) {
-            return processDownloadedPicture($downloadedFilePath);
-        } else {
-            return back()->withErrors(['picture' => 'Unable to download picture']);
+        $tmpFilePath = $dir . '/tmp_' . uniqid() . '.jpg';
+        $response = $this->client->get($pictureUrl, ['sink' => $tmpFilePath]);
+        if ($response->getStatusCode() === 200) {
+            return new File($tmpFilePath);
         }
+        @unlink($tmpFilePath);
+        return null;
     }
 
     /**

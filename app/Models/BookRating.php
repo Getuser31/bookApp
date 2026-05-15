@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -32,9 +33,11 @@ use Illuminate\Support\Carbon;
  */
 class BookRating extends Pivot
 {
+    use HasFactory;
+
     protected $table = 'book_rating';
 
-    protected $fillable = ['book_id', 'user_id', 'rating_id'];
+    protected $fillable = ['book_id', 'user_id', 'rating'];
 
     public function book(): BelongsTo
     {
@@ -64,7 +67,7 @@ class BookRating extends Pivot
      */
     public static function getAverageBookRating(int $user_id): float
     {
-        return self::where('user_id', $user_id)->avg('rating');
+        return self::where('user_id', $user_id)->avg('rating') ?? 0.0;
     }
 
 }

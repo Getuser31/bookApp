@@ -14,8 +14,11 @@ class DropGenreIdForeignKeyAndColumnFromBooksTable extends Migration
     public function up(): void
     {
         Schema::table('books', function (Blueprint $table) {
-            // Drop the foreign key constraint first
-            $table->dropForeign(['genre_id']);
+            // SQLite doesn't support dropForeign, check database driver
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                // Drop the foreign key constraint first
+                $table->dropForeign(['genre_id']);
+            }
 
             // Then drop the genre_id column
             $table->dropColumn('genre_id');

@@ -15,7 +15,9 @@ class UpdateBookRatingTableAndDeleteRatingsTable extends Migration
     {
         Schema::table('book_rating', function (Blueprint $table) {
             // Remove the foreign key constraint and the rating_id column
-            $table->dropForeign(['rating_id']);
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                $table->dropForeign(['rating_id']);
+            }
             $table->dropColumn('rating_id');
 
             // Add the new rating column

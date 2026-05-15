@@ -6,10 +6,11 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -29,4 +30,9 @@ class Author extends Model
     use HasFactory;
 
     protected $fillable = ['name'];
+
+    public function books(): HasMany
+    {
+        return $this->hasMany(Book::class);
+    }
 }

@@ -261,18 +261,76 @@ Book ─────────────────────────
 
 ## Testing
 
+The project includes **127 tests** covering models, API controllers, and edge cases.  
+Tests use an SQLite in-memory database with `RefreshDatabase` — they are fast and self-contained.
+
 ```bash
-# Run all tests
+# Run all tests (127 total)
 docker exec laravel-app php vendor/bin/phpunit
 
-# Unit tests only
+# Unit tests only — models, relationships, helper methods
 docker exec laravel-app php vendor/bin/phpunit --testsuite Unit
 
-# Feature tests only
+# Feature tests only — API endpoints, auth, validation
 docker exec laravel-app php vendor/bin/phpunit --testsuite Feature
 
-# Single file
-docker exec laravel-app php vendor/bin/phpunit tests/Unit/ExampleTest.php
+# Single test file
+docker exec laravel-app php vendor/bin/phpunit tests/Unit/Models/UserTest.php
+docker exec laravel-app php vendor/bin/phpunit tests/Feature/Api/BookControllerTest.php
+```
+
+### Test structure
+
+```
+tests/
+├── Unit/
+│   └── Models/
+│       ├── AuthorTest.php              CRUD, hasMany books
+│       ├── BookRatingTest.php          CRUD, getRating, getAverageBookRating
+│       ├── BookTest.php                CRUD, relationships, BooksStarted/Finished/NotStarted,
+│       │                                filterBooks, getFormattedDate, RetrieveProgression
+│       ├── CollectionTest.php          CRUD, hasMany books
+│       ├── CritiqueTest.php            CRUD, belongsTo user
+│       ├── DefaultLanguageTest.php     CRUD, fillable attributes
+│       ├── GenreTest.php               CRUD, belongsToMany books
+│       ├── IndexPreferenceTest.php     CRUD, fillable attributes
+│       ├── NotesTest.php               CRUD, belongsTo book/user
+│       ├── RoleTest.php                CRUD, hasMany users, getUserRole
+│       ├── UserPreferenceTest.php      CRUD, relationships, getUserPreference
+│       └── UserTest.php                CRUD, relationships, checkAdmin,
+│                                        findByUsername/Email, password hashing
+│
+└── Feature/
+    └── Api/
+        ├── AdminControllerTest.php     Genre/author/book CRUD, user management,
+        │                                authorization, validation errors, 404 handling
+        ├── AuthorControllerTest.php    Get books from author, empty results, auth guard
+        ├── BookControllerTest.php      Index, details, Google Books search, filter,
+        │                                rating, favorite, progression, notes,
+        │                                store/update/delete books
+        └── UserControllerTest.php      Login, register, profile, preferences,
+                                         password updates, auth guard, book statistics
+```
+
+### What's covered
+
+| Category | Coverage |
+|---|---|
+| **Models** | All 11 Eloquent models — factory creation, fillable/hidden attributes, relationships (belongsTo, hasMany, belongsToMany, hasOne, morphs) |
+| **Helper methods** | `Book::BooksStarted()`, `Book::BooksFinished()`, `Book::BooksNotStarted()`, `Book::filterBooks()`, `Book::getFormattedDate()`, `Book::RetrieveProgression()`, `BookRating::getRating()`, `BookRating::getAverageBookRating()`, `Role::getUserRole()`, `User::checkAdmin()`, `User::findByUsername()`, `User::findByEmail()` |
+| **Authentication** | Sanctum token login, registration, password hashing, unauthenticated access rejection |
+| **Authorization** | Admin-only routes, non-admin redirect/block |
+| **Validation** | Invalid data returns 422, duplicate emails return 422, missing required fields |
+| **Error handling** | 404 when resource not found, 400 for invalid operations, 401 for unauthenticated |
+| **Edge cases** | Empty author book list, zero ratings average, null user/email lookup, boolean toggles, 100% progression marks completed_at |
+| **Database** | All pivot tables (`book_user`, `book_genre`, `book_rating`), cascade deletes, unique constraints |
+
+### Troubleshooting
+
+If you see the error `syntax error, unexpected identifier "EXCLUDE_START_DATE"` in the Docker container, the installed Carbon library is too new for PHP 8.2. Rebuild dependencies inside the container:
+
+```bash
+docker exec laravel-app composer update nesbot/carbon --with-all-dependencies
 ```
 
 ---

@@ -56,9 +56,15 @@ class BookController extends Controller
 
     public function bookShow(int $id): JsonResponse
     {
-        $book = Book::with('users', 'author', 'genres')->findOrFail($id);
-        $rating = BookRating::getRating($book->id, auth()->id());
-        $notes = Notes::getNotesForBookAndUser(auth()->id(), $book->id);
+        $authId = auth()->id();
+        $book = Book::with([
+            'users' => fn($q) => $q->where('users.id', $authId),
+            'author',
+            'genres',
+        ])->findOrFail($id);
+
+        $rating = BookRating::getRating($book->id, $authId);
+        $notes = Notes::getNotesForBookAndUser($authId, $book->id);
         if ($rating !== null) {
             $rating = $rating->rating;
         }
@@ -66,13 +72,11 @@ class BookController extends Controller
         $favorite = null;
         $belongToUser = null;
         /** @var User $user */
-        if (isset($book->users)) {
-            $user = $book->users->first();
-            if ($user != null) {
-                $progression = $user->pivot->progression;
-                $favorite = $user->pivot->favorite;
-                $belongToUser = true;
-            }
+        $user = $book->users->first();
+        if ($user !== null) {
+            $progression = $user->pivot->progression;
+            $favorite = $user->pivot->favorite;
+            $belongToUser = true;
         }
 
         return response()->json([
@@ -276,8 +280,11 @@ class BookController extends Controller
      */
     public function library(): JsonResponse
     {
-        $genres = Genre::all()->sortBy('name');
-        $authors = Book::getListOfAuthorsBasedOnUserLibrary(auth()->id());
+        $userId = auth()->id();
+        $genres = Genre::whereHas('books.users', fn($q) => $q->where('users.id', $userId))
+            ->orderBy('name')
+            ->get();
+        $authors = Book::getListOfAuthorsBasedOnUserLibrary($userId);
         $books = Auth()->user()->books()->with(['author', 'genres', 'ratings'])->get();
         return response()->json([
             'books' => $books,
