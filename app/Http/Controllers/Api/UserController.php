@@ -10,12 +10,15 @@ use App\Models\Book;
 use App\Models\BookRating;
 use App\Models\DefaultLanguage;
 use App\Models\IndexPreference;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserPreference;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rules\Password;
 
 class UserController
 {
@@ -54,6 +57,34 @@ class UserController
         } else {
             return Response()->json(['error' => 'Wrong username or password'], 401);
         }
+    }
+
+    public function register(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255|unique:users,name',
+            'email'    => 'required|email|max:255|unique:users,email',
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        $userRole = Role::where('name', 'User')->first();
+
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role_id'  => $userRole?->id,
+        ]);
+
+        UserPreference::create(['user_id' => $user->id]);
+
+        $token = $user->createToken($request->userAgent() ?? 'api', ['*'])->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'user'    => $user,
+            'token'   => $token,
+        ], 201);
     }
 
     /**

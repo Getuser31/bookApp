@@ -12,6 +12,7 @@ use App\Models\Notes;
 use App\Models\User;
 use App\Models\UserPreference;
 use App\Services\GoogleBookService;
+use Illuminate\Support\Facades\Cache;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -84,16 +85,47 @@ class BookController extends Controller
         ]);
     }
 
-    /**
-     * @throws GuzzleException
-     * @throws ValidationException
-     */
+    public function searchGoogleBooks(Request $request): JsonResponse
+    {
+        $title = $request->input('title', '');
+        $author = $request->input('author', '');
+        $language = $request->input('language', 'fr');
+        $startIndex = (int) $request->input('startIndex', 0);
+        $maxResults = (int) $request->input('maxResults', 30);
+
+        $cacheKey = 'google_books_' . md5($title . $author . $language . $startIndex . $maxResults);
+
+        try {
+            $results = Cache::remember($cacheKey, 3600, function () use ($title, $author, $language, $startIndex, $maxResults) {
+                return GoogleBookService::searchBooks($title, $author, $language, $startIndex, $maxResults);
+            });
+            return response()->json($results);
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $status = $e->getResponse()->getStatusCode();
+            if ($status === 429) {
+                return response()->json(['error' => 'Google Books API rate limit exceeded. Please try again later.', 'items' => []], 429);
+            }
+            return response()->json(['error' => 'Failed to fetch books from Google.', 'items' => []], 502);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Search unavailable.', 'items' => []], 500);
+        }
+    }
+
     public function googleBookStore(string $id): JsonResponse
     {
-        $googleBookService = new GoogleBookService($id);
-        $book = $googleBookService->storeBook($id);
-
-        return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);
+        try {
+            $googleBookService = new GoogleBookService($id);
+            $book = $googleBookService->storeBook($id);
+            return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $status = $e->getResponse()->getStatusCode();
+            if ($status === 429) {
+                return response()->json(['error' => 'Google Books API rate limit exceeded. Please try again later.'], 429);
+            }
+            return response()->json(['error' => 'Failed to fetch book from Google.'], 502);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -104,21 +136,30 @@ class BookController extends Controller
      */
     public function filterLibrary(Request $request): JsonResponse
     {
-        $userId = Auth()->id();
-        $authorsId = explode(',', $request->input('authors'));
-        $genresId = explode(',', $request->input('genres'));
+        $userId = Auth::id();
+        $authorIds = array_values(array_filter(explode(',', $request->input('authors') ?? '')));
+        $genreIds = array_values(array_filter(explode(',', $request->input('genres') ?? '')));
+        $search = $request->input('search') ?? '';
+        $perPage = (int) $request->input('per_page', 10);
 
-        if ($authorsId[0] != '' && $genresId['0'] == '') {
-            $books = Book::getListOfBooksFilterByAuthorId($authorsId, $userId);
-        } elseif ($genresId[0] != '' && $authorsId['0'] == '') {
-            $books = Book::getListOfBooksFilterByGenreId($genresId, $userId);
-        } elseif ($authorsId['0'] == '' && $genresId['0'] == '') {
-            $books = Auth()->user()->books()->with(['author', 'genres'])->get()->toArray();
-        } else {
-            $books = Book::getListOfBooksFilterByAuthorIdAndGenreId($authorsId, $genresId, $userId);
-        }
+        $paginator = Book::filterBooks($userId, $authorIds, $genreIds, $search, $perPage);
 
-        return response()->json(['books' => $books]);
+        $books = $paginator->getCollection()->map(function ($book) use ($userId) {
+            $user = $book->users->firstWhere('id', $userId);
+            if ($user) {
+                $book->pivot = (object) ['progression' => $user->pivot->progression];
+            }
+            $book->unsetRelation('users');
+            return $book;
+        });
+
+        return response()->json([
+            'books' => $books,
+            'total' => $paginator->total(),
+            'current_page' => $paginator->currentPage(),
+            'per_page' => $paginator->perPage(),
+            'last_page' => $paginator->lastPage(),
+        ]);
     }
 
     public function updateRating(Request $request): JsonResponse

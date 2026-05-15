@@ -15,6 +15,7 @@ use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 /**
  *
@@ -194,10 +195,35 @@ class Book extends Model
             );
         }
         if ($validatedData['picture'] instanceof UploadedFile) {
-            $path = $validatedData['picture']->store('images');
-            $this->picture = $path;
+            $path = Storage::disk('public')->putFile('images', $validatedData['picture']);
+            $this->picture = 'storage/' . $path;
         }
         return $validatedData;
+    }
+
+    public static function filterBooks(int $userId, array $authorIds = [], array $genreIds = [], string $search = '', int $perPage = 10): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        $query = self::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->with(['genres', 'author', 'ratings', 'users' => function ($query) use ($userId) {
+            $query->where('user_id', $userId)->withPivot('progression', 'favorite', 'completed_at');
+        }]);
+
+        if (!empty($search)) {
+            $query->where('title', 'LIKE', '%' . $search . '%');
+        }
+
+        if (!empty($authorIds)) {
+            $query->whereIn('author_id', $authorIds);
+        }
+
+        if (!empty($genreIds)) {
+            $query->whereHas('genres', function ($query) use ($genreIds) {
+                $query->whereIn('genre_id', $genreIds);
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     public static function getListOfBooksFilterByGenreId(array $genreId, int $userId): array

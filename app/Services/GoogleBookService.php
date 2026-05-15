@@ -26,6 +26,8 @@ class GoogleBookService
 
     private string $url = 'https://www.googleapis.com/books/v1/volumes/';
 
+    private static string $searchUrl = 'https://www.googleapis.com/books/v1/volumes';
+
     public function __construct(string $id)
     {
         $this->client = new Client();
@@ -35,10 +37,43 @@ class GoogleBookService
     /**
      * @throws GuzzleException
      */
+    public static function searchBooks(string $title, string $author = '', string $language = 'fr', int $startIndex = 0, int $maxResults = 30): array
+    {
+        $client = new Client();
+
+        $query = 'intitle:' . str_replace(' ', '+', $title);
+        if (!empty($author)) {
+            $query .= '+inauthor:' . str_replace(' ', '+', $author);
+        }
+
+        $params = [
+            'q'            => $query,
+            'langRestrict' => $language,
+            'startIndex'   => $startIndex,
+            'maxResults'   => $maxResults,
+        ];
+
+        if ($apiKey = env('GOOGLE_BOOKS_API_KEY')) {
+            $params['key'] = $apiKey;
+        }
+
+        $response = $client->request('GET', self::$searchUrl, ['query' => $params]);
+
+        return json_decode($response->getBody(), true) ?? [];
+    }
+
+    /**
+     * @throws GuzzleException
+     */
     public function getBookData(): array
     {
+        $params = [];
+        if ($apiKey = env('GOOGLE_BOOKS_API_KEY')) {
+            $params['query'] = ['key' => $apiKey];
+        }
+
         $url = $this->url . $this->id;
-        $response = $this->client->request('GET', $url);
+        $response = $this->client->request('GET', $url, $params);
         $data = json_decode($response->getBody(), true);
 
         return [

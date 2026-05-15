@@ -1,60 +1,290 @@
-# Project Name
+# My Books Library — Backend API
 
-## Overview
+A Laravel 11 REST API powering a personal book library manager. Users can track reading progress, rate books, write notes, search millions of titles via the Google Books API, and manage their collection by author and genre.
 
-This app is designed to manage your personal book library. It primarily uses the Google Books API, but you can also edit or create your own book entries. It provides useful features to help you quickly check the status of all your books, including progress, ratings, and personal notes. The app is built with PHP/Laravel and vanilla JavaScript in its initial version. 
+---
 
-## Features
+## Table of Contents
 
-- Create and manage your book's library
-- Perform quick search and filtering on your library
-- Add personal notes for each books
+- [Tech Stack](#tech-stack)
+- [Architecture Overview](#architecture-overview)
+- [Getting Started](#getting-started)
+  - [Docker (recommended)](#docker-recommended)
+  - [Local Setup](#local-setup)
+- [Environment Variables](#environment-variables)
+- [API Reference](#api-reference)
+- [Data Model](#data-model)
+- [Testing](#testing)
+- [Code Style](#code-style)
 
-## Installation
+---
 
-Describe the steps required to install the project.
+## Tech Stack
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/your-repo/project-name.git
-    ```
-2. Navigate to the project directory:
-    ```sh
-    cd project-name
-    ```
-3. Install dependencies:
-    ```sh
-    npm install
-    ```
+| Layer | Technology |
+|---|---|
+| Runtime | PHP 8.2 |
+| Framework | Laravel 11 |
+| Authentication | Laravel Sanctum 4 |
+| Database | MySQL 8 |
+| Cache | Redis (via Predis) |
+| Web server | Nginx |
+| Containerisation | Docker / Docker Compose |
+| HTTP Client | Guzzle (Google Books API) |
+| Dev tools | Laravel Telescope, Debugbar, Pint |
 
-## Usage
+---
 
-Provide instructions on how to use the project after installation.
+## Architecture Overview
 
-```sh
-npm run build
+```
+┌──────────────┐        ┌────────────────┐
+│  React SPA   │──────▶ │  Nginx :8000   │
+│  (port 3000) │        └───────┬────────┘
+└──────────────┘                │
+                        ┌───────▼────────┐
+                        │  PHP-FPM :9000 │
+                        │  Laravel 11    │
+                        └───────┬────────┘
+                    ┌───────────┼────────────┐
+             ┌──────▼──┐  ┌────▼────┐  ┌────▼────┐
+             │ MySQL   │  │  Redis  │  │ Google  │
+             │ :3306   │  │  :6379  │  │ Books   │
+             └─────────┘  └─────────┘  │   API   │
+                                       └─────────┘
 ```
 
-## Contributing
+**Request flow**
+- `OPTIONS` preflight requests are handled directly by Nginx (no PHP overhead).
+- All other requests are proxied to PHP-FPM via FastCGI.
+- Authentication uses Laravel Sanctum — session-based for web, Bearer token for the API.
+- Google Books search results are cached in Redis for 1 hour to avoid rate-limit issues.
+- Book cover images are downloaded from Google and stored in `storage/app/public/images`, served via the `storage/` symlink.
 
-Explain how others can contribute to your project.
+**Roles**
+- `User` — can manage their own library, ratings, notes, and preferences.
+- `Admin` — all of the above plus genre / author / book / user administration via the `CheckAdminRole` middleware.
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature-branch`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin feature-branch`)
-5. Create a new Pull Request
+---
 
-## License
+## Getting Started
 
-Define the license under which the project is distributed.
+### Docker (recommended)
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+> Requires Docker and Docker Compose.
 
-## Credits
+```bash
+# 1. Clone the repo
+git clone <repo-url>
+cd bookApp
 
-Acknowledge the people or organizations who have contributed to the project.
+# 2. Copy and configure environment
+cp .env.example .env
+# Fill in GOOGLE_BOOKS_API_KEY and any other values (see below)
 
-- Contributor 1
-- Contributor 2
-- Contributor 3
+# 3. Start all services
+docker-compose up -d
+
+# 4. Install PHP dependencies
+docker exec laravel-app composer install
+
+# 5. Generate app key
+docker exec laravel-app php artisan key:generate
+
+# 6. Run migrations and seeders
+docker exec laravel-app php artisan migrate --seed
+
+# 7. Create the storage symlink (for book cover images)
+docker exec laravel-app php artisan storage:link
+```
+
+The API is now available at **http://localhost:8000**.
+
+**Services started by Docker Compose:**
+
+| Service | Port | Description |
+|---|---|---|
+| Nginx | 8000 | Web server / reverse proxy |
+| PHP-FPM | 9000 | Laravel application |
+| MySQL | 3306 | Primary database |
+| Redis | 6379 | Cache store |
+
+---
+
+### Local Setup
+
+> Requires PHP 8.2+, Composer, MySQL, and Redis.
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+
+# Configure your .env DB_* and REDIS_* values, then:
+php artisan migrate --seed
+php artisan storage:link
+
+php artisan serve        # API on http://localhost:8000
+```
+
+---
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and set the values below.
+
+| Variable | Description | Example |
+|---|---|---|
+| `APP_NAME` | Application name | `My Books Library` |
+| `APP_ENV` | Environment | `local` / `production` |
+| `APP_KEY` | Laravel encryption key — generated by `artisan key:generate` | — |
+| `APP_URL` | Backend base URL | `http://localhost:8000` |
+| `DB_HOST` | MySQL host | `mysql` (Docker) / `127.0.0.1` (local) |
+| `DB_PORT` | MySQL port | `3306` |
+| `DB_DATABASE` | Database name | `laravel` |
+| `DB_USERNAME` | Database user | `laravel` |
+| `DB_PASSWORD` | Database password | `laravel` |
+| `REDIS_CLIENT` | Redis driver | `predis` |
+| `REDIS_HOST` | Redis host | `redis` (Docker) / `127.0.0.1` (local) |
+| `REDIS_PORT` | Redis port | `6379` |
+| `GOOGLE_BOOKS_API_KEY` | Google Books API key — get one at [console.cloud.google.com](https://console.cloud.google.com) | `AIza...` |
+| `SANCTUM_STATEFUL_DOMAINS` | Frontend domain(s) for Sanctum cookie auth | `localhost:3000` |
+
+---
+
+## API Reference
+
+Base URL: `http://localhost:8000/api`
+
+### Authentication
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/sanctum/csrf-cookie` | Get CSRF cookie (required before login) | Public |
+| POST | `/login` | Log in — returns Bearer token | Public |
+| POST | `/register` | Create a new account | Public |
+
+### Books
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/index` | Get user's books (respects index preference) |
+| GET | `/book/{id}` | Get a single book with rating, notes, and progression |
+| POST | `/storeBook` | Create a new book manually |
+| POST | `/updateBook/{id}` | Update an existing book |
+| DELETE | `/removeBook/{id}` | Remove a book from the user's library |
+| GET | `/library` | Get full library with genres and authors for filtering |
+| GET | `/filterLibrary` | Paginated and filtered book list |
+
+### Google Books
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/searchGoogleBooks` | Search Google Books API (`?title=&author=&language=`) |
+| GET | `/addGoogleBook/{googleId}` | Import a Google Book into the library |
+
+### Reading Tracking
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/updateProgression` | Set reading progress (1–100%) |
+| POST | `/updateRating` | Rate a book (1–10) |
+| POST | `/updateFavorite` | Toggle favourite flag |
+| POST | `/storeNote` | Add a note to a book |
+
+### Authors & Genres
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/getAuthors` | List all authors |
+| GET | `/getGenres` | List all genres |
+| POST | `/storeAuthor` | Create an author |
+| GET | `/getBookFromAuthor/{id}` | Get books by a specific author |
+
+### User & Preferences
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/userProfile` | Get profile, preferences, and reading stats |
+| POST | `/updateUserData` | Update name and email |
+| POST | `/updatePassword` | Change password |
+| POST | `/updateIndexPreference` | Change home page sort order |
+| POST | `/updateLanguage` | Change default search language |
+
+### Admin *(requires Admin role)*
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/handleGenre` | List all genres |
+| POST | `/addNewGenre` | Create genre |
+| POST | `/updateGenre/{id}` | Update genre |
+| DELETE | `/deleteGenre/{id}` | Delete genre |
+| GET | `/handleAuthors` | List all authors |
+| POST | `/addNewAuthor` | Create author |
+| POST | `/updateAuthor/{id}` | Update author |
+| DELETE | `/deleteAuthor/{id}` | Delete author |
+| GET | `/handleBooks` | List all books |
+| DELETE | `/deleteBook/{id}` | Hard-delete a book |
+| GET | `/handleUsers` | List all users |
+
+---
+
+## Data Model
+
+```
+User ──────────────────────────────────────────────┐
+  │                                                 │
+  ├── UserPreference (index pref, language)         │
+  │                                                 │
+  └── books (many-to-many via book_user)            │
+        ├── pivot: progression (0–100)              │
+        ├── pivot: favorite (bool)                  │
+        └── pivot: completed_at                     │
+                                                    │
+Book ───────────────────────────────────────────────┘
+  ├── author_id ──▶ Author
+  ├── genres (many-to-many via book_genre) ──▶ Genre
+  ├── BookRating (user_id, book_id, rating 1–10)
+  ├── Notes (user_id, book_id, content)
+  ├── picture (stored in storage/app/public/images)
+  └── google_id (nullable, links to Google Books)
+```
+
+**Key model methods**
+
+- `Book::filterBooks($userId, $authorIds, $genreIds, $search, $perPage)` — paginated filtered query.
+- `Book::getBooksFromUserOrderByRatingDesc($userId)` — used by index preference 4.
+- `BookRating::getRating($bookId, $userId)` — fetch a user's rating for a book.
+- `Notes::getNotesForBookAndUser($userId, $bookId)` — fetch all notes for a book.
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+docker exec laravel-app php vendor/bin/phpunit
+
+# Unit tests only
+docker exec laravel-app php vendor/bin/phpunit --testsuite Unit
+
+# Feature tests only
+docker exec laravel-app php vendor/bin/phpunit --testsuite Feature
+
+# Single file
+docker exec laravel-app php vendor/bin/phpunit tests/Unit/ExampleTest.php
+```
+
+---
+
+## Code Style
+
+This project uses **Laravel Pint** (PSR-12 preset).
+
+```bash
+# Fix all style issues
+docker exec laravel-app ./vendor/bin/pint
+
+# Dry run (show what would change)
+docker exec laravel-app ./vendor/bin/pint --test
+```
