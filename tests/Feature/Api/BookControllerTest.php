@@ -393,4 +393,342 @@ class BookControllerTest extends TestCase
             'book_id' => $book->id,
         ]);
     }
+
+    // ------------------------------
+    // Sort Functionality Tests
+    // ------------------------------
+
+    /** @test */
+    public function filter_library_sorts_by_title_ascending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookA = Book::factory()->create([
+            'title' => 'A Great Book',
+            'author_id' => $this->author->id,
+        ]);
+        $bookB = Book::factory()->create([
+            'title' => 'Best Book Ever',
+            'author_id' => $this->author->id,
+        ]);
+        $bookC = Book::factory()->create([
+            'title' => 'Z Any Book',
+            'author_id' => $this->author->id,
+        ]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'title',
+            'sort_dir' => 'asc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+        $this->assertEquals('A Great Book', $books[0]['title']);
+        $this->assertEquals('Best Book Ever', $books[1]['title']);
+        $this->assertEquals('Z Any Book', $books[2]['title']);
+    }
+
+    /** @test */
+    public function filter_library_sorts_by_title_descending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookA = Book::factory()->create([
+            'title' => 'A Great Book',
+            'author_id' => $this->author->id,
+        ]);
+        $bookB = Book::factory()->create([
+            'title' => 'Best Book Ever',
+            'author_id' => $this->author->id,
+        ]);
+        $bookC = Book::factory()->create([
+            'title' => 'Z Any Book',
+            'author_id' => $this->author->id,
+        ]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'title',
+            'sort_dir' => 'desc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+        $this->assertEquals('Z Any Book', $books[0]['title']);
+        $this->assertEquals('Best Book Ever', $books[1]['title']);
+        $this->assertEquals('A Great Book', $books[2]['title']);
+    }
+
+    /** @test */
+    public function filter_library_sorts_by_author_name_ascending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $authorA = Author::factory()->create(['name' => 'Adam Smith']);
+        $authorB = Author::factory()->create(['name' => 'Bob Jones']);
+        $authorC = Author::factory()->create(['name' => 'Charlie Brown']);
+
+        $bookA = Book::factory()->create(['title' => 'Book A', 'author_id' => $authorA->id]);
+        $bookB = Book::factory()->create(['title' => 'Book B', 'author_id' => $authorB->id]);
+        $bookC = Book::factory()->create(['title' => 'Book C', 'author_id' => $authorC->id]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'author',
+            'sort_dir' => 'asc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+        $this->assertEquals('Adam Smith', $books[0]['author']['name']);
+        $this->assertEquals('Bob Jones', $books[1]['author']['name']);
+        $this->assertEquals('Charlie Brown', $books[2]['author']['name']);
+    }
+
+    /** @test */
+    public function filter_library_sorts_by_author_name_descending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $authorA = Author::factory()->create(['name' => 'Adam Smith']);
+        $authorB = Author::factory()->create(['name' => 'Bob Jones']);
+        $authorC = Author::factory()->create(['name' => 'Charlie Brown']);
+
+        $bookA = Book::factory()->create(['title' => 'Book A', 'author_id' => $authorA->id]);
+        $bookB = Book::factory()->create(['title' => 'Book B', 'author_id' => $authorB->id]);
+        $bookC = Book::factory()->create(['title' => 'Book C', 'author_id' => $authorC->id]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'author',
+            'sort_dir' => 'desc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+        $this->assertEquals('Charlie Brown', $books[0]['author']['name']);
+        $this->assertEquals('Bob Jones', $books[1]['author']['name']);
+        $this->assertEquals('Adam Smith', $books[2]['author']['name']);
+    }
+
+    /** @test */
+    public function filter_library_sorts_by_rating_ascending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookA = Book::factory()->create(['title' => 'Book A', 'author_id' => $this->author->id]);
+        $bookB = Book::factory()->create(['title' => 'Book B', 'author_id' => $this->author->id]);
+        $bookC = Book::factory()->create(['title' => 'Book C', 'author_id' => $this->author->id]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        // Set ratings
+        BookRating::create(['book_id' => $bookA->id, 'user_id' => $this->user->id, 'rating' => 3]);
+        BookRating::create(['book_id' => $bookB->id, 'user_id' => $this->user->id, 'rating' => 7]);
+        BookRating::create(['book_id' => $bookC->id, 'user_id' => $this->user->id, 'rating' => 5]);
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'rating',
+            'sort_dir' => 'asc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+
+        // Filter out books that have no rating (null values) - ratings is a relation array
+        $ratedBooks = array_values(array_filter($books, fn($b) => !empty($b['ratings'])));
+
+        $this->assertCount(3, $ratedBooks);
+        $this->assertEquals(3, $ratedBooks[0]['ratings'][0]['rating']);
+        $this->assertEquals(5, $ratedBooks[1]['ratings'][0]['rating']);
+        $this->assertEquals(7, $ratedBooks[2]['ratings'][0]['rating']);
+    }
+
+    /** @test */
+    public function filter_library_sorts_by_rating_descending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookA = Book::factory()->create(['title' => 'Book A', 'author_id' => $this->author->id]);
+        $bookB = Book::factory()->create(['title' => 'Book B', 'author_id' => $this->author->id]);
+        $bookC = Book::factory()->create(['title' => 'Book C', 'author_id' => $this->author->id]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        // Set ratings
+        BookRating::create(['book_id' => $bookA->id, 'user_id' => $this->user->id, 'rating' => 3]);
+        BookRating::create(['book_id' => $bookB->id, 'user_id' => $this->user->id, 'rating' => 7]);
+        BookRating::create(['book_id' => $bookC->id, 'user_id' => $this->user->id, 'rating' => 5]);
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'rating',
+            'sort_dir' => 'desc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+
+        // Filter out books that have no rating (null values) - ratings is a relation array
+        $ratedBooks = array_values(array_filter($books, fn($b) => !empty($b['ratings'])));
+
+        $this->assertCount(3, $ratedBooks);
+        $this->assertEquals(7, $ratedBooks[0]['ratings'][0]['rating']);
+        $this->assertEquals(5, $ratedBooks[1]['ratings'][0]['rating']);
+        $this->assertEquals(3, $ratedBooks[2]['ratings'][0]['rating']);
+    }
+
+    /** @test */
+    public function filter_library_sorts_by_progress_ascending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookA = Book::factory()->create(['title' => 'Book A', 'author_id' => $this->author->id]);
+        $bookB = Book::factory()->create(['title' => 'Book B', 'author_id' => $this->author->id]);
+        $bookC = Book::factory()->create(['title' => 'Book C', 'author_id' => $this->author->id]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+        }
+
+        $this->user->books()->attach($bookA, ['progression' => 10]);
+        $this->user->books()->attach($bookB, ['progression' => 100]);
+        $this->user->books()->attach($bookC, ['progression' => 50]);
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'progress',
+            'sort_dir' => 'asc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+
+        $this->assertEquals(10, $books[0]['pivot']['progression']);
+        $this->assertEquals(50, $books[1]['pivot']['progression']);
+        $this->assertEquals(100, $books[2]['pivot']['progression']);
+    }
+
+    /** @test */
+    public function filter_library_sorts_by_progress_descending()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookA = Book::factory()->create(['title' => 'Book A', 'author_id' => $this->author->id]);
+        $bookB = Book::factory()->create(['title' => 'Book B', 'author_id' => $this->author->id]);
+        $bookC = Book::factory()->create(['title' => 'Book C', 'author_id' => $this->author->id]);
+
+        foreach ([$bookA, $bookB, $bookC] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+        }
+
+        $this->user->books()->attach($bookA, ['progression' => 10]);
+        $this->user->books()->attach($bookB, ['progression' => 100]);
+        $this->user->books()->attach($bookC, ['progression' => 50]);
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'progress',
+            'sort_dir' => 'desc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+
+        $this->assertEquals(100, $books[0]['pivot']['progression']);
+        $this->assertEquals(50, $books[1]['pivot']['progression']);
+        $this->assertEquals(10, $books[2]['pivot']['progression']);
+    }
+
+    /** @test */
+    public function filter_library_defaults_to_title_asc_when_invalid_sort_by()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookB = Book::factory()->create([
+            'title' => 'Beta Book',
+            'author_id' => $this->author->id,
+        ]);
+        $bookA = Book::factory()->create([
+            'title' => 'Alpha Book',
+            'author_id' => $this->author->id,
+        ]);
+
+        foreach ([$bookA, $bookB] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'invalid_field',
+            'sort_dir' => 'asc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+        // Should default to title asc when sort_by is invalid
+        $this->assertEquals('Alpha Book', $books[0]['title']);
+        $this->assertEquals('Beta Book', $books[1]['title']);
+    }
+
+    /** @test */
+    public function filter_library_preserves_sort_dir_when_sort_by_is_invalid()
+    {
+        Sanctum::actingAs($this->user);
+
+        $bookB = Book::factory()->create([
+            'title' => 'Beta Book',
+            'author_id' => $this->author->id,
+        ]);
+        $bookA = Book::factory()->create([
+            'title' => 'Alpha Book',
+            'author_id' => $this->author->id,
+        ]);
+
+        foreach ([$bookA, $bookB] as $book) {
+            $book->genres()->attach([$this->genre1->id]);
+            $this->user->books()->attach($book, ['progression' => 0, 'favorite' => false]);
+        }
+
+        $response = $this->postJson('/api/filterLibrary', [
+            'sort_by' => 'invalid_field',
+            'sort_dir' => 'desc',
+            'per_page' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $books = $response->json('books');
+        // Should default to title with desc direction from the explicit sort_dir
+        $this->assertEquals('Beta Book', $books[0]['title']);
+        $this->assertEquals('Alpha Book', $books[1]['title']);
+    }
 }

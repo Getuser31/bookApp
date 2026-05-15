@@ -15,6 +15,7 @@ use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -201,26 +202,50 @@ class Book extends Model
         return $validatedData;
     }
 
-    public static function filterBooks(int $userId, array $authorIds = [], array $genreIds = [], string $search = '', int $perPage = 10): \Illuminate\Pagination\LengthAwarePaginator
+    public static function filterBooks(int $userId, array $authorIds = [], array $genreIds = [], string $search = '', int $perPage = 10, string $sortBy = 'title', string $sortDir = 'asc'): \Illuminate\Pagination\LengthAwarePaginator
     {
-        $query = self::whereHas('users', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->with(['genres', 'author', 'ratings', 'users' => function ($query) use ($userId) {
-            $query->where('user_id', $userId)->withPivot('progression', 'favorite', 'completed_at');
-        }]);
+        $dir = $sortDir === 'desc' ? 'desc' : 'asc';
+
+        $query = self::select('books.*')
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })->with(['genres', 'author', 'ratings', 'users' => function ($query) use ($userId) {
+                $query->where('user_id', $userId)->withPivot('progression', 'favorite', 'completed_at');
+            }]);
 
         if (!empty($search)) {
-            $query->where('title', 'LIKE', '%' . $search . '%');
+            $query->where('books.title', 'LIKE', '%' . $search . '%');
         }
 
         if (!empty($authorIds)) {
-            $query->whereIn('author_id', $authorIds);
+            $query->whereIn('books.author_id', $authorIds);
         }
 
         if (!empty($genreIds)) {
             $query->whereHas('genres', function ($query) use ($genreIds) {
                 $query->whereIn('genre_id', $genreIds);
             });
+        }
+
+        switch ($sortBy) {
+            case 'author':
+                $query->leftJoin('authors', 'books.author_id', '=', 'authors.id')
+                      ->orderBy('authors.name', $dir);
+                break;
+            case 'rating':
+                $query->leftJoin('book_rating as br_sort', function ($join) use ($userId) {
+                    $join->on('books.id', '=', 'br_sort.book_id')
+                         ->where('br_sort.user_id', '=', $userId);
+                })->orderByRaw("CASE WHEN br_sort.rating IS NULL THEN 1 ELSE 0 END, br_sort.rating $dir");
+                break;
+            case 'progress':
+                $query->leftJoin('book_user as bu_sort', function ($join) use ($userId) {
+                    $join->on('books.id', '=', 'bu_sort.book_id')
+                         ->where('bu_sort.user_id', '=', $userId);
+                })->orderByRaw("CASE WHEN bu_sort.progression IS NULL THEN 1 ELSE 0 END, bu_sort.progression $dir");
+                break;
+            default:
+                $query->orderBy('books.title', $dir);
         }
 
         return $query->paginate($perPage);

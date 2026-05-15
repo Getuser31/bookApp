@@ -145,8 +145,10 @@ class BookController extends Controller
         $genreIds = array_values(array_filter(explode(',', $request->input('genres') ?? '')));
         $search = $request->input('search') ?? '';
         $perPage = (int) $request->input('per_page', 10);
+        $sortBy  = in_array($request->input('sort_by'), ['title', 'author', 'rating', 'progress']) ? $request->input('sort_by') : 'title';
+        $sortDir = $request->input('sort_dir') === 'desc' ? 'desc' : 'asc';
 
-        $paginator = Book::filterBooks($userId, $authorIds, $genreIds, $search, $perPage);
+        $paginator = Book::filterBooks($userId, $authorIds, $genreIds, $search, $perPage, $sortBy, $sortDir);
 
         $books = $paginator->getCollection()->map(function ($book) use ($userId) {
             $user = $book->users->firstWhere('id', $userId);
