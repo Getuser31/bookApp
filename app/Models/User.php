@@ -138,6 +138,11 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function userPreferences(): HasOne
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+
     /**
      * Find a user by username.
      *

@@ -44,6 +44,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('updateLanguage', [UserController::class, 'updateLanguage'])
         ->name('api.updateLanguage');
 
+    Route::post('updateAppLanguage', [UserController::class, 'updateAppLanguage'])
+        ->name('api.updateAppLanguage');
+
     Route::get('userProfile', [UserController::class, 'userProfile'])
         ->name('api.userProfile');
 

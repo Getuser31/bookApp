@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $language
@@ -35,7 +35,7 @@ class UserPreference extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['default_language_id', 'user_id', 'index_preference_id'];
+    protected $fillable = ['default_language_id', 'user_id', 'index_preference_id', 'app_language'];
 
     protected $attributes = [
         'default_language_id' => 1, // Default language ID, set to 1

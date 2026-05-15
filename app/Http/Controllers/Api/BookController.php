@@ -93,7 +93,8 @@ class BookController extends Controller
     {
         $title = $request->input('title', '');
         $author = $request->input('author', '');
-        $language = $request->input('language', 'fr');
+        $userPref = UserPreference::getUserPreference(Auth::id());
+        $language = $request->input('language', $userPref?->defaultLanguage?->language ?? 'en');
         $startIndex = (int) $request->input('startIndex', 0);
         $maxResults = (int) $request->input('maxResults', 30);
 
@@ -395,7 +396,7 @@ class BookController extends Controller
      */
     private function migrateBookAttributes(mixed $validatedData, Model|Collection|array|Book $book, Book $newBook, User|Authenticatable|null $user): void
     {
-        if (!isset($validatedData['picture'])) { // We need to transfer original picture @todo upload a copy to avoid problem when delete original picture
+        if (!isset($validatedData['picture'])) {
             $newBook->picture = $book->picture;
             $newBook->save();
         }

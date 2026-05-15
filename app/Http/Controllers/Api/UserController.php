@@ -50,9 +50,11 @@ class UserController
 
             // Store Token in Session
             Session::put('api_token', $token);
+            $user->load('userPreferences');
             return response()->json([
                 'success' => 'login successful',
                 'user' => $user,
+                'user_preferences' => $userPreference,
                 'token' => $token], 200);
         } else {
             return Response()->json(['error' => 'Wrong username or password'], 401);
@@ -177,6 +179,30 @@ class UserController
         $user->update($request->validated());
 
         return response()->json(['success' => true, 'message' => 'Personal data successfully updated!']) ;
+    }
+
+    /**
+     * Updates the app UI language preference for the authenticated user.
+     */
+    public function updateAppLanguage(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'app_language' => 'required|string|max:5',
+        ]);
+
+        $user = Auth::user();
+        $userPreference = UserPreference::getUserPreference($user->id);
+
+        if ($userPreference) {
+            $userPreference->update(['app_language' => $validated['app_language']]);
+        } else {
+            UserPreference::create([
+                'user_id'      => $user->id,
+                'app_language' => $validated['app_language'],
+            ]);
+        }
+
+        return response()->json(['success' => true, 'app_language' => $validated['app_language']]);
     }
 
     /**
