@@ -13,18 +13,18 @@ class UpdateBookRatingTableAndDeleteRatingsTable extends Migration
      */
     public function up()
     {
-        Schema::table('book_rating', function (Blueprint $table) {
-            // Remove the foreign key constraint and the rating_id column
-            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
-                $table->dropForeign(['rating_id']);
-            }
-            $table->dropColumn('rating_id');
+        if (Schema::hasColumn('book_rating', 'rating_id')) {
+            Schema::table('book_rating', function (Blueprint $table) {
+                $table->dropColumn('rating_id');
+            });
+        }
 
-            // Add the new rating column
-            $table->integer('rating')->between(0, 10)->after('user_id'); // add the column after user_id for better readability
-        });
+        if (!Schema::hasColumn('book_rating', 'rating')) {
+            Schema::table('book_rating', function (Blueprint $table) {
+                $table->integer('rating')->after('user_id');
+            });
+        }
 
-        // Drop the rating table
         Schema::dropIfExists('ratings');
     }
 

@@ -23,7 +23,7 @@ services:
         networks:
             - laravel
         healthcheck:
-            test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
+            test: [ "CMD", "php-fpm", "-t" ]
             interval: 10s
             timeout: 5s
             retries: 5
