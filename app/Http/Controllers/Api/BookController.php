@@ -129,7 +129,7 @@ class BookController extends Controller
             }
             return response()->json(['error' => 'Failed to fetch book from Google.'], 502);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'An error occurred'], 500);
         }
     }
 
@@ -204,7 +204,7 @@ class BookController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 400);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'An error occurred'], 500);
         }
     }
 
@@ -223,7 +223,7 @@ class BookController extends Controller
             $user = Auth::user();
             $user->books()->updateExistingPivot($book, ['favorite' => $favorite]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred']);
         }
 
         return response()->json(['success' => true]);
@@ -258,7 +258,7 @@ class BookController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 400);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'An error occurred'], 500);
         }
     }
 
@@ -333,7 +333,7 @@ class BookController extends Controller
         try {
             $author->save();
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred']);
         }
         return response()->json(['success' => true, 'message' => 'author added to library', 'id' => $author->id]);
 
@@ -353,7 +353,7 @@ class BookController extends Controller
         try {
             $book->storeFromRequest($validatedData);
         } catch (Exception $e){
-            return response()->json(['error' => $e->getMessage()]);
+            return response()->json(['error' => 'An error occurred']);
         }
         return response()->json(['success' => true, 'message' => 'book added to library', 'id' => $book->id]);
     }

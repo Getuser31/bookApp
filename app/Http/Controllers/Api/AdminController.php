@@ -151,7 +151,7 @@ class AdminController
             $book->delete();
         } catch (\Exception $e) {
             // Return 500 status for server error
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'An error occurred'], 500);
         }
 
         // Return 200 status (default) for success

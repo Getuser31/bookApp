@@ -75,7 +75,7 @@ class UserController
             'name'     => $validated['name'],
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role_id'  => $userRole?->id,
+            'role_id'  => $userRole,
         ]);
 
         UserPreference::create(['user_id' => $user->id]);
