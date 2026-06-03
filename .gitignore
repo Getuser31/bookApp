@@ -22,3 +22,4 @@ yarn-error.log
 /public/images/
 /public/json
 /public/images
+/storage/logs/xdebug.log

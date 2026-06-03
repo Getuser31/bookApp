@@ -145,8 +145,6 @@ return [
         /*
          * Application Service Providers...
          */
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
-        Barryvdh\Debugbar\ServiceProvider::class,
 
     ])->toArray(),
 
@@ -162,7 +160,6 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ])->toArray(),
 
 
