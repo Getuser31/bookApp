@@ -72,7 +72,7 @@ class AdminControllerTest extends TestCase
 
         $response = $this->getJson('/api/handleGenre');
 
-        $response->assertStatus(302); // Redirected because middleware redirects non-admins
+        $response->assertStatus(403); // Forbidden because middleware restricts non-admins
     }
 
     /** @test */
