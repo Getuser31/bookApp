@@ -11,7 +11,7 @@ use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 
 Route::group(['middleware' => 'api'], function () {
     // CSRF cookie endpoint
-    Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show'])->name('sanctum.csrf-cookie');
+    Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show'])->name('api.sanctum.csrf-cookie');
     Route::post('/login', [UserController::class, 'login'])->name('api.login');
     Route::post('/register', [UserController::class, 'register'])->name('api.register');
 });
