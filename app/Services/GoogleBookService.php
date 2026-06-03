@@ -54,7 +54,7 @@ class GoogleBookService
             'maxResults'   => $maxResults,
         ];
 
-        if ($apiKey = env('GOOGLE_BOOKS_API_KEY')) {
+        if ($apiKey = config('services.google.books_api_key')) {
             $params['key'] = $apiKey;
         }
 
@@ -69,7 +69,7 @@ class GoogleBookService
     public function getBookData(): array
     {
         $params = [];
-        if ($apiKey = env('GOOGLE_BOOKS_API_KEY')) {
+        if ($apiKey = config('services.google.books_api_key')) {
             $params['query'] = ['key' => $apiKey];
         }
 
