@@ -94,9 +94,11 @@ class UserControllerTest extends TestCase
             ])
             ->assertJson(['success' => true]);
 
+        $userRole = Role::where('name', 'User')->first();
         $this->assertDatabaseHas('users', [
             'name' => 'NewUser',
             'email' => 'newuser@example.com',
+            'role_id' => $userRole->id,
         ]);
     }
 
